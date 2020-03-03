@@ -1,0 +1,30 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>MSFVenom</title>
+</head><body>Usage: /usr/bin/msfvenom [options] &lt;var=val&gt;<br/>
+<br/>
+Options:<br/>
+  -p, --payload    &lt;payload&gt;  Payload to use. Specify a '-' or stdin to use custom payloads<br/>
+    --payload-options      List the payload's standard options<br/>
+  -l, --list     [type]    List a module type. Options are: payloads, encoders, nops, all<br/>
+  -n, --nopsled    &lt;length&gt;   Prepend a nopsled of [length] size on to the payload<br/>
+  -f, --format    &lt;format&gt;   Output format (use --help-formats for a list)<br/>
+    --help-formats        List available formats<br/>
+  -e, --encoder    &lt;encoder&gt;  The encoder to use<br/>
+  -a, --arch     &lt;arch&gt;    The architecture to use<br/>
+    --platform   &lt;platform&gt;  The platform of the payload<br/>
+    --help-platforms       List available platforms<br/>
+  -s, --space     &lt;length&gt;   The maximum size of the resulting payload<br/>
+    --encoder-space &lt;length&gt;   The maximum size of the encoded payload (defaults to the -s value)<br/>
+  -b, --bad-chars   &lt;list&gt;    The list of characters to avoid example: '\x00\xff'<br/>
+  -i, --iterations  &lt;count&gt;   The number of times to encode the payload<br/>
+  -c, --add-code   &lt;path&gt;    Specify an additional win32 shellcode file to include<br/>
+  -x, --template   &lt;path&gt;    Specify a custom executable file to use as a template<br/>
+  -k, --keep            Preserve the template behavior and inject the payload as a new thread<br/>
+  -o, --out      &lt;path&gt;    Save the payload<br/>
+  -v, --var-name   &lt;name&gt;    Specify a custom variable name to use for certain output formats<br/>
+    --smallest          Generate the smallest possible payload<br/>
+  -t, --timeout    &lt;second&gt;   The number of seconds to wait when reading the payload from STDIN (default 30, 0 to disable).<br/>
+  -h, --help            Show this message<br/>
+</body></html>

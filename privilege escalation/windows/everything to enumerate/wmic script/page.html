@@ -1,0 +1,21 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>WMIC Script</title>
+</head><body>REM Useful WMIC Enumeration script.bat from fuzzysecurity.com/tutorials/16<br/>
+<br/>
+for /f &quot;delims=&quot; %%A in ('dir /s /b %WINDIR%\system32\*htable.xsl') do set &quot;var=%%A&quot;<br/>
+<br/>
+wmic process get CSName,Description,ExecutablePath,ProcessId /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic service get Caption,Name,PathName,ServiceType,Started,StartMode,StartName /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic USERACCOUNT list full /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic group list full /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic nicconfig where IPEnabled='true' get Caption,DefaultIPGateway,Description,DHCPEnabled,DHCPServer,IPAddress,IPSubnet,MACAddress /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic volume get Label,DeviceID,DriveLetter,FileSystem,Capacity,FreeSpace /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic netuse list full /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic qfe get Caption,Description,HotFixID,InstalledOn /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic startup get Caption,Command,Location,User /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic PRODUCT get Description,InstallDate,InstallLocation,PackageCache,Vendor,Version /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic os get name,version,InstallDate,LastBootUpTime,LocalDateTime,Manufacturer,RegisteredUser,ServicePackMajorVersion,SystemDirectory /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+wmic Timezone get DaylightName,Description,StandardName /format:&quot;%var%&quot; &gt;&gt; out.html<br/>
+</body></html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Convert Hash to HC Format</title>
+</head><body>#hexhosts.c<br/>
+<br/>
+<br/>
+#define _GNU_SOURCE<br/>
+#include &quot;&quot; <br/>
+#include &quot;&quot;<br/>
+int main(void)  {<br/>
+  <br/>
+  FILE *fp;<br/>
+  char *line = NULL;<br/>
+  char *pch = NULL;<br/>
+  char *pch2 = NULL;<br/>
+  unsigned char b64[24];<br/>
+  size_t len = 0;<br/>
+  ssize_t read;<br/>
+  <br/>
+  fp = fopen(&quot;known_hosts&quot;, &quot;r&quot;);<br/>
+  <br/>
+  if (fp == NULL)<br/>
+  return 1;<br/>
+  <br/>
+  while ((read = getline(&amp;line, &amp;len, fp)) != -1)  {<br/>
+    pch=strtok(line+3,&quot; &quot;);<br/>
+    pch=strtok(pch,&quot;|&quot;);<br/>
+    pch2=strtok(NULL,&quot;|&quot;);<br/>
+    __b64_pton(pch2,b64,sizeof(b64));<br/>
+    <br/>
+    for (int i=0; i&lt;20; i++)  {<br/>
+      printf(&quot;%02x&quot;, b64[i]);<br/>
+    }<br/>
+    <br/>
+    printf(&quot;:&quot;);<br/>
+    __b64_pton(pch,b64,sizeof(b64));<br/>
+    <br/>
+    for (int i=0; i&lt;20; i++)  {<br/>
+      printf(&quot;%02x&quot;, b64[i]);<br/>
+    }<br/>
+    <br/>
+    printf(&quot;n&quot;);<br/>
+  }<br/>
+  <br/>
+  return 0;<br/>
+}</body></html>

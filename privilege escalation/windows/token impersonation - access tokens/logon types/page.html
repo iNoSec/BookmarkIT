@@ -1,0 +1,19 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Logon Types</title>
+</head><body>Logon type 	Logon title 		Description<br/>
+0			System Only		<br/>
+1			Unknown<br/>
+2			Interactive		A user logged on to this computer.<br/>
+3			Network			A user or computer logged on to this computer from the network.<br/>
+4			Batch			Batch logon type is used by batch servers, where processes may be executing on behalf of a user without their direct intervention.<br/>
+5			Service			A service was started by the Service Control Manager.<br/>
+7			Unlock			This workstation was unlocked.<br/>
+8			NetworkCleartext	A user logged on to this computer from the network. The user's password was passed to the authentication package in its unhashed form. The built-in authentication packages all hash credentials before sending them across the network. The credentials do not traverse the network in plaintext (also called cleartext).<br/>
+<br/>
+9			NewCredentials	A caller cloned its current token and specified new credentials for outbound connections. The new logon session has the same local identity, but uses different credentials for other network connections.<br/>
+10			RemoteInteractive	A user logged on to this computer remotely using Terminal Services or Remote Desktop.<br/>
+11			CachedInteractive	A user logged on to this computer with network credentials that were stored locally on the computer. The domain controller was not contacted to verify the credentials.<br/>
+12			CachedRemoteInteractive<br/>
+13 			CachedUnlock</body></html>

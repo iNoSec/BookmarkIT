@@ -1,0 +1,554 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Windows Event Log IDs</title>
+</head><body>https://support.microsoft.com/en-us/help/977519/description-of-security-events-in-windows-7-and-in-windows-server-2008<br/>
+<br/>
+NTRODUCTION<br/>
+This article describes various security-related and auditing-related events in Windows 7 and in Windows Server 2008 R2. This article also provides information about how to interpret these events. All these events appear in the Security log and are logged with a source of Security-Auditing. This article also describes how to retrieve more descriptive data about individual events.<br/>
+More Information<br/>
+This section lists all Windows 7 and Windows Server 2008 R2 security audit-related events by category and by subcategory.<br/>
+Category: Account Logon<br/>
+<br/>
+Subcategory: Credential Validation<br/>
+ID	Message<br/>
+4774	An account was mapped for logon.<br/>
+4775	An account could not be mapped for logon.<br/>
+4776	The computer attempted to validate the credentials for an account.<br/>
+4777	The domain controller failed to validate the credentials for an account.<br/>
+<br/>
+Subcategory: Kerberos Authentication Service<br/>
+ID	Message<br/>
+4768	A Kerberos authentication ticket (TGT) was requested.<br/>
+4771	Kerberos pre-authentication failed.<br/>
+4772	A Kerberos authentication ticket request failed.<br/>
+<br/>
+Subcategory: Kerberos Service Ticket Operations<br/>
+ID	Message<br/>
+4769	A Kerberos service ticket was requested.<br/>
+4770	A Kerberos service ticket was renewed.<br/>
+4773	A Kerberos service ticket request failed.<br/>
+Category: Account Management<br/>
+<br/>
+Subcategory: Application Group Management<br/>
+ID	Message<br/>
+4783	A basic application group was created.<br/>
+4784	A basic application group was changed.<br/>
+4785	A member was added to a basic application group.<br/>
+4786	A member was removed from a basic application group.<br/>
+4787	A non-member was added to a basic application group.<br/>
+4788	A non-member was removed from a basic application group.<br/>
+4789	A basic application group was deleted.<br/>
+4790	An LDAP query group was created.<br/>
+4791	A basic application group was changed.<br/>
+4792	An LDAP query group was deleted.<br/>
+<br/>
+Subcategory: Computer Account Management<br/>
+ID	Message<br/>
+4741	A computer account was created.<br/>
+4742	A computer account was changed.<br/>
+4743	A computer account was deleted.<br/>
+<br/>
+Subcategory: Distribution Group Management<br/>
+ID	Message<br/>
+4744	A security-disabled local group was created.<br/>
+4745	A security-disabled local group was changed.<br/>
+4746	A member was added to a security-disabled local group.<br/>
+4747	A member was removed from a security-disabled local group.<br/>
+4748	A security-disabled local group was deleted.<br/>
+4749	A security-disabled global group was created.<br/>
+4750	A security-disabled global group was changed.<br/>
+4751	A member was added to a security-disabled global group.<br/>
+4752	A member was removed from a security-disabled global group.<br/>
+4753	A security-disabled global group was deleted.<br/>
+4759	A security-disabled universal group was created.<br/>
+4760	A security-disabled universal group was changed.<br/>
+4761	A member was added to a security-disabled universal group.<br/>
+4762	A member was removed from a security-disabled universal group.<br/>
+<br/>
+Subcategory: Other Account Management Events<br/>
+ID	Message<br/>
+4782	The password hash an account was accessed.<br/>
+4793	The Password Policy Checking API was called.<br/>
+<br/>
+Subcategory: Security Group Management<br/>
+ID	Message<br/>
+4727	A security-enabled global group was created.<br/>
+4728	A member was added to a security-enabled global group.<br/>
+4729	A member was removed from a security-enabled global group.<br/>
+4730	A security-enabled global group was deleted.<br/>
+4731	A security-enabled local group was created.<br/>
+4732	A member was added to a security-enabled local group.<br/>
+4733	A member was removed from a security-enabled local group.<br/>
+4734	A security-enabled local group was deleted.<br/>
+4735	A security-enabled local group was changed.<br/>
+4737	A security-enabled global group was changed.<br/>
+4754	A security-enabled universal group was created.<br/>
+4755	A security-enabled universal group was changed.<br/>
+4756	A member was added to a security-enabled universal group.<br/>
+4757	A member was removed from a security-enabled universal group.<br/>
+4758	A security-enabled universal group was deleted.<br/>
+4764	A group’s type was changed.<br/>
+<br/>
+Subcategory: User Account Management<br/>
+ID	Message<br/>
+4720	A user account was created.<br/>
+4722	A user account was enabled.<br/>
+4723	An attempt was made to change an account's password.<br/>
+4724	An attempt was made to reset an account's password.<br/>
+4725	A user account was disabled.<br/>
+4726	A user account was deleted.<br/>
+4738	A user account was changed.<br/>
+4740	A user account was locked out.<br/>
+4765	SID History was added to an account.<br/>
+4766	An attempt to add SID History to an account failed.<br/>
+4767	A user account was unlocked.<br/>
+4780	The ACL was set on accounts which are members of administrators groups.<br/>
+4781	The name of an account was changed:<br/>
+4794	An attempt was made to set the Directory Services Restore Mode.<br/>
+5376	Credential Manager credentials were backed up.<br/>
+5377	Credential Manager credentials were restored from a backup.<br/>
+<br/>
+Category: Detailed Tracking<br/>
+Subcategory: DPAPI Activity<br/>
+ID	Message<br/>
+4692	Backup of data protection master key was attempted.<br/>
+4693	Recovery of data protection master key was attempted.<br/>
+4694	Protection of auditable protected data was attempted.<br/>
+4695	Unprotection of auditable protected data was attempted.<br/>
+<br/>
+Subcategory: Process Creation<br/>
+ID	Message<br/>
+4688	A new process has been created.<br/>
+4696	A primary token was assigned to process.<br/>
+<br/>
+Subcategory: Process Termination<br/>
+ID	Message<br/>
+4689	A process has exited.<br/>
+<br/>
+Subcategory: RPC Events<br/>
+ID	Message<br/>
+5712	A Remote Procedure Call (RPC) was attempted.<br/>
+<br/>
+Category: DS Access<br/>
+Subcategory: Detailed Directory Service Replication<br/>
+ID	Message<br/>
+4928	An Active Directory replica source naming context was established.<br/>
+4929	An Active Directory replica source naming context was removed.<br/>
+4930	An Active Directory replica source naming context was modified.<br/>
+4931	An Active Directory replica destination naming context was modified.<br/>
+4934	Attributes of an Active Directory object were replicated.<br/>
+4935	Replication failure begins.<br/>
+4936	Replication failure ends.<br/>
+4937	A lingering object was removed from a replica.<br/>
+<br/>
+Subcategory: Directory Service Access<br/>
+ID	Message<br/>
+4662	An operation was performed on an object.<br/>
+<br/>
+Subcategory: Directory Service Changes<br/>
+ID	Message<br/>
+5136	A directory service object was modified.<br/>
+5137	A directory service object was created.<br/>
+5138	A directory service object was undeleted.<br/>
+5139	A directory service object was moved.<br/>
+5141	A directory service object was deleted.<br/>
+<br/>
+Subcategory: Directory Service Replication<br/>
+ID	Message<br/>
+4932	Synchronization of a replica of an Active Directory naming context has begun.<br/>
+4933	Synchronization of a replica of an Active Directory naming context has ended.<br/>
+<br/>
+Category: Logon/Logoff<br/>
+Subcategory: IPsec Extended Mode<br/>
+ID	Message<br/>
+4978	During extended mode negotiation, IPsec received an invalid negotiation packet. If this problem persists, it could indicate a network issue or an attempt to modify or replay this negotiation.<br/>
+4979	IPsec main mode and extended mode security associations were established.<br/>
+4980	IPsec main mode and extended mode security associations were established.<br/>
+4981	IPsec main mode and extended mode security associations were established.<br/>
+4982	IPsec main mode and extended mode security associations were established.<br/>
+4983	An IPsec extended mode negotiation failed. The corresponding main mode security association has been deleted.<br/>
+4984	An IPsec extended mode negotiation failed. The corresponding main mode security association has been deleted.<br/>
+<br/>
+Subcategory: IPsec Main Mode<br/>
+ID	Message<br/>
+4646	IKE DoS-prevention mode started.<br/>
+4650	An IPsec main mode security association was established. Extended mode was not enabled. Certificate authentication was not used.<br/>
+4651	An IPsec main mode security association was established. Extended mode was not enabled. A certificate was used for authentication.<br/>
+4652	An IPsec main mode negotiation failed.<br/>
+4653	An IPsec main mode negotiation failed.<br/>
+4655	An IPsec main mode security association ended.<br/>
+4976	During main mode negotiation, IPsec received an invalid negotiation packet. If this problem persists, it could indicate a network issue or an attempt to modify or replay this negotiation.<br/>
+5049	An IPsec security association was deleted.<br/>
+5453	IPsec Policy Agent applied Active Directory storage IPsec policy on the computer.<br/>
+<br/>
+Subcategory: IPsec Quick Mode<br/>
+ID	Message<br/>
+4654	An IPsec quick mode negotiation failed.<br/>
+4977	During quick mode negotiation, IPsec received an invalid negotiation packet. If this problem persists, it could indicate a network issue or an attempt to modify or replay this negotiation.<br/>
+5451	An IPsec quick mode security association was established.<br/>
+5452	An IPsec quick mode security association ended.<br/>
+<br/>
+Subcategory: Logoff<br/>
+ID	Message<br/>
+4634	An account was logged off.<br/>
+4647	User initiated logoff.<br/>
+<br/>
+Subcategory: Logon<br/>
+ID	Message<br/>
+4624	An account was successfully logged on.<br/>
+4625	An account failed to log on.<br/>
+4648	A logon was attempted using explicit credentials.<br/>
+4675	SIDs were filtered.<br/>
+<br/>
+Subcategory: Network Policy Server<br/>
+ID	Message<br/>
+6272	Network Policy Server granted access to a user.<br/>
+6273	Network Policy Server denied access to a user.<br/>
+6274	Network Policy Server discarded the request for a user.<br/>
+6275	Network Policy Server discarded the accounting request for a user.<br/>
+6276	Network Policy Server quarantined a user.<br/>
+6277	Network Policy Server granted access to a user but put it on probation because the host did not meet the defined health policy.<br/>
+6278	Network Policy Server granted full access to a user because the host met the defined health policy.<br/>
+6279	Network Policy Server locked the user account due to repeated failed authentication attempts.<br/>
+6280	Network Policy Server unlocked the user account.<br/>
+<br/>
+Subcategory: Other Logon/Logoff Events<br/>
+ID	Message<br/>
+4649	A replay attack was detected.<br/>
+4778	A session was reconnected to a Window Station.<br/>
+4779	A session was disconnected from a Window Station.<br/>
+4800	The workstation was locked.<br/>
+4801	The workstation was unlocked.<br/>
+4802	The screen saver was invoked.<br/>
+4803	The screen saver was dismissed.<br/>
+5378	The requested credentials delegation was disallowed by policy.<br/>
+5632	A request was made to authenticate to a wireless network.<br/>
+5633	A request was made to authenticate to a wired network.<br/>
+<br/>
+Subcategory: Special Logon<br/>
+ID	Message<br/>
+4964	Special groups have been assigned to a new logon.<br/>
+<br/>
+Category: Object Access<br/>
+Subcategory: Application Generated<br/>
+ID	Message<br/>
+4665	An attempt was made to create an application client context.<br/>
+4666	An application attempted an operation:<br/>
+4667	An application client context was deleted.<br/>
+4668	An application was initialized.<br/>
+<br/>
+Subcategory: Certification Services<br/>
+ID	Message<br/>
+4868	The certificate manager denied a pending certificate request.<br/>
+4869	Certificate Services received a resubmitted certificate request.<br/>
+4870	Certificate Services revoked a certificate.<br/>
+4871	Certificate Services received a request to publish the certificate revocation list (CRL).<br/>
+4872	Certificate Services published the certificate revocation list (CRL).<br/>
+4873	A certificate request extension changed.<br/>
+4874	One or more certificate request attributes changed.<br/>
+4875	Certificate Services received a request to shut down.<br/>
+4876	Certificate Services backup started.<br/>
+4877	Certificate Services backup completed.<br/>
+4878	Certificate Services restore started.<br/>
+4879	Certificate Services restore completed.<br/>
+4880	Certificate Services started.<br/>
+4881	Certificate Services stopped.<br/>
+4882	The security permissions for Certificate Services changed.<br/>
+4883	Certificate Services retrieved an archived key.<br/>
+4884	Certificate Services imported a certificate into its database.<br/>
+4885	The audit filter for Certificate Services changed.<br/>
+4886	Certificate Services received a certificate request.<br/>
+4887	Certificate Services approved a certificate request and issued a certificate.<br/>
+4888	Certificate Services denied a certificate request.<br/>
+4889	Certificate Services set the status of a certificate request to pending.<br/>
+4890	The certificate manager settings for Certificate Services changed.<br/>
+4891	A configuration entry changed in Certificate Services.<br/>
+4892	A property of Certificate Services changed.<br/>
+4893	Certificate Services archived a key.<br/>
+4894	Certificate Services imported and archived a key.<br/>
+4895	Certificate Services published the CA certificate to Active Directory Domain Services.<br/>
+4896	One or more rows have been deleted from the certificate database.<br/>
+4897	Role separation enabled:<br/>
+4898	Certificate Services loaded a template.<br/>
+4899	A Certificate Services template was updated.<br/>
+4900	Certificate Services template security was updated.<br/>
+5120	OCSP Responder Service Started.<br/>
+5121	OCSP Responder Service Stopped.<br/>
+5122	A Configuration entry changed in the OCSP Responder Service.<br/>
+5123	A configuration entry changed in the OCSP Responder Service.<br/>
+5124	A security setting was updated on OCSP Responder Service.<br/>
+5125	A request was submitted to OCSP Responder Service.<br/>
+5126	Signing Certificate was automatically updated by the OCSP Responder Service.<br/>
+5127	The OCSP Revocation Provider successfully updated the revocation information.<br/>
+<br/>
+Subcategory: Detailed File Share<br/>
+ID	Message<br/>
+5145	A network share object was checked to see whether the client can be granted desired access.<br/>
+<br/>
+Subcategory: File Share<br/>
+ID	Message<br/>
+5140	A network share object was accessed.<br/>
+5142	A network share object was added.<br/>
+5143	A network share object was modified.<br/>
+5144	A network share object was deleted.<br/>
+5168	Spn check for SMB/SMB2 failed.<br/>
+<br/>
+Subcategory: File System<br/>
+ID	Message<br/>
+4664	An attempt was made to create a hard link.<br/>
+4985	The state of a transaction has changed.<br/>
+5051	A file was virtualized.<br/>
+<br/>
+Subcategory: Filtering Platform Connection<br/>
+ID	Message<br/>
+5031	The Windows Firewall Service blocked an application from accepting incoming connections on the network.<br/>
+5148	The Windows Filtering Platform has detected a DoS attack and entered a defensive mode; packets associated with this attack will be discarded.<br/>
+5149	The DoS attack has subsided and normal processing is being resumed.<br/>
+5150	The Windows Filtering Platform has blocked a packet.<br/>
+5151	A more restrictive Windows Filtering Platform filter has blocked a packet.<br/>
+5154	The Windows Filtering Platform has permitted an application or service to listen on a port for incoming connections.<br/>
+5155	The Windows Filtering Platform has blocked an application or service from listening on a port for incoming connections.<br/>
+5156	The Windows Filtering Platform has permitted a connection.<br/>
+5157	The Windows Filtering Platform has blocked a connection.<br/>
+5158	The Windows Filtering Platform has permitted a bind to a local port.<br/>
+5159	The Windows Filtering Platform has blocked a bind to a local port.<br/>
+<br/>
+Subcategory: Filtering Platform Packet Drop<br/>
+ID	Message<br/>
+5152	The Windows Filtering Platform has blocked a packet.<br/>
+5153	A more restrictive Windows Filtering Platform filter has blocked a packet.<br/>
+<br/>
+Subcategory: Handle Manipulation<br/>
+ID	Message<br/>
+4656	A handle to an object was requested.<br/>
+4658	The handle to an object was closed.<br/>
+4690	An attempt was made to duplicate a handle to an object.<br/>
+<br/>
+Subcategory: Other Object Access Events<br/>
+ID	Message<br/>
+4671	An application attempted to access a blocked ordinal through the TBS.<br/>
+4691	Indirect access to an object was requested.<br/>
+4698	A scheduled task was created.<br/>
+4699	A scheduled task was deleted.<br/>
+4700	A scheduled task was enabled.<br/>
+4701	A scheduled task was disabled.<br/>
+4702	A scheduled task was updated.<br/>
+4702	A scheduled task was updated.<br/>
+5888	An object in the COM+ Catalog was modified.<br/>
+5889	An object was deleted from the COM+ Catalog.<br/>
+5890	An object was added to the COM+ Catalog.<br/>
+<br/>
+Subcategory: Registry<br/>
+ID	Message<br/>
+4657	A registry value was modified.<br/>
+5039	A registry key was virtualized.<br/>
+<br/>
+Subcategory: Special Multi-use Subcategory<br/>
+Note The following event may be generated by any resource manager when its subcategory is enabled. For example, the following event may be generated by the Registry resource manager or by the File System resource manager. The Object Access: Kernel Object and Object Access: SAM subcategories are examples of subcategories that use these events exclusively.<br/>
+ID	Message<br/>
+4659	A handle to an object was requested with intent to delete.<br/>
+4660	An object was deleted.<br/>
+4661	A handle to an object was requested.<br/>
+4663	An attempt was made to access an object.<br/>
+<br/>
+Category: Policy Change<br/>
+Subcategory: Audit Policy Change<br/>
+ID	Message<br/>
+4715	The audit policy (SACL) on an object was changed.<br/>
+4719	System audit policy was changed.<br/>
+4817	Auditing settings on an object were changed.<br/>
+4902	The Per-user audit policy table was created.<br/>
+4904	An attempt was made to register a security event source.<br/>
+4905	An attempt was made to unregister a security event source.<br/>
+4906	The CrashOnAuditFail value has changed.<br/>
+4907	Auditing settings on object were changed.<br/>
+4908	Special Groups Logon table modified.<br/>
+4912	Per User Audit Policy was changed.<br/>
+<br/>
+Subcategory: Authentication Policy Change<br/>
+ID	Message<br/>
+4706	A new trust was created to a domain.<br/>
+4707	A trust to a domain was removed.<br/>
+4713	Kerberos policy was changed.<br/>
+4716	Trusted domain information was modified.<br/>
+4717	System security access was granted to an account.<br/>
+4718	System security access was removed from an account.<br/>
+4739	Domain Policy was changed.<br/>
+4864	A namespace collision was detected.<br/>
+4865	A trusted forest information entry was added.<br/>
+4866	A trusted forest information entry was removed.<br/>
+4867	A trusted forest information entry was modified.<br/>
+<br/>
+Subcategory: Authorization Policy Change<br/>
+ID	Message<br/>
+4704	A user right was assigned.<br/>
+4705	A user right was removed.<br/>
+4714	Data Recovery Agent group policy for Encrypting File System (EFS) has changed. The new changes have been applied.<br/>
+<br/>
+Subcategory: Filtering Platform Policy Change<br/>
+ID	Message<br/>
+4709	The IPsec Policy Agent service was started.<br/>
+4710	The IPsec Policy Agent service was disabled.<br/>
+4711	May contain any one of the following:<br/>
+PAStore Engine applied locally cached copy of Active Directory storage IPsec policy on the computer. <br/>
+PAStore Engine applied Active Directory storage IPsec policy on the computer. <br/>
+PAStore Engine applied local registry storage IPsec policy on the computer. <br/>
+PAStore Engine failed to apply locally cached copy of Active Directory storage IPsec policy on the computer. <br/>
+PAStore Engine failed to apply Active Directory storage IPsec policy on the computer. <br/>
+PAStore Engine failed to apply local registry storage IPsec policy on the computer. <br/>
+PAStore Engine failed to apply some rules of the active IPsec policy on the computer. <br/>
+PAStore Engine failed to load directory storage IPsec policy on the computer. <br/>
+PAStore Engine loaded directory storage IPsec policy on the computer. <br/>
+PAStore Engine failed to load local storage IPsec policy on the computer. <br/>
+PAStore Engine loaded local storage IPsec policy on the computer. <br/>
+PAStore Engine polled for changes to the active IPsec policy and detected no changes.<br/>
+4712	IPsec Policy Agent encountered a potentially serious failure.<br/>
+5040	A change was made to IPsec settings. An authentication set was added.<br/>
+5041	A change was made to IPsec settings. An authentication set was modified.<br/>
+5042	A change was made to IPsec settings. An authentication set was deleted.<br/>
+5043	A change was made to IPsec settings. A connection security rule was added.<br/>
+5044	A change was made to IPsec settings. A connection security rule was modified.<br/>
+5045	A change was made to IPsec settings. A connection security rule was deleted.<br/>
+5046	A change was made to IPsec settings. A crypto set was added.<br/>
+5047	A change was made to IPsec settings. A crypto set was modified.<br/>
+5048	A change was made to IPsec settings. A crypto set was deleted.<br/>
+5440	The following callout was present when the Windows Filtering Platform Base Filtering Engine started.<br/>
+5441	The following filter was present when the Windows Filtering Platform Base Filtering Engine started.<br/>
+5442	The following provider was present when the Windows Filtering Platform Base Filtering Engine started.<br/>
+5443	The following provider context was present when the Windows Filtering Platform Base Filtering Engine started.<br/>
+5444	The following sub-layer was present when the Windows Filtering Platform Base Filtering Engine started.<br/>
+5446	A Windows Filtering Platform callout has been changed.<br/>
+5448	A Windows Filtering Platform provider has been changed.<br/>
+5449	A Windows Filtering Platform provider context has been changed.<br/>
+5450	A Windows Filtering Platform sub-layer has been changed.<br/>
+5456	PAStore Engine applied Active Directory storage IPsec policy on the computer.<br/>
+5457	IPsec Policy Agent failed to apply Active Directory storage IPsec policy on the computer.<br/>
+5458	IPsec Policy Agent applied locally cached copy of Active Directory storage IPsec policy on the computer.<br/>
+5459	IPsec Policy Agent failed to apply locally cached copy of Active Directory storage IPsec policy on the computer.<br/>
+5460	IPsec Policy Agent applied local registry storage IPsec policy on the computer.<br/>
+5461	IPsec Policy Agent failed to apply local registry storage IPsec policy on the computer.<br/>
+5462	IPsec Policy Agent failed to apply some rules of the active IPsec policy on the computer. Use the IP Security Monitor snap-in to diagnose the problem.<br/>
+5463	IPsec Policy Agent polled for changes to the active IPsec policy and detected no changes.<br/>
+5464	IPsec Policy Agent polled for changes to the active IPsec policy, detected changes, and applied them.<br/>
+5465	IPsec Policy Agent received a control for forced reloading of IPsec policy and processed the control successfully.<br/>
+5466	IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory cannot be reached, and will use the cached copy of the Active Directory IPsec policy instead. Any changes made to the Active Directory IPsec policy since the last poll could not be applied.<br/>
+5467	IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory can be reached, and found no changes to the policy. The cached copy of the Active Directory IPsec policy is no longer being used.<br/>
+5468	IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory can be reached, found changes to the policy, and applied those changes. The cached copy of the Active Directory IPsec policy is no longer being used.<br/>
+5471	IPsec Policy Agent loaded local storage IPsec policy on the computer.<br/>
+5472	IPsec Policy Agent failed to load local storage IPsec policy on the computer.<br/>
+5473	IPsec Policy Agent loaded directory storage IPsec policy on the computer.<br/>
+5474	IPsec Policy Agent failed to load directory storage IPsec policy on the computer.<br/>
+5477	IPsec Policy Agent failed to add quick mode filter.<br/>
+<br/>
+Subcategory: MPSSVC Rule-Level Policy Change<br/>
+ID	Message<br/>
+4944	The following policy was active when the Windows Firewall started.<br/>
+4945	A rule was listed when the Windows Firewall started.<br/>
+4946	A change was made to the Windows Firewall exception list. A rule was added.<br/>
+4947	A change was made to the Windows Firewall exception list. A rule was modified.<br/>
+4948	A change was made to the Windows Firewall exception list. A rule was deleted.<br/>
+4949	Windows Firewall settings were restored to the default values.<br/>
+4950	A Windows Firewall setting was changed.<br/>
+4951	Windows Firewall ignored a rule because its major version number is not recognized.<br/>
+4952	Windows Firewall ignored parts of a rule because its minor version number is not recognized. Other parts of the rule will be enforced.<br/>
+4953	Windows Firewall ignored a rule because it could not be parsed.<br/>
+4954	Group Policy settings for Windows Firewall were changed, and the new settings were applied.<br/>
+4956	Windows Firewall changed the active profile.<br/>
+4957	Windows Firewall did not apply the following rule:<br/>
+4958	Windows Firewall did not apply the following rule because the rule referred to items not configured on this computer:<br/>
+5050	An attempt to programmatically disable Windows Firewall using a call to INetFwProfile.FirewallEnabled(FALSE) interface was rejected because this API is not supported on this version of Windows. This is most likely due to a program that is incompatible with this version of Windows. Please contact the program's manufacturer to make sure you have a compatible program version.<br/>
+<br/>
+Subcategory: Other Policy Change Events<br/>
+ID	Message<br/>
+4909	The local policy settings for the TBS were changed.<br/>
+4910	The group policy settings for the TBS were changed.<br/>
+5063	A cryptographic provider operation was attempted.<br/>
+5064	A cryptographic context operation was attempted.<br/>
+5065	A cryptographic context modification was attempted.<br/>
+5066	A cryptographic function operation was attempted.<br/>
+5067	A cryptographic function modification was attempted.<br/>
+5068	A cryptographic function provider operation was attempted.<br/>
+5069	A cryptographic function property operation was attempted.<br/>
+5070	A cryptographic function property modification was attempted.<br/>
+5447	A Windows Filtering Platform filter has been changed.<br/>
+6144	Security policy in the group policy objects has been applied successfully.<br/>
+6145	One or more errors occurred while processing security policy in the group policy objects.<br/>
+<br/>
+Subcategory: Special Multi-use Subcategory<br/>
+Note The following event may be generated by any resource manager when its subcategory is enabled. For example, the following event may be generated by the Registry resource manager or by the File System resource manager.<br/>
+ID	Message<br/>
+4670	Permissions on an object were changed.<br/>
+<br/>
+Category: Privilege Use<br/>
+Subcategory: Sensitive Privilege Use / Non-Sensitive Privilege Use<br/>
+ID	Message<br/>
+4672	Special privileges assigned to new logon.<br/>
+4673	A privileged service was called.<br/>
+4674	An operation was attempted on a privileged object.<br/>
+<br/>
+Category: System<br/>
+Subcategory: IPsec Driver<br/>
+ID	Message<br/>
+4960	IPsec dropped an inbound packet that failed an integrity check. If this problem persists, it could indicate a network issue or that packets are being modified in transit to this computer. Verify that the packets sent from the remote computer are the same as those received by this computer. This error might also indicate interoperability problems with other IPsec implementations.<br/>
+4961	IPsec dropped an inbound packet that failed a replay check. If this problem persists, it could indicate a replay attack against this computer.<br/>
+4962	IPsec dropped an inbound packet that failed a replay check. The inbound packet had too low a sequence number to ensure it was not a replay.<br/>
+4963	IPsec dropped an inbound clear text packet that should have been secured. If the remote computer is configured with a Request Outbound IPsec policy, this might be benign and expected. This can also be caused by the remote computer changing its IPsec policy without informing this computer. This could also be a spoofing attack attempt.<br/>
+4965	IPsec received a packet from a remote computer with an incorrect Security Parameter Index (SPI). This is usually caused by malfunctioning hardware that is corrupting packets. If these errors persist, verify that the packets sent from the remote computer are the same as those received by this computer. This error might also indicate interoperability problems with other IPsec implementations. In that case, if connectivity is not impeded, then these events can be ignored.<br/>
+5478	The IPsec Policy Agent service was started.<br/>
+5479	IPsec Services has been shut down successfully. The shutdown of IPsec Services can put the computer at greater risk of network attack or expose the computer to potential security risks.<br/>
+5480	IPsec Policy Agent failed to get the complete list of network interfaces on the computer. This poses a potential security risk because some of the network interfaces may not get the protection provided by the applied IPsec filters. Use the IP Security Monitor snap-in to diagnose the problem.<br/>
+5483	The IPsec Policy Agent service failed to initialize its RPC server. The service could not be started.<br/>
+5484	The IPsec Policy Agent service experienced a critical failure and has shut down. The shutdown of this service can put the computer at greater risk of network attack or expose the computer to potential security risks.<br/>
+5485	IPsec Policy Agent failed to process some IPsec filters on a plug-and-play event for network interfaces. This poses a potential security risk because some of the network interfaces may not get the protection provided by the applied IPsec filters. Use the IP Security Monitor snap-in to diagnose the problem.<br/>
+<br/>
+Subcategory: Other System Events<br/>
+ID	Message<br/>
+5024	The Windows Firewall service started successfully.<br/>
+5025	The Windows Firewall service was stopped.<br/>
+5027	The Windows Firewall service was unable to retrieve the security policy from the local storage. Windows Firewall will continue to enforce the current policy.<br/>
+5028	Windows Firewall was unable to parse the new security policy. Windows Firewall will continue to enforce the current policy.<br/>
+5029	The Windows Firewall service failed to initialize the driver. Windows Firewall will continue to enforce the current policy.<br/>
+5030	The Windows Firewall service failed to start.<br/>
+5032	Windows Firewall was unable to notify the user that it blocked an application from accepting incoming connections on the network.<br/>
+5033	The Windows Firewall Driver started successfully.<br/>
+5034	The Windows Firewall Driver was stopped.<br/>
+5035	The Windows Firewall Driver failed to start.<br/>
+5037	The Windows Firewall Driver detected a critical runtime error, terminating.<br/>
+5058	Key file operation.<br/>
+5059	Key migration operation.<br/>
+6400	BranchCache: Received an incorrectly formatted response while discovering availability of content.<br/>
+6401	BranchCache: Received invalid data from a peer. Data discarded.<br/>
+6403	BranchCache: The hosted cache sent an incorrectly formatted response to the client.<br/>
+6404	BranchCache: Hosted cache could not be authenticated using the provisioned SSL certificate.<br/>
+6405	BranchCache: %2 instance(s) of event id %1 occurred.<br/>
+6406	%1 registered to Windows Firewall to control filtering for the following: %2<br/>
+6407	1%<br/>
+<br/>
+Subcategory: Security State Change<br/>
+ID	Message<br/>
+4608	Windows is starting up.<br/>
+4616	The system time was changed.<br/>
+4621	Administrator recovered system from CrashOnAuditFail. Users who are not administrators will now be allowed to log on. Some auditable activity might not have been recorded.<br/>
+<br/>
+Subcategory: Security System Extension<br/>
+ID	Message<br/>
+4610	An authentication package has been loaded by the Local Security Authority.<br/>
+4611	A trusted logon process has been registered with the Local Security Authority.<br/>
+4614	A notification package has been loaded by the Security Account Manager.<br/>
+4622	A security package has been loaded by the Local Security Authority.<br/>
+4697	A service was installed in the system.<br/>
+<br/>
+Subcategory: System Integrity<br/>
+ID	Message<br/>
+4612	Internal resources allocated for the queuing of audit messages have been exhausted, leading to the loss of some audits.<br/>
+4615	Invalid use of LPC port.<br/>
+4618	A monitored security event pattern has occurred.<br/>
+4816	RPC detected an integrity violation while decrypting an incoming message.<br/>
+5038	Code integrity determined that the image hash of a file is not valid. The file could be corrupt due to unauthorized modification or the invalid hash could indicate a potential disk device error.<br/>
+5056	A cryptographic self test was performed.<br/>
+5057	A cryptographic primitive operation failed.<br/>
+5060	Verification operation failed.<br/>
+5061	Cryptographic operation.<br/>
+5062	A kernel-mode cryptographic self test was performed.<br/>
+6281	Code Integrity determined that the page hashes of an image file are not valid. The file could be improperly signed without page hashes or corrupt due to unauthorized modification. The invalid hashes could indicate a potential disk device error</body></html>

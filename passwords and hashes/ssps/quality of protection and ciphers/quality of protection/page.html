@@ -1,0 +1,24 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Quality of Protection</title>
+</head><body>The quality of protection, identified by the qop directive, is first specified by the server in the Digest challenge, and then confirmed by the client in the challenge response. If the client requires a quality of protection that the server does not support, the client must terminate the authentication.<br/>
+<br/>
+The possible values for the qop directive are described in the following table.<br/>
+Value		Description<br/>
+&quot;auth&quot;		Authentication only.<br/>
+&quot;auth-int&quot;	Authentication and integrity checking using signatures.<br/>
+(SASL only) &quot;auth-conf&quot;	Authentication, integrity and confidentiality checking by using signatures and encryption. For more information, see Ciphers.<br/>
+<br/>
+<br/>
+<br/>
+Quality of protection is determined by context requirement flags passed to the Microsoft Digest SSP. The following table lists the flags related to quality of protection, and the resulting value of the qop directive.<br/>
+Flag							qop value<br/>
+XXX_REQ_CONFIDENTIALITY		&quot;auth-conf&quot; (SASL only)<br/>
+XXX_REQ_REPLAY_DETECT		&quot;auth-int&quot;<br/>
+XXX_REQ_SEQUENCE_DETECT	&quot;auth-int&quot;<br/>
+XXX_REQ_INTEGRITY			&quot;auth-int&quot;<br/>
+(none)						&quot;auth&quot;<br/>
+<br/>
+<br/>
+Note Context requirement flags specified by server applications have a prefix of ASC, and those specified by clients are prefixed with ISC. To determine the flag values used by your application, substitute one of these prefixes for XXX.</body></html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Gateway Ports</title>
+</head><body>GatewayPorts<br/>
+    Specifies whether remote hosts are allowed to connect to local<br/>
+    forwarded ports. By default, ssh(1) binds local port forwardings<br/>
+    to the loopback address. This prevents other remote hosts from<br/>
+    connecting to forwarded ports. GatewayPorts can be used to spec‐<br/>
+    ify that ssh should bind local port forwardings to the wildcard<br/>
+    address, thus allowing remote hosts to connect to forwarded<br/>
+    ports. The argument must be “yes” or “no”. The default is “no”.<br/>
+<br/>
+And you can use localhost instead of M in the forwarding, as you're forwarding to the same machine as you're SSH-ing to -- if I understand your question correctly.<br/>
+<br/>
+So, the command will become this:<br/>
+<br/>
+ssh -L 2222:localhost:8888 -N -o GatewayPorts=yes hostname-of-M<br/>
+<br/>
+and will look like this in netstat -nltp:<br/>
+tcp    0   0  0.0.0.0:2222  0.0.0.0:* LISTEN 5113/ssh<br/>
+<br/>
+Now anyone accessing this machine at port 2222 TCP will actually talk to localhost:8888 as seen in machine M. Note that this is not the same as plain forwarding to port 8888 of M.<br/>
+<br/>
+Local SSH has the -g option<br/>
+Remote SSH you have to set GatewayPorts yes in ssh config</body></html>

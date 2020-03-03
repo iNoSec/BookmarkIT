@@ -1,0 +1,15 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Requests</title>
+</head><body>&gt;&gt;&gt; r = requests.get('https://api.github.com/user', auth=('user', 'pass'))<br/>
+&gt;&gt;&gt; r.status_code<br/>
+200<br/>
+&gt;&gt;&gt; r.headers['content-type']<br/>
+'application/json; charset=utf8'<br/>
+&gt;&gt;&gt; r.encoding<br/>
+'utf-8'<br/>
+&gt;&gt;&gt; r.text<br/>
+u'{&quot;type&quot;:&quot;User&quot;...'<br/>
+&gt;&gt;&gt; r.json()<br/>
+{u'private_gists': 419, u'total_private_repos': 77, ...}</body></html>

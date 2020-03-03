@@ -1,0 +1,59 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Services</title>
+</head><body>services.py<br/>
+<br/>
+[MS-SCMR] use to manipulate windows services. It supports start, stop, delete, status, config, list, create and change.<br/>
+DCE-RPC connection<br/>
+<br/>
+# [MS-SCMR] services common functions for manipulating services<br/>
+<br/>
+usage: services.py [-h] [-debug] [-hashes LMHASH:NTHASH] [-no-pass] [-k]<br/>
+         [-aesKey hex key] [-dc-ip ip address]<br/>
+         [-target-ip ip address] [-port [destination port]]<br/>
+         target {start,stop,delete,status,config,list,create,change}<br/>
+         ...<br/>
+<br/>
+Windows Service manipulation script.<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+ {start,stop,delete,status,config,list,create,change}<br/>
+            actions<br/>
+  start        starts the service<br/>
+  stop        stops the service<br/>
+  delete       deletes the service<br/>
+  status       returns service status<br/>
+  config       returns service configuration<br/>
+  list        list available services<br/>
+  create       create a service<br/>
+  change       change a service configuration<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+<br/>
+connection:<br/>
+ -dc-ip ip address   IP Address of the domain controller. If ommited it use<br/>
+            the domain part (FQDN) specified in the target<br/>
+            parameter<br/>
+ -target-ip ip address<br/>
+            IP Address of the target machine. If ommited it will<br/>
+            use whatever was specified as target. This is useful<br/>
+            when target is the NetBIOS name and you cannot resolve<br/>
+            it<br/>
+ -port [destination port]<br/>
+            Destination port to connect to SMB Server<br/>
+</body></html>

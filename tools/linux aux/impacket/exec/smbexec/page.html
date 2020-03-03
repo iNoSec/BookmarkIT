@@ -1,0 +1,57 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Smbexec</title>
+</head><body>The Service File Name contains a command string to execute (%COMSPEC% points to the absolute path of cmd.exe). It echos the command to be executed to a bat file, redirects the stdout and stderr to a Temp file, then executes the bat file and deletes it. Back on Kali, the Python script then pulls the output file via SMB and displays the contents in our &quot;pseudo-shell&quot;. For every command we type into our &quot;shell&quot;, a new service is created and the process is repeated. This is why it doesn't need to drop a binary, it just executes each desired command as a new service. Definitely more stealthy, but as we saw, an event log is created for every command executed. Still a very clever way to get a non-interactive &quot;shell&quot;!<br/>
+<br/>
+smbexec.py<br/>
+<br/>
+A similar approach to psexec w/o using RemComSvc. The technique is described here http://blog.accuvant.com/rdavisaccuvant/owning-computers-without-shell-access/.<br/>
+Our implementation goes one step further, instantiating a local smbserver to receive the output of the commands. This is useful in the situation where the target machine does NOT have a writeable share available.<br/>
+<br/>
+# This script works in two ways:<br/>
+# 1) share mode: you specify a share, and everything is done through that share.<br/>
+# 2) server mode: if for any reason there's no share available, this script will launch a local<br/>
+#  SMB server, so the output of the commands executed are sent back by the target machine<br/>
+#  into a locally shared folder. Keep in mind you would need root access to bind to port 445 <br/>
+#  in the local machine.<br/>
+<br/>
+usage: smbexec.py [-h] [-share SHARE] [-mode {SHARE,SERVER}] [-debug]<br/>
+         [-dc-ip ip address] [-target-ip ip address]<br/>
+         [-port [destination port]] [-hashes LMHASH:NTHASH]<br/>
+         [-no-pass] [-k] [-aesKey hex key]<br/>
+         target<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -share SHARE     share where the output will be grabbed from (default<br/>
+            C$)<br/>
+ -mode {SHARE,SERVER} mode to use (default SHARE, SERVER needs root!)<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+connection:<br/>
+ -dc-ip ip address   IP Address of the domain controller. If omitted it<br/>
+            will use the domain part (FQDN) specified in the<br/>
+            target parameter<br/>
+ -target-ip ip address<br/>
+            IP Address of the target machine. If ommited it will<br/>
+            use whatever was specified as target. This is useful<br/>
+            when target is the NetBIOS name and you cannot resolve<br/>
+            it<br/>
+ -port [destination port]<br/>
+            Destination port to connect to SMB Server<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+</body></html>

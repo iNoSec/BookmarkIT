@@ -1,0 +1,30 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Python</title>
+</head><body>import os<br/>
+import weblogic.security.internal.SerializedSystemIni<br/>
+import weblogic.security.internal.encryption.ClearOrEncryptedService<br/>
+<br/>
+def decrypt(agileDomain, encryptedPassword):<br/>
+  agileDomainPath = os.path.abspath(agileDomain)<br/>
+  encryptSrv = weblogic.security.internal.SerializedSystemIni.getEncryptionService(agileDomainPath)<br/>
+  ces = weblogic.security.internal.encryption.ClearOrEncryptedService(encryptSrv)<br/>
+  password = ces.decrypt(encryptedPassword)<br/>
+  <br/>
+  print &quot;Plaintext password is:&quot; + password<br/>
+<br/>
+try:<br/>
+  if len(sys.argv) == 3:<br/>
+    decrypt(sys.argv[1], sys.argv[2])<br/>
+  else:<br/>
+    print &quot;Please input arguments as below&quot;<br/>
+    print &quot;	Usage 1: java weblogic.WLST decryptWLSPwd.py &quot;<br/>
+    print &quot;	Usage 2: decryptWLSPwd.cmd &quot;<br/>
+    print &quot;Example:&quot;<br/>
+    print &quot;	java weblogic.WLST decryptWLSPwd.py C:\Agile\Agile933\agileDomain {AES}JhaKwt4vUoZ0Pz2gWTvMBx1laJXcYfFlMtlBIiOVmAs=&quot;<br/>
+    print &quot;	decryptWLSPwd.cmd {AES}JhaKwt4vUoZ0Pz2gWTvMBx1laJXcYfFlMtlBIiOVmAs=&quot;<br/>
+except:<br/>
+  print &quot;Exception: &quot;, sys.exc_info()[0]<br/>
+  dumpStack()<br/>
+  raise</body></html>

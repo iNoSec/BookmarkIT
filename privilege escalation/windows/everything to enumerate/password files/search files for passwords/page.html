@@ -1,0 +1,11 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Search Files for Passwords</title>
+</head><body># The command below will search the file system for file names containing certain keywords. You can specify as many keywords as you wish.<br/>
+dir /s *pass* == *cred* == *vnc* == *.config*<br/>
+<br/>
+<br/>
+# Search certain file types for a keyword, this can generate a lot of output.<br/>
+findstr /si password *.xml | *.ini | *.txt<br/>
+findstr.exe /si passw *.txt *.ini *.vbs *.cmd *.ps1 *.bat *.xml *.inf *.eml</body></html>

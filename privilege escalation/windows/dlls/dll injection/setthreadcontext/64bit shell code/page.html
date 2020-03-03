@@ -1,0 +1,43 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>64bit Shell Code</title>
+</head><body>0x50,                            // push rax (save rax)<br/>
+0x48, 0xB8, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, // mov rax, 0CCCCCCCCCCCCCCCCh (placeholder for return address)<br/>
+0x9c,                            // pushfq<br/>
+0x51,                            // push rcx<br/>
+0x52,                            // push rdx<br/>
+0x53,                            // push rbx<br/>
+0x55,                            // push rbp<br/>
+0x56,                            // push rsi<br/>
+0x57,                            // push rdi<br/>
+0x41, 0x50,                         // push r8<br/>
+0x41, 0x51,                         // push r9<br/>
+0x41, 0x52,                         // push r10<br/>
+0x41, 0x53,                         // push r11<br/>
+0x41, 0x54,                         // push r12<br/>
+0x41, 0x55,                         // push r13<br/>
+0x41, 0x56,                         // push r14<br/>
+0x41, 0x57,                         // push r15<br/>
+0x68,0xef,0xbe,0xad,0xde,                  // fastcall convention<br/>
+0x48, 0xB9, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, // mov rcx, 0CCCCCCCCCCCCCCCCh (placeholder for DLL path name)<br/>
+0x48, 0xB8, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, // mov rax, 0CCCCCCCCCCCCCCCCh (placeholder for LoadLibrary)<br/>
+0xFF, 0xD0,                         // call rax (call LoadLibrary)<br/>
+0x58,                            // pop dummy<br/>
+0x41, 0x5F,                         // pop r15<br/>
+0x41, 0x5E,                         // pop r14<br/>
+0x41, 0x5D,                         // pop r13<br/>
+0x41, 0x5C,                         // pop r12<br/>
+0x41, 0x5B,                         // pop r11<br/>
+0x41, 0x5A,                         // pop r10<br/>
+0x41, 0x59,                         // pop r9<br/>
+0x41, 0x58,                         // pop r8<br/>
+0x5F,                            // pop rdi<br/>
+0x5E,                            // pop rsi<br/>
+0x5D,                            // pop rbp<br/>
+0x5B,                            // pop rbx<br/>
+0x5A,                            // pop rdx<br/>
+0x59,                            // pop rcx<br/>
+0x9D,                            // popfq<br/>
+0x58,                            // pop rax<br/>
+0xC3                            // ret</body></html>

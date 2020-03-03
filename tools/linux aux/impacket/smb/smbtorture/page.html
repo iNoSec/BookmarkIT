@@ -1,0 +1,15 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>SMBTorture</title>
+</head><body># Parses a pcap file or sniffes traffic from the net and checks the SMB structs for errors. <br/>
+# Log the error packets in outFile<br/>
+<br/>
+usage: smbtorture.py [-h] [-i FILE] [-o FILE]<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help show this help message and exit<br/>
+ -i FILE   pcap file to read packets. If not specified the program sniffes<br/>
+       traffic (only as root)<br/>
+ -o FILE   pcap output file where the packets with errors will be written<br/>
+</body></html>

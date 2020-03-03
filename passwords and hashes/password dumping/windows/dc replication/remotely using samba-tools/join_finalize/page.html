@@ -1,0 +1,81 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>join_finalize</title>
+</head><body>  def join_finalise(ctx):<br/>
+    &quot;&quot;&quot;Finalise the join, mark us synchronised and setup secrets db.&quot;&quot;&quot;<br/>
+<br/>
+    # FIXME we shouldn't do this in all cases<br/>
+<br/>
+    # If for some reasons we joined in another site than the one of<br/>
+    # DC we just replicated from then we don't need to send the updatereplicateref<br/>
+    # as replication between sites is time based and on the initiative of the<br/>
+    # requesting DC<br/>
+    if not ctx.clone_only:<br/>
+      ctx.logger.info(&quot;Sending DsReplicaUpdateRefs for all the replicated partitions&quot;)<br/>
+      for nc in ctx.nc_list:<br/>
+        ctx.send_DsReplicaUpdateRefs(nc)<br/>
+<br/>
+    if not ctx.clone_only and ctx.RODC:<br/>
+      print &quot;Setting RODC invocationId&quot;<br/>
+      ctx.local_samdb.set_invocation_id(str(ctx.invocation_id))<br/>
+      ctx.local_samdb.set_opaque_integer(&quot;domainFunctionality&quot;,<br/>
+                       ctx.behavior_version)<br/>
+      m = ldb.Message()<br/>
+      m.dn = ldb.Dn(ctx.local_samdb, &quot;%s&quot; % ctx.ntds_dn)<br/>
+      m[&quot;invocationId&quot;] = ldb.MessageElement(ndr_pack(ctx.invocation_id),<br/>
+                         ldb.FLAG_MOD_REPLACE,<br/>
+                         &quot;invocationId&quot;)<br/>
+      ctx.local_samdb.modify(m)<br/>
+<br/>
+      # Note: as RODC the invocationId is only stored<br/>
+      # on the RODC itself, the other DCs never see it.<br/>
+      #<br/>
+      # Thats is why we fix up the replPropertyMetaData stamp<br/>
+      # for the 'invocationId' attribute, we need to change<br/>
+      # the 'version' to '0', this is what windows 2008r2 does as RODC<br/>
+      #<br/>
+      # This means if the object on a RWDC ever gets a invocationId<br/>
+      # attribute, it will have version '1' (or higher), which will<br/>
+      # will overwrite the RODC local value.<br/>
+      ctx.local_samdb.set_attribute_replmetadata_version(m.dn,<br/>
+                               &quot;invocationId&quot;,<br/>
+                               0)<br/>
+<br/>
+    ctx.logger.info(&quot;Setting isSynchronized and dsServiceName&quot;)<br/>
+    m = ldb.Message()<br/>
+    m.dn = ldb.Dn(ctx.local_samdb, '@ROOTDSE')<br/>
+    m[&quot;isSynchronized&quot;] = ldb.MessageElement(&quot;TRUE&quot;, ldb.FLAG_MOD_REPLACE, &quot;isSynchronized&quot;)<br/>
+<br/>
+    # We want to appear to be the server we just cloned<br/>
+    if ctx.clone_only:<br/>
+      guid = ctx.remote_dc_ntds_guid<br/>
+    else:<br/>
+      guid = ctx.ntds_guid<br/>
+<br/>
+    m[&quot;dsServiceName&quot;] = ldb.MessageElement(&quot;&lt;GUID=%s&gt;&quot; % str(guid),<br/>
+                        ldb.FLAG_MOD_REPLACE, &quot;dsServiceName&quot;)<br/>
+    ctx.local_samdb.modify(m)<br/>
+<br/>
+    if ctx.clone_only or ctx.subdomain:<br/>
+      return<br/>
+<br/>
+    secrets_ldb = Ldb(ctx.paths.secrets, session_info=system_session(), lp=ctx.lp)<br/>
+<br/>
+    ctx.logger.info(&quot;Setting up secrets database&quot;)<br/>
+    secretsdb_self_join(secrets_ldb, domain=ctx.domain_name,<br/>
+              realm=ctx.realm,<br/>
+              dnsdomain=ctx.dnsdomain,<br/>
+              netbiosname=ctx.myname,<br/>
+              domainsid=ctx.domsid,<br/>
+              machinepass=ctx.acct_pass,<br/>
+              secure_channel_type=ctx.secure_channel_type,<br/>
+              key_version_number=ctx.key_version_number)<br/>
+<br/>
+    if ctx.dns_backend.startswith(&quot;BIND9_&quot;):<br/>
+      setup_bind9_dns(ctx.local_samdb, secrets_ldb,<br/>
+              ctx.names, ctx.paths, ctx.lp, ctx.logger,<br/>
+              dns_backend=ctx.dns_backend,<br/>
+              dnspass=ctx.dnspass, os_level=ctx.behavior_version,<br/>
+              targetdir=ctx.targetdir,<br/>
+              key_version_number=ctx.dns_key_version_number)</body></html>

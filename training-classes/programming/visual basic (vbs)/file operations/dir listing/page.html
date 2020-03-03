@@ -1,0 +1,14 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Dir Listing</title>
+</head><body>option explicit<br/>
+<br/>
+Dim objFSO, objFolder,a <br/>
+<br/>
+Set objFSO = CreateObject(&quot;Scripting.FileSystemObject&quot;)<br/>
+set objFolder = objFSO.GetFolder(&quot;C:\Users\KrzysztofGajewski\Desktop\Testowanie&quot;)<br/>
+<br/>
+For Each a in objFolder.Files<br/>
+	Wscript.Echo a.Name<br/>
+Next</body></html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>LookupSID</title>
+</head><body>lookupsid.py<br/>
+<br/>
+A Windwows SID brute forcer example, aiming at finding remote users/groups<br/>
+<br/>
+# DCE/RPC lookup sid brute forcer example<br/>
+<br/>
+usage: lookupsid.py [-h] [-target-ip ip address] [-port [destination port]]<br/>
+          [-domain-sids] [-hashes LMHASH:NTHASH] [-no-pass]<br/>
+          target [maxRid]<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+ maxRid        max Rid to check (default 4000)<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+<br/>
+connection:<br/>
+ -target-ip ip address<br/>
+            IP Address of the target machine. If omitted it will<br/>
+            use whatever was specified as target. This is useful<br/>
+            when target is the NetBIOS name and you cannot resolve<br/>
+            it<br/>
+ -port [destination port]<br/>
+            Destination port to connect to SMB Server<br/>
+ -domain-sids     Enumerate Domain SIDs (will likely forward requests to<br/>
+            the DC)<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful when proxying through<br/>
+            smbrelayx)<br/>
+</body></html>

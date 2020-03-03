@@ -1,0 +1,37 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>RPCDump</title>
+</head><body>rpcdump.py<br/>
+<br/>
+An application that communicates with the Endpoint Mapper interface from the DCE/RPC suite. This can be used to list services that are remotely available through DCE/RPC.<br/>
+This will dump all endpoints received as a response, not necessarily those endpoints that are listening or accepting connections.<br/>
+<br/>
+# DCE/RPC endpoint mapper dumper.<br/>
+<br/>
+usage: rpcdump.py [-h] [-debug] [-target-ip ip address]<br/>
+         [-port [destination port]] [-hashes LMHASH:NTHASH]<br/>
+         target<br/>
+<br/>
+Dumps the remote RPC enpoints information.<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+connection:<br/>
+ -target-ip ip address<br/>
+            IP Address of the target machine. If ommited it will<br/>
+            use whatever was specified as target. This is useful<br/>
+            when target is the NetBIOS name and you cannot resolve<br/>
+            it<br/>
+ -port [destination port]<br/>
+            Destination port to connect to SMB Server<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+</body></html>

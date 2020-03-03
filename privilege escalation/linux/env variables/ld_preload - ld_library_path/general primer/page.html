@@ -1,0 +1,18 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>General Primer</title>
+</head><body>LD_LIBRARY_PATH: <br/>
+A list of directories in which to search for ELF libraries at execution-time<br/>
+<br/>
+LD_PRELOAD:<br/>
+A list of additional, user-specified ELF shared objects to be loaded before all others<br/>
+<br/>
+<br/>
+These variables are not respected in secure-execution mode<br/>
+Secure-execution mode is activated if:<br/>
+	The process's real and effect user IDs differ, or the real and effective group IDs differ<br/>
+	A process with a non-root user ID executed a binary that conferred permitted or effective capabilities<br/>
+	A Linux Security Module turned the mode on<br/>
+<br/>
+<img src="image.png"/></body></html>

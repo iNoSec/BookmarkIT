@@ -1,0 +1,256 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Invoke-RPCArchitectureCheck.ps1</title>
+</head><body>&lt;#<br/>
+  Invoke-RPCArchitectureCheck via .PS<br/>
+  Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+  License: BSD 3-Clause<br/>
+  Required Dependencies: None<br/>
+  Optional Dependencies: None<br/>
+#&gt;<br/>
+<br/>
+function Invoke-RPCArchitectureCheck {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+    Invoke-RPCArchitectureCheck<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+    Test Platforms: Windows 7<br/>
+  .DESCRIPTION<br/>
+    Invoke-RPCArchitectureCheck is a simple utility to use a crafted RPC packet to<br/>
+    check a remote hosts arch. Returns is x86 or x64.<br/>
+  .PARAMETER Target<br/>
+    Host or target ip address.<br/>
+  .EXAMPLE<br/>
+    Invoke-RPCArchitectureCheck -Target 192.168.1.1<br/>
+    Invoke-RPCArchitectureCheck -Target 192.168.1.1 -Verbose<br/>
+    <br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $true, Position = 0)]<br/>
+    [String]<br/>
+    $Target<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    Write-Verbose &quot;[*] Setting error action to stop&quot;<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    $outputVerbose = [bool]($VerbosePreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)<br/>
+  }<br/>
+  <br/>
+  <br/>
+  Process {<br/>
+    #Begin main process block exec of encryption<br/>
+    Write-Verbose &quot;[*] Attempting to con() to target&quot; <br/>
+    $sock = rpc_dce_connect($Target)<br/>
+    Write-Verbose &quot;[*] Scoket Created!&quot; <br/>
+    Write-Verbose &quot;[*] Starting to build payload packet&quot;<br/>
+    $packet = make_rpc_packet($Target)<br/>
+    Write-Verbose &quot;[*] Packet built: &quot;<br/>
+    if ($outputVerbose) {<br/>
+      Get-HexDump($packet)<br/>
+    }<br/>
+    Write-Verbose &quot;[*] Sending packet to host!&quot; <br/>
+    $sock.Send($packet) | Out-Null<br/>
+    $tcp_response = [Array]::CreateInstance(&quot;byte&quot;, 100)<br/>
+    try{<br/>
+      $sock.Receive($tcp_response) | Out-Null<br/>
+    }<br/>
+    catch {<br/>
+      Write-Warning &quot;Socket error, failed to rec() from target&quot;<br/>
+    }<br/>
+    Write-Verbose &quot;[*] Packet from RPC server: &quot;<br/>
+    if ($outputVerbose) {<br/>
+      Get-HexDump($tcp_response)<br/>
+    }<br/>
+    $resp = rpc_dce_bind_ack($tcp_response)<br/>
+    Write-Verbose &quot;[*] Packet stuc created: &quot;<br/>
+    if ($outputVerbose) {<br/>
+      $resp<br/>
+    }<br/>
+    Write-Verbose &quot;[*] Remote Target is: &quot; <br/>
+    if ( $resp.item_1_ack_result[0] -ne 2 ) {<br/>
+      $temp = @{<br/>
+            target = $Target;<br/>
+            architecture = &quot;x86&quot;;<br/>
+      }<br/>
+      return $temp<br/>
+    }<br/>
+    if ( $resp.item_2_ack_result[0] -eq 0 ) {<br/>
+      $temp = @{<br/>
+            target = $Target;<br/>
+            architecture = &quot;x64&quot;;<br/>
+      }<br/>
+      return $temp<br/>
+    }<br/>
+    else {<br/>
+      $temp = @{<br/>
+           target = $Target;<br/>
+           architecture = &quot;unkown&quot;;<br/>
+      }<br/>
+      return $temp<br/>
+    }<br/>
+    <br/>
+  }<br/>
+<br/>
+  End {<br/>
+    Write-Verbose &quot;[*] Calling GC for packet clean up&quot;<br/>
+    [GC]::Collect()<br/>
+<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+<br/>
+<br/>
+function rpc_dce_connect($target)<br/>
+{<br/>
+  $client = New-Object System.Net.Sockets.TcpClient($target,49152)<br/>
+  $sock = $client.Client<br/>
+  return $sock <br/>
+<br/>
+}<br/>
+<br/>
+function rpc_dce_bind_ack($rpcack) {<br/>
+<br/>
+  $parsed_header = @{<br/>
+            version = $rpcack[0];<br/>
+            version_minor = $rpcack[1];<br/>
+            packet_type = $rpcack[2];<br/>
+            packet_flags = $rpcack[3];<br/>
+            data_representation = $rpcack[4..7];<br/>
+            frag_length = $rpcack[8..9];<br/>
+            auth_length = $rpcack[10..11];<br/>
+            call_id = $rpcack[12..15];<br/>
+            max_xmit_frag = $rpcack[16..17];<br/>
+            max_recv_frag = $rpcack[18..19];<br/>
+            assoc_group = $rpcack[20..23];<br/>
+            scndry_addr_len = $rpcack[24..25];<br/>
+            scndry_addr = $rpcack[26..31];<br/>
+            num_results = $rpcack[32];<br/>
+            item_pad = $rpcack[33.35];<br/>
+            item_1_ack_result = $rpcack[36..37];<br/>
+            item_1_ack_reason = $rpcack[38..39];<br/>
+            item_1_transfer_syntax = $rpcack[40..55];<br/>
+            item_1_syntax_ver = $rpcack[56..59];<br/>
+            item_2_ack_result = $rpcack[60..61];<br/>
+            item_2_ack_reason = $rpcack[62..63];<br/>
+            item_2_transfer_syntax = $rpcack[64..79];<br/>
+            item_2_syntax_ver = $rpcack[80..83];<br/>
+          }<br/>
+  return $parsed_header<br/>
+<br/>
+}<br/>
+<br/>
+function make_rpc_packet($Target) {<br/>
+<br/>
+  ##################################<br/>
+  # DEC/RPC Header Data (required) #<br/>
+  ##################################<br/>
+  [Byte[]] $pkt = [Byte[]] 0x05<br/>
+  # Version 5.0 <br/>
+  $pkt += 0x00<br/>
+  # Packet needs to be a (Bind) call (int = 11)<br/>
+  $pkt += 0x0B<br/>
+  # Set packet flags (Binary = 00000011)<br/>
+  $pkt += 0x03<br/>
+  # set data network rep (order: Little Endian, Char: ASCII, Float: IEEE)<br/>
+  # (Binary = 10000000)<br/>
+  $pkt += 0x10,0x00,0x00,0x00<br/>
+  # set frag length (int 116)<br/>
+  $pkt += 0x74,0x00<br/>
+  # Auth Length (No auth :)<br/>
+  $pkt += 0x00,0x00<br/>
+  # No call ID needed, we wont hit DCE UIDs<br/>
+  $pkt += 0x00,0x00,0x00,0x00<br/>
+  # Max Xmit Frag: (int 5840)<br/>
+  $pkt += 0xD0,0x16<br/>
+  # Max Recv Frag: (int 5840)<br/>
+  $pkt += 0xD0,0x16<br/>
+  # no asco group<br/>
+  $pkt += 0x00,0x00,0x00,0x00<br/>
+  # set the number of CTX items (2 for Arch check)<br/>
+  $pkt += 0x02<br/>
+  # padding <br/>
+  $pkt += 0x00,0x00,0x00<br/>
+<br/>
+  Write-Verbose &quot;[*] Built DCE-RPC Header&quot;<br/>
+<br/>
+  # TODO: add verbose print here with HEX+ASCII Dump<br/>
+<br/>
+  ##################################<br/>
+  #    DEC/RPC CTX Item 1    #<br/>
+  ##################################<br/>
+  # context ID<br/>
+  $pkt += 0x00,0x00<br/>
+  # num of trans items: (int 1)<br/>
+  $pkt += 0x01,0x00<br/>
+  # Abstract Syntax: MGMT V1.0<br/>
+  # Interface: MGMT UUID: afa8bd80-7d8a-11c9-bef4-08002b102989<br/>
+  $pkt += 0x80,0xBD,0xA8,0xAF,0x8A,0x7D,0xC9,0x11,0xBE,0xF4,0x08,0x00,0x2B,0x10,0x29,0x89<br/>
+  # Interface Ver: 1<br/>
+  $pkt += 0x01,0x00<br/>
+  # Interface Ver Minor:<br/>
+  $pkt += 0x00,0x00<br/>
+  # Transfer Syntax[1]: 32bit NDR V2<br/>
+  # Transfer Syntax: 32bit NDR UUID:8a885d04-1ceb-11c9-9fe8-08002b104860<br/>
+  $pkt += 0x04,0x5D,0x88,0x8A,0xEB,0x1C,0xC9,0x11,0x9F,0xE8,0x08,0x00,0x2B,0x10,0x48,0x60<br/>
+  # Version (int 2)<br/>
+  $pkt += 0x02,0x00,0x00,0x00<br/>
+<br/>
+  Write-Verbose &quot;[*] Built DCE-RPC CTX Item 1&quot;<br/>
+<br/>
+  # TODO: add verbose print here with HEX+ASCII Dump<br/>
+<br/>
+  ##################################<br/>
+  #    DEC/RPC CTX Item 2    #<br/>
+  ##################################<br/>
+  # context ID: 1<br/>
+  $pkt += 0x01,0x00<br/>
+  # num of trans items: (int 1)<br/>
+  $pkt += 0x01,0x00<br/>
+  # Abstract Syntax: MGMT V1.0<br/>
+  # Interface: MGMT UUID: afa8bd80-7d8a-11c9-bef4-08002b102989<br/>
+  $pkt += 0x80,0xBD,0xA8,0xAF,0x8A,0x7D,0xC9,0x11,0xBE,0xF4,0x08,0x00,0x2B,0x10,0x29,0x89<br/>
+  # Interface Ver: 1<br/>
+  $pkt += 0x01,0x00<br/>
+  # Interface Ver Minor:<br/>
+  $pkt += 0x00,0x00<br/>
+  # Transfer Syntax[1]: 64bit NDR V1<br/>
+  # Transfer Syntax: 64bit NDR UUID:71710533-beba-4937-8319-b5dbef9ccc36<br/>
+  $pkt += 0x33,0x05,0x71,0x71,0xBA,0xBE,0x37,0x49,0x83,0x19,0xB5,0xDB,0xEF,0x9C,0xCC,0x36<br/>
+  # Version (int 1)<br/>
+  $pkt += 0x01,0x00,0x00,0x00<br/>
+<br/>
+  # TODO: add verbose print here with HEX+ASCII Dump<br/>
+  Write-Verbose &quot;[*] Built DCE-RPC CTX Item 2&quot;<br/>
+  return $pkt<br/>
+<br/>
+}<br/>
+<br/>
+function Get-HexDump($bytes) <br/>
+{<br/>
+  $chunks = [Math]::Ceiling($bytes.Length / 16);<br/>
+<br/>
+  $hexDump = 0..($chunks – 1) | % {<br/>
+    $bufferSize = if ($_ -ne $chunks – 1) { 16 } else { $bytes.Length – $_ * 16}<br/>
+    [byte[]] $buffer = @(0) * $bufferSize<br/>
+    [Array]::Copy($bytes, $_ * 16, $buffer, 0, $bufferSize)<br/>
+    $bufferChars = [System.Text.Encoding]::ASCII.GetChars($buffer);<br/>
+    $hexRow = ($_ * 16).ToString(&quot;X8&quot;) + &quot;: &quot;<br/>
+    $hexRow += (($buffer | %{ $_.ToString(&quot;X2&quot;) }) -join &quot; &quot;)<br/>
+    $hexRow += (&quot; &quot; * ((17 – $buffer.Length) * 3))<br/>
+    $hexRow += (($bufferChars | %{ if ([char]::IsControl($_) -eq $true) { &quot;.&quot; } else { &quot;$_&quot; } }) -join &quot;&quot;)<br/>
+    $hexRow<br/>
+   <br/>
+  }<br/>
+<br/>
+  $hexDump<br/>
+}<br/>
+</body></html>

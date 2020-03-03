@@ -1,0 +1,47 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>WMIexec.py</title>
+</head><body>A semi-interactive shell, used through Windows Management Instrumentation. It does not require to install any service/agent at the target server. Runs as Administrator. Highly stealthy.<br/>
+<br/>
+# A similar approach to smbexec but executing commands through WMI.<br/>
+# Main advantage here is it runs under the user (has to be Admin) <br/>
+# account, not SYSTEM, plus, it doesn't generate noisy messages<br/>
+# in the event log that smbexec.py does when creating a service.<br/>
+# Drawback is it needs DCOM, hence, I have to be able to access <br/>
+# DCOM ports at the target machine.<br/>
+<br/>
+usage: wmiexec.py [-h] [-share SHARE] [-nooutput] [-debug] [-codec CODEC]<br/>
+         [-hashes LMHASH:NTHASH] [-no-pass] [-k] [-aesKey hex key]<br/>
+         [-dc-ip ip address] [-A authfile]<br/>
+         target [command [command ...]]<br/>
+<br/>
+Executes a semi-interactive shell using Windows Management Instrumentation.<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+ command        command to execute at the target. If empty it will<br/>
+            	 launch a semi-interactive shell<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      		show this help message and exit<br/>
+ -share SHARE     	share where the output will be grabbed from (default ADMIN$)<br/>
+ -nooutput       		whether or not to print the output (no SMB connection created)<br/>
+ -debug        		Turn DEBUG output ON<br/>
+ -codec CODEC     	Sets encoding used (codec) from the target's output<br/>
+            	(default &quot;UTF-8&quot;). If errors are detected, run<br/>
+            	chcp.com at the target, map the result with<br/>
+            	https://docs.python.org/2.4/lib/standard-<br/>
+            	encodings.html and then execute wmiexec.py again with<br/>
+            	-codec and the corresponding codec<br/>
+authentication:<br/>
+ -hashes 		LMHASH:NTHASH<br/>
+            	NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          	Use Kerberos authentication. Grabs credentials from<br/>
+            	ccache file (KRB5CCNAME) based on target parameters.<br/>
+            	If valid credentials cannot be found, it will use the<br/>
+            	ones specified in the command line<br/>
+ -aesKey hex key   AES key to use for Kerberos Authentication (128 or 256 bits)<br/>
+ -dc-ip ip address   IP Address of the domain controller. If ommited it use the domain part (FQDN) specified in the target parameter<br/>
+ -A authfile      	smbclient/mount.cifs-style authentication file. See smbclient man page's -A option.</body></html>

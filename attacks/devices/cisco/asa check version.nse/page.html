@@ -1,0 +1,58 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>ASA Check Version.nse</title>
+</head><body>-- The Head Section --<br/>
+description = [[Cisco ASA Version Scan as an nmap NSE plugin.<br/>
+Attempt to grab the Cisco ASA version from the Cisco ASA.]]<br/>
+<br/>
+---<br/>
+-- @usage<br/>
+-- nmap --script ASA-Check.nse -p 443 &lt;target&gt;<br/>
+-- @output<br/>
+-- PORT  STATE SERVICE<br/>
+-- 443/tcp open https<br/>
+-- |_cisco-asa-verscan: Version<br/>
+<br/>
+author = &quot;Killswitch-gui forked from alec-stuart&quot;<br/>
+license = &quot;Same as Nmap--See http://nmap.org/book/man-legal.html&quot;<br/>
+categories = {&quot;default&quot;, &quot;safe&quot;}<br/>
+<br/>
+local shortport = require &quot;shortport&quot;<br/>
+local http = require &quot;http&quot;<br/>
+local stdnse = require &quot;stdnse&quot;<br/>
+local string = require &quot;string&quot;<br/>
+<br/>
+-- The Rule Section --<br/>
+portrule = shortport.http<br/>
+<br/>
+-- The Action Section --<br/>
+action = function(host, port)<br/>
+<br/>
+  local uri = &quot;/CSCOSSLC/config-auth&quot;<br/>
+  local options = {header={}}<br/>
+  options['header']['User-Agent'] = &quot;Cisco AnyConnect VPN Agent&quot;<br/>
+  local response = http.get(host, port, uri, options)<br/>
+  output = {}<br/>
+<br/>
+<br/>
+  if ( response.status == 200 ) then<br/>
+  	local version = string.match(response.body, '.*&lt;version who=&quot;sg&quot;&gt;(.*)&lt;/version&gt;')<br/>
+    if (version ~= nil) then<br/>
+	    verstr = string.gsub(version,&quot;%D&quot;,&quot;&quot;)<br/>
+      longver = tonumber(verstr)<br/>
+	    while longver&lt;10000 do<br/>
+		    longver = longver *10<br/>
+	    end<br/>
+      <br/>
+	    output[#output + 1] = &quot;Cisco ASA version &quot; .. version<br/>
+      if(longver &lt;83000 and longver &lt; 82551) then<br/>
+	      return &quot;not checking&quot;<br/>
+      end<br/>
+      return #output &gt; 0 and stdnse.strjoin(&quot;\n&quot;, output) or nil<br/>
+    else    <br/>
+      return &quot;Unknown&quot;<br/>
+    end<br/>
+  end<br/>
+end<br/>
+</body></html>

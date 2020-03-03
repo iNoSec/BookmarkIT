@@ -1,0 +1,101 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>LocalSecurityAuthority Translation</title>
+</head><body><a href="https://msdn.microsoft.com/en-us/library/cc234485.aspx">MSDN</a><br/>
+This section specifies the methods for this protocol, in addition to their processing rules.&lt;21&gt;&lt;22&gt;<br/>
+<br/>
+This protocol contains some methods with parameters that have no effect on message processing in any environment. These are called out as &quot;ignored&quot;.<br/>
+<br/>
+Note This protocol shares an interface with the Local Security Authority (Domain Policy) Remote Protocol, as specified in [MS-LSAD].<br/>
+<br/>
+Methods in RPC Opnum Order<br/>
+<br/>
+Method					Description<br/>
+LsarClose					Frees the resources held by a context handle.<br/>
+						Opnum: 0<br/>
+Opnum1NotUsedOnWire		Opnum: 1<br/>
+Lsar_LSA_DP_2			Opnum: 2<br/>
+Lsar_LSA_DP_3			Opnum: 3<br/>
+Lsar_LSA_DP_4			Opnum: 4<br/>
+Opnum5NotUsedOnWire		Opnum: 5<br/>
+LsarOpenPolicy				Opens a context handle to the RPC server.<ul><li style="list-style-type: none">					Opnum: 6	</li>
+</ul>
+Lsar_LSA_DP_7			Opnum: 7<br/>
+Lsar_LSA_DP_8			Opnum: 8<br/>
+Opnum9NotUsedOnWire		Opnum: 9<br/>
+Lsar_LSA_DP_10			Opnum: 10<br/>
+Lsar_LSA_DP_11			Opnum: 11<br/>
+Lsar_LSA_DP_12			Opnum: 12<br/>
+Lsar_LSA_DP_13			Opnum: 13<br/>
+LsarLookupNames			Translates a batch of security principal names. For information on selecting which version to use, see section 3.<br/>
+						Opnum: 14<br/>
+LsarLookupSids			Translates a batch of security principal SIDs. For information on selecting which version to use, see section 3.<br/>
+						Opnum: 15<br/>
+Lsar_LSA_DP_16			Opnum: 16<br/>
+Lsar_LSA_DP_17			Opnum: 17<br/>
+Lsar_LSA_DP_18			Opnum: 18<br/>
+Lsar_LSA_DP_19			Opnum: 19<br/>
+Lsar_LSA_DP_20			Opnum: 20<br/>
+Opnum21NotUsedOnWire		Opnum: 21<br/>
+Opnum22NotUsedOnWire		Opnum: 22<br/>
+Lsar_LSA_DP_23			Opnum: 23<br/>
+Lsar_LSA_DP_24			Opnum: 24<br/>
+Lsar_LSA_DP_25			Opnum: 25<br/>
+Lsar_LSA_DP_26			Opnum: 26<br/>
+Lsar_LSA_DP_27			Opnum: 27<br/>
+Lsar_LSA_DP_28			Opnum: 28<br/>
+Lsar_LSA_DP_29			Opnum: 29<br/>
+Lsar_LSA_DP_30			Opnum: 30<br/>
+Lsar_LSA_DP_31			Opnum: 31<br/>
+Lsar_LSA_DP_32			Opnum: 32<br/>
+Lsar_LSA_DP_33			Opnum: 33<br/>
+Lsar_LSA_DP_34			Opnum: 34<br/>
+Lsar_LSA_DP_35			Opnum: 35<br/>
+Lsar_LSA_DP_36			Opnum: 36<br/>
+Lsar_LSA_DP_37			Opnum: 37<br/>
+Lsar_LSA_DP_38			Opnum: 38<br/>
+Lsar_LSA_DP_39			Opnum: 39<br/>
+Lsar_LSA_DP_40			Opnum: 40<br/>
+Lsar_LSA_DP_41			Opnum: 41<br/>
+Lsar_LSA_DP_42			Opnum: 42<br/>
+Lsar_LSA_DP_43			Opnum: 43<br/>
+LsarOpenPolicy2			Opens a context handle to the RPC server.<br/>
+						Opnum: 45<br/>
+Lsar_LSA_DP_46			Opnum: 46<br/>
+Lsar_LSA_DP_47			Opnum: 47<br/>
+Lsar_LSA_DP_48			Opnum: 48<br/>
+Lsar_LSA_DP_49			Opnum: 49<br/>
+Lsar_LSA_DP_50			Opnum: 50<br/>
+Lsar_LSA_DP_51			Opnum: 51<br/>
+Opnum52NotUsedOnWire		Opnum: 52<br/>
+Lsar_LSA_DP_53			Opnum: 53<br/>
+Lsar_LSA_DP_54			Opnum: 54<br/>
+Lsar_LSA_DP_55			Opnum: 55<br/>
+Opnum56NotUsedOnWire		Opnum: 56<br/>
+LsarLookupSids2			Translates a batch of security principal SIDs. For information on selecting which version to use, see section 3.<br/>
+						Opnum: 57<br/>
+LsarLookupNames2			Translates a batch of security principal names. For information on selecting which version to use, see section 3.<br/>
+						Opnum: 58<br/>
+Lsar_LSA_DP_59			Opnum: 59<br/>
+Opnum60NotUsedOnWire		Opnum: 60<br/>
+Opnum61NotUsedOnWire		Opnum: 61<br/>
+Opnum62NotUsedOnWire		Opnum: 62<br/>
+Opnum63NotUsedOnWire		Opnum: 63<br/>
+Opnum64NotUsedOnWire		Opnum: 64<br/>
+Opnum65NotUsedOnWire		Opnum: 65<br/>
+Opnum66NotUsedOnWire		Opnum: 66<br/>
+Opnum67NotUsedOnWire		Opnum: 67<br/>
+LsarLookupNames3			Translates a batch of security principal names. For information on selecting which version to use, see section 3.<br/>
+						Opnum: 68<br/>
+Opnum69NotUsedOnWire		Opnum: 69<br/>
+Opnum70NotUsedOnWire		Opnum: 70<br/>
+Opnum71NotUsedOnWire		Opnum: 71<br/>
+Opnum72NotUsedOnWire		Opnum: 72<br/>
+Lsar_LSA_DP_73			Opnum: 73<br/>
+Lsar_LSA_DP_74			Opnum: 74<br/>
+Opnum75NotUsedOnWire		Opnum: 75<br/>
+LsarLookupSids3			Translates a batch of security principal SIDs. For information on selecting which version to use, see section 3.<br/>
+						Opnum: 76<br/>
+LsarLookupNames4			Translates a batch of security principal names. For information on selecting which version to use, see section 3.<br/>
+						Opnum: 77</body></html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Netview</title>
+</head><body>netview.py<br/>
+<br/>
+Gets a list of the sessions opened at the remote hosts and keep track of them looping over the hosts found and keeping track of who logged in/out from remote servers<br/>
+<br/>
+# Description:<br/>
+#  The idea of this script is to get a list of the sessions<br/>
+#  opened at the remote hosts and keep track of them.<br/>
+#  Coincidentally @mubix did something similar a few years<br/>
+#  ago so credit goes to him (and the script's name ;)).<br/>
+#  Check it out at https://github.com/mubix/netview<br/>
+#  The main difference with our approach is we keep <br/>
+#  looping over the hosts found and keep track of who logged<br/>
+#  in/out from remote servers. Plus, we keep the connections<br/>
+#  with the target systems and just send a few DCE-RPC packets.<br/>
+#<br/>
+#  One VERY IMPORTANT thing is:<br/>
+#  <br/>
+#  YOU HAVE TO BE ABLE TO RESOLV THE DOMAIN MACHINES NETBIOS <br/>
+#  NAMES. That's usually solved by setting your DNS to the <br/>
+#  domain DNS (and the right search domain).<br/>
+#  <br/>
+#  Some examples of usage are:<br/>
+#<br/>
+#  netview.py -target 192.168.1.10 beto<br/>
+#  <br/>
+#  This will show the sessions on 192.168.1.10 and will authenticate as 'beto'<br/>
+#  (password will be prompted)<br/>
+#<br/>
+#  netview.py FREEFLY.NET/beto<br/>
+#<br/>
+#  This will download all machines from FREEFLY.NET, authenticated as 'beto'<br/>
+#  and will gather the session information for those machines that appear<br/>
+#  to be up. There is a background thread checking aliveness of the targets<br/>
+#  at all times.<br/>
+#<br/>
+#  netview.py -users /tmp/users -dc-ip freefly-dc.freefly.net -k FREEFLY.NET/beto<br/>
+# <br/>
+#  This will download all machines from FREEFLY.NET, authenticating using<br/>
+#  Kerberos (that's why -dc-ip parameter is needed), and filter<br/>
+#  the output based on the list of users specified in /tmp/users file.<br/>
+<br/>
+<br/>
+usage: netview.py [-h] [-user USER] [-users USERS] [-target TARGET]<br/>
+         [-targets TARGETS] [-noloop] [-delay DELAY]<br/>
+         [-max-connections MAX_CONNECTIONS] [-debug]<br/>
+         [-hashes LMHASH:NTHASH] [-no-pass] [-k] [-aesKey hex key]<br/>
+         [-dc-ip ip address]<br/>
+         identity<br/>
+<br/>
+positional arguments:<br/>
+ identity       [domain/]username[:password]<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -user USER      Filter output by this user<br/>
+ -users USERS     input file with list of users to filter to output for<br/>
+ -target TARGET    target system to query info from. If not specified<br/>
+            script will run in domain mode.<br/>
+ -targets TARGETS   input file with targets system to query info from (one<br/>
+            per line). If not specified script will run in domain<br/>
+            mode.<br/>
+ -noloop        Stop after the first probe<br/>
+ -delay DELAY     seconds delay between starting each batch probe<br/>
+            (default 10 seconds)<br/>
+ -max-connections MAX_CONNECTIONS<br/>
+            Max amount of connections to keep opened (default<br/>
+            1000)<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+ -dc-ip ip address   IP Address of the domain controller. If ommited it use<br/>
+            the domain part (FQDN) specified in the target<br/>
+            parameter<br/>
+</body></html>

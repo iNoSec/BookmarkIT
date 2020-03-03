@@ -1,0 +1,22 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Select Case</title>
+</head><body>' =============================================<br/>
+<br/>
+option explicit<br/>
+<br/>
+Dim x<br/>
+<br/>
+x = InputBox(&quot;Podaj liczbe wieksza od 7&quot;, &quot;Tester liczb&quot;, &quot;Wpisz liczbe tutaj...&quot;)<br/>
+<br/>
+Select Case x<br/>
+	Case &quot;1&quot;<br/>
+		MsgBox &quot;Podales jeden&quot;<br/>
+	Case &quot;2&quot;<br/>
+		MsgBox &quot;Podales dwa&quot;<br/>
+	Case &quot;3&quot;<br/>
+		MsgBox &quot;Podales trzy&quot;<br/>
+	Case else<br/>
+		MsgBox &quot;Podales liczbe wieksza niz trzy&quot;<br/>
+End Select</body></html>

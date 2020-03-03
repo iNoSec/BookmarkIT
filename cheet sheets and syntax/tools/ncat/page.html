@@ -1,0 +1,61 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Ncat</title>
+</head><body>http://alexcreek.com/ncat-cheatsheet.html<br/>
+https://bitrot.sh/cheatsheet/19-12-2017-ncat/<br/>
+<br/>
+Ncat<br/>
+Ncat is a piece of software created by the same person who made Nmap, Fyodor, as an upgrade to netcat.<br/>
+<br/>
+Ncat command output:(from: http://nmap.org/book/ncat-man-options-summary.html) <br/>
+Ncat 6.46 ( http://nmap.org/ncat )<br/>
+Usage: ncat [options] [hostname] [port]<br/>
+<br/>
+Options taking a time assume seconds. Append 'ms' for milliseconds,<br/>
+'s' for seconds, 'm' for minutes, or 'h' for hours (e.g. 500ms).<br/>
+ -4             Use IPv4 only<br/>
+ -6             Use IPv6 only<br/>
+ -U, --unixsock       Use Unix domain sockets only<br/>
+ -C, --crlf         Use CRLF for EOL sequence<br/>
+ -c, --sh-exec &lt;command&gt;  Executes the given command via /bin/sh<br/>
+ -e, --exec &lt;command&gt;    Executes the given command<br/>
+   --lua-exec &lt;filename&gt; Executes the given Lua script<br/>
+ -g hop1[,hop2,...]     Loose source routing hop points (8 max)<br/>
+ -G &lt;n&gt;           Loose source routing hop pointer (4, 8, 12, ...)<br/>
+ -m, --max-conns &lt;n&gt;    Maximum &lt;n&gt; simultaneous connections<br/>
+ -h, --help         Display this help screen<br/>
+ -d, --delay &lt;time&gt;     Wait between read/writes<br/>
+ -o, --output &lt;filename&gt;  Dump session data to a file<br/>
+ -x, --hex-dump &lt;filename&gt; Dump session data as hex to a file<br/>
+ -i, --idle-timeout &lt;time&gt; Idle read/write timeout<br/>
+ -p, --source-port port   Specify source port to use<br/>
+ -s, --source addr     Specify source address to use (doesn't affect -l)<br/>
+ -l, --listen        Bind and listen for incoming connections<br/>
+ -k, --keep-open      Accept multiple connections in listen mode<br/>
+ -n, --nodns        Do not resolve hostnames via DNS<br/>
+ -t, --telnet        Answer Telnet negotiations<br/>
+ -u, --udp         Use UDP instead of default TCP<br/>
+   --sctp         Use SCTP instead of default TCP<br/>
+ -v, --verbose       Set verbosity level (can be used several times)<br/>
+ -w, --wait &lt;time&gt;     Connect timeout<br/>
+   --append-output    Append rather than clobber specified output files<br/>
+   --send-only      Only send data, ignoring received; quit on EOF<br/>
+   --recv-only      Only receive data, never send anything<br/>
+   --allow        Allow only given hosts to connect to Ncat<br/>
+   --allowfile      A file of hosts allowed to connect to Ncat<br/>
+   --deny         Deny given hosts from connecting to Ncat<br/>
+   --denyfile       A file of hosts denied from connecting to Ncat<br/>
+   --broker        Enable Ncat's connection brokering mode<br/>
+   --chat         Start a simple Ncat chat server<br/>
+   --proxy &lt;addr[:port]&gt; Specify address of host to proxy through<br/>
+   --proxy-type &lt;type&gt;  Specify proxy type (&quot;http&quot; or &quot;socks4&quot; or &quot;socks5&quot;)<br/>
+   --proxy-auth &lt;auth&gt;  Authenticate with HTTP or SOCKS proxy server<br/>
+   --ssl         Connect or listen with SSL<br/>
+   --ssl-cert       Specify SSL certificate file (PEM) for listening<br/>
+   --ssl-key       Specify SSL private key (PEM) for listening<br/>
+   --ssl-verify      Verify trust and domain name of certificates<br/>
+   --ssl-trustfile    PEM file containing trusted SSL certificates<br/>
+   --version       Display Ncat's version information and exit<br/>
+<br/>
+See the ncat(1) manpage for full options, descriptions and usage examples</body></html>

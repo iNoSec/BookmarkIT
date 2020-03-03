@@ -1,0 +1,304 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Man Page</title>
+</head><body>hashcat --help<br/>
+hashcat, advanced password recovery<br/>
+<br/>
+Usage: hashcat [options] hashfile [mask|wordfiles|directories]<br/>
+<br/>
+=======<br/>
+Options<br/>
+=======<br/>
+<br/>
+* General:<br/>
+<br/>
+ -m, --hash-type=NUM        Hash-type, see references below<br/>
+ -a, --attack-mode=NUM       Attack-mode, see references below<br/>
+ -V, --version           Print version<br/>
+ -h, --help            Print help<br/>
+   --quiet            Suppress output<br/>
+<br/>
+* Benchmark:<br/>
+<br/>
+ -b, --benchmark          Run benchmark<br/>
+<br/>
+* Misc:<br/>
+<br/>
+   --hex-salt          Assume salt is given in hex<br/>
+   --hex-charset         Assume charset is given in hex<br/>
+   --runtime=NUM         Abort session after NUM seconds of runtime<br/>
+   --status           Enable automatic update of the status-screen<br/>
+   --status-timer=NUM      Seconds between status-screen update<br/>
+   --status-automat       Display the status view in a machine readable format<br/>
+<br/>
+* Files:<br/>
+<br/>
+ -o, --outfile=FILE        Define outfile for recovered hash<br/>
+   --outfile-format=NUM     Define outfile-format for recovered hash, see references below<br/>
+   --outfile-autohex-disable   Disable the use of $HEX[] in output plains<br/>
+ -p, --separator=CHAR       Define separator char for hashlists/outfile<br/>
+   --show            Show cracked passwords only (see --username)<br/>
+   --left            Show uncracked passwords only (see --username)<br/>
+   --username          Enable ignoring of usernames in hashfile (Recommended: also use --show)<br/>
+   --remove           Enable remove of hash once it is cracked<br/>
+   --stdout           Stdout mode<br/>
+   --potfile-disable       Do not write potfile<br/>
+   --debug-mode=NUM       Defines the debug mode (hybrid only by using rules), see references below<br/>
+   --debug-file=FILE       Output file for debugging rules (see --debug-mode)<br/>
+ -e, --salt-file=FILE       Salts-file for unsalted hashlists<br/>
+<br/>
+* Resources:<br/>
+<br/>
+ -c, --segment-size=NUM      Size in MB to cache from the wordfile<br/>
+ -n, --threads=NUM         Number of threads<br/>
+ -s, --words-skip=NUM       Skip number of words (for resume)<br/>
+ -l, --words-limit=NUM       Limit number of words (for distributed)<br/>
+<br/>
+* Rules:<br/>
+<br/>
+ -r, --rules-file=FILE       Rules-file use: -r 1.rule<br/>
+ -g, --generate-rules=NUM     Generate NUM random rules<br/>
+   --generate-rules-func-min=NUM Force NUM functions per random rule min<br/>
+   --generate-rules-func-max=NUM Force NUM functions per random rule max<br/>
+   --generate-rules-seed=NUM   Force RNG seed to NUM<br/>
+<br/>
+* Custom charsets:<br/>
+<br/>
+ -1, --custom-charset1=CS     User-defined charsets<br/>
+ -2, --custom-charset2=CS     Example:<br/>
+ -3, --custom-charset3=CS     --custom-charset1=?dabcdef : sets charset ?1 to 0123456789abcdef<br/>
+ -4, --custom-charset4=CS     -2 mycharset.hcchr : sets charset ?2 to chars contained in file<br/>
+<br/>
+* Toggle-Case attack-mode specific:<br/>
+<br/>
+   --toggle-min=NUM       Number of alphas in dictionary minimum<br/>
+   --toggle-max=NUM       Number of alphas in dictionary maximum<br/>
+<br/>
+* Mask-attack attack-mode specific:<br/>
+<br/>
+   --increment          Enable increment mode<br/>
+   --increment-min=NUM      Start incrementing at NUM<br/>
+   --increment-max=NUM      Stop incrementing at NUM<br/>
+<br/>
+* Permutation attack-mode specific:<br/>
+<br/>
+   --perm-min=NUM        Filter words shorter than NUM<br/>
+   --perm-max=NUM        Filter words larger than NUM<br/>
+<br/>
+* Table-Lookup attack-mode specific:<br/>
+<br/>
+ -t, --table-file=FILE       Table file<br/>
+   --table-min=NUM        Number of chars in dictionary minimum<br/>
+   --table-max=NUM        Number of chars in dictionary maximum<br/>
+<br/>
+* Prince attack-mode specific:<br/>
+<br/>
+   --pw-min=NUM         Print candidate if length is greater than NUM<br/>
+   --pw-max=NUM         Print candidate if length is smaller than NUM<br/>
+   --elem-cnt-min=NUM      Minimum number of elements per chain<br/>
+   --elem-cnt-max=NUM      Maximum number of elements per chain<br/>
+   --wl-dist-len         Calculate output length distribution from wordlist<br/>
+   --wl-max=NUM         Load only NUM words from input wordlist or use 0 to disable<br/>
+   --case-permute        For each word in the wordlist that begins with a letter<br/>
+                  generate a word with the opposite case of the first letter<br/>
+<br/>
+==========<br/>
+References<br/>
+==========<br/>
+<br/>
+* Outfile formats:<br/>
+<br/>
+  1 = hash[:salt]<br/>
+  2 = plain<br/>
+  3 = hash[:salt]:plain<br/>
+  4 = hex_plain<br/>
+  5 = hash[:salt]:hex_plain<br/>
+  6 = plain:hex_plain<br/>
+  7 = hash[:salt]:plain:hex_plain<br/>
+  8 = crackpos<br/>
+  9 = hash[:salt]:crackpos<br/>
+ 10 = plain:crackpos<br/>
+ 11 = hash[:salt]:plain:crackpos<br/>
+ 12 = hex_plain:crackpos<br/>
+ 13 = hash[:salt]:hex_plain:crackpos<br/>
+ 14 = plain:hex_plain:crackpos<br/>
+ 15 = hash[:salt]:plain:hex_plain:crackpos<br/>
+<br/>
+* Debug mode output formats (for hybrid mode only, by using rules):<br/>
+<br/>
+  1 = save finding rule<br/>
+  2 = save original word<br/>
+  3 = save original word and finding rule<br/>
+  4 = save original word, finding rule and modified plain<br/>
+<br/>
+* Built-in charsets:<br/>
+<br/>
+ ?l = abcdefghijklmnopqrstuvwxyz<br/>
+ ?u = ABCDEFGHIJKLMNOPQRSTUVWXYZ<br/>
+ ?d = 0123456789<br/>
+ ?s = !&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~<br/>
+ ?a = ?l?u?d?s<br/>
+ ?b = 0x00 - 0xff<br/>
+<br/>
+* Attack modes:<br/>
+<br/>
+  0 = Straight<br/>
+  1 = Combination<br/>
+  2 = Toggle-Case<br/>
+  3 = Brute-force<br/>
+  4 = Permutation<br/>
+  5 = Table-Lookup<br/>
+  8 = Prince<br/>
+<br/>
+* Hash types:<br/>
+<br/>
+  0 = MD5<br/>
+  10 = md5($pass.$salt)<br/>
+  20 = md5($salt.$pass)<br/>
+  30 = md5(unicode($pass).$salt)<br/>
+  40 = md5($salt.unicode($pass))<br/>
+  50 = HMAC-MD5 (key = $pass)<br/>
+  60 = HMAC-MD5 (key = $salt)<br/>
+ 100 = SHA1<br/>
+ 110 = sha1($pass.$salt)<br/>
+ 120 = sha1($salt.$pass)<br/>
+ 130 = sha1(unicode($pass).$salt)<br/>
+ 140 = sha1($salt.unicode($pass))<br/>
+ 150 = HMAC-SHA1 (key = $pass)<br/>
+ 160 = HMAC-SHA1 (key = $salt)<br/>
+ 200 = MySQL323<br/>
+ 300 = MySQL4.1/MySQL5<br/>
+ 400 = phpass, MD5(Wordpress), MD5(phpBB3), MD5(Joomla)<br/>
+ 500 = md5crypt, MD5(Unix), FreeBSD MD5, Cisco-IOS MD5<br/>
+ 900 = MD4<br/>
+ 1000 = NTLM<br/>
+ 1100 = Domain Cached Credentials (DCC), MS Cache<br/>
+ 1400 = SHA256<br/>
+ 1410 = sha256($pass.$salt)<br/>
+ 1420 = sha256($salt.$pass)<br/>
+ 1430 = sha256(unicode($pass).$salt)<br/>
+ 1431 = base64(sha256(unicode($pass)))<br/>
+ 1440 = sha256($salt.unicode($pass))<br/>
+ 1450 = HMAC-SHA256 (key = $pass)<br/>
+ 1460 = HMAC-SHA256 (key = $salt)<br/>
+ 1600 = md5apr1, MD5(APR), Apache MD5<br/>
+ 1700 = SHA512<br/>
+ 1710 = sha512($pass.$salt)<br/>
+ 1720 = sha512($salt.$pass)<br/>
+ 1730 = sha512(unicode($pass).$salt)<br/>
+ 1740 = sha512($salt.unicode($pass))<br/>
+ 1750 = HMAC-SHA512 (key = $pass)<br/>
+ 1760 = HMAC-SHA512 (key = $salt)<br/>
+ 1800 = SHA-512(Unix)<br/>
+ 2400 = Cisco-PIX MD5<br/>
+ 2410 = Cisco-ASA MD5<br/>
+ 2500 = WPA/WPA2<br/>
+ 2600 = Double MD5<br/>
+ 3200 = bcrypt, Blowfish(OpenBSD)<br/>
+ 3300 = MD5(Sun)<br/>
+ 3500 = md5(md5(md5($pass)))<br/>
+ 3610 = md5(md5($salt).$pass)<br/>
+ 3710 = md5($salt.md5($pass))<br/>
+ 3720 = md5($pass.md5($salt))<br/>
+ 3800 = md5($salt.$pass.$salt)<br/>
+ 3910 = md5(md5($pass).md5($salt))<br/>
+ 4010 = md5($salt.md5($salt.$pass))<br/>
+ 4110 = md5($salt.md5($pass.$salt))<br/>
+ 4210 = md5($username.0.$pass)<br/>
+ 4300 = md5(strtoupper(md5($pass)))<br/>
+ 4400 = md5(sha1($pass))<br/>
+ 4500 = Double SHA1<br/>
+ 4600 = sha1(sha1(sha1($pass)))<br/>
+ 4700 = sha1(md5($pass))<br/>
+ 4800 = MD5(Chap), iSCSI CHAP authentication<br/>
+ 4900 = sha1($salt.$pass.$salt)<br/>
+ 5000 = SHA-3(Keccak)<br/>
+ 5100 = Half MD5<br/>
+ 5200 = Password Safe SHA-256<br/>
+ 5300 = IKE-PSK MD5<br/>
+ 5400 = IKE-PSK SHA1<br/>
+ 5500 = NetNTLMv1-VANILLA / NetNTLMv1-ESS<br/>
+ 5600 = NetNTLMv2<br/>
+ 5700 = Cisco-IOS SHA256<br/>
+ 5800 = Android PIN<br/>
+ 6300 = AIX {smd5}<br/>
+ 6400 = AIX {ssha256}<br/>
+ 6500 = AIX {ssha512}<br/>
+ 6700 = AIX {ssha1}<br/>
+ 6900 = GOST, GOST R 34.11-94<br/>
+ 7000 = Fortigate (FortiOS)<br/>
+ 7100 = OS X v10.8+<br/>
+ 7200 = GRUB 2<br/>
+ 7300 = IPMI2 RAKP HMAC-SHA1<br/>
+ 7400 = sha256crypt, SHA256(Unix)<br/>
+ 7900 = Drupal7<br/>
+ 8400 = WBB3, Woltlab Burning Board 3<br/>
+ 8900 = scrypt<br/>
+ 9200 = Cisco $8$<br/>
+ 9300 = Cisco $9$<br/>
+ 9800 = Radmin2<br/>
+10000 = Django (PBKDF2-SHA256)<br/>
+10200 = Cram MD5<br/>
+10300 = SAP CODVN H (PWDSALTEDHASH) iSSHA-1<br/>
+11000 = PrestaShop<br/>
+11100 = PostgreSQL Challenge-Response Authentication (MD5)<br/>
+11200 = MySQL Challenge-Response Authentication (SHA1)<br/>
+11400 = SIP digest authentication (MD5)<br/>
+99999 = Plaintext<br/>
+<br/>
+* Specific hash types:<br/>
+<br/>
+ 11 = Joomla &lt; 2.5.18<br/>
+ 12 = PostgreSQL<br/>
+ 21 = osCommerce, xt:Commerce<br/>
+ 23 = Skype<br/>
+ 101 = nsldap, SHA-1(Base64), Netscape LDAP SHA<br/>
+ 111 = nsldaps, SSHA-1(Base64), Netscape LDAP SSHA<br/>
+ 112 = Oracle S: Type (Oracle 11+)<br/>
+ 121 = SMF &gt; v1.1<br/>
+ 122 = OS X v10.4, v10.5, v10.6<br/>
+ 123 = EPi<br/>
+ 124 = Django (SHA-1)<br/>
+ 131 = MSSQL(2000)<br/>
+ 132 = MSSQL(2005)<br/>
+ 133 = PeopleSoft<br/>
+ 141 = EPiServer 6.x &lt; v4<br/>
+1421 = hMailServer<br/>
+1441 = EPiServer 6.x &gt; v4<br/>
+1711 = SSHA-512(Base64), LDAP {SSHA512}<br/>
+1722 = OS X v10.7<br/>
+1731 = MSSQL(2012 &amp; 2014)<br/>
+1800 = SHA512, UNIX/LINUX<br/>
+2611 = vBulletin &lt; v3.8.5<br/>
+2612 = PHPS<br/>
+2711 = vBulletin &gt; v3.8.5<br/>
+2811 = IPB2+, MyBB1.2+<br/>
+3711 = Mediawiki B type<br/>
+3721 = WebEdition CMS<br/>
+7600 = Redmine Project Management Web App<br/>
+<br/>
+- [ Workload Profiles ] -<br/>
+<br/>
+ # | Performance | Runtime | Power Consumption | Desktop Impact<br/>
+===+=============+=========+===================+=================<br/>
+ 1 | Low     |  2 ms | Low        | Minimal<br/>
+ 2 | Default   | 12 ms | Economic     | Noticeable<br/>
+ 3 | High    | 96 ms | High       | Unresponsive<br/>
+ 4 | Nightmare  | 480 ms | Insane      | Headless<br/>
+<br/>
+- [ Basic Examples ] -<br/>
+<br/>
+ Attack-     | Hash- |<br/>
+ Mode       | Type | Example command<br/>
+==================+=======+==================================================================<br/>
+ Wordlist     | $P$  | hashcat -a 0 -m 400 example400.hash example.dict<br/>
+ Wordlist + Rules | MD5  | hashcat -a 0 -m 0 example0.hash example.dict -r rules/best64.rule<br/>
+ Brute-Force   | MD5  | hashcat -a 3 -m 0 example0.hash ?a?a?a?a?a?a<br/>
+ Combinator    | MD5  | hashcat -a 1 -m 0 example0.hash example.dict example.dict<br/>
+<br/>
+If you still have no idea what just happened, try the following pages:<br/>
+<br/>
+* https://hashcat.net/wiki/#howtos_videos_papers_articles_etc_in_the_wild<br/>
+* https://hashcat.net/faq/<br/>
+</body></html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>task.xml</title>
+</head><body>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-16&quot;?&gt;<br/>
+&lt;Task version=&quot;1.2&quot; xmlns=&quot;http://schemas.microsoft.com/windows/2004/02/mit/task&quot;&gt;<br/>
+ &lt;RegistrationInfo&gt;<br/>
+  &lt;Date&gt;2014-11-05T15:03:43&lt;/Date&gt;<br/>
+  &lt;Author&gt;dev&lt;/Author&gt;<br/>
+ &lt;/RegistrationInfo&gt;<br/>
+ &lt;Triggers&gt;<br/>
+  &lt;CalendarTrigger&gt;<br/>
+   &lt;StartBoundary&gt;2014-11-05T15:03:00&lt;/StartBoundary&gt;<br/>
+   &lt;Enabled&gt;true&lt;/Enabled&gt;<br/>
+   &lt;ScheduleByDay&gt;<br/>
+    &lt;DaysInterval&gt;1&lt;/DaysInterval&gt;<br/>
+   &lt;/ScheduleByDay&gt;<br/>
+  &lt;/CalendarTrigger&gt;<br/>
+ &lt;/Triggers&gt;<br/>
+ &lt;Settings&gt;<br/>
+  &lt;MultipleInstancesPolicy&gt;IgnoreNew&lt;/MultipleInstancesPolicy&gt;<br/>
+  &lt;DisallowStartIfOnBatteries&gt;true&lt;/DisallowStartIfOnBatteries&gt;<br/>
+  &lt;StopIfGoingOnBatteries&gt;true&lt;/StopIfGoingOnBatteries&gt;<br/>
+  &lt;AllowHardTerminate&gt;true&lt;/AllowHardTerminate&gt;<br/>
+  &lt;StartWhenAvailable&gt;false&lt;/StartWhenAvailable&gt;<br/>
+  &lt;RunOnlyIfNetworkAvailable&gt;false&lt;/RunOnlyIfNetworkAvailable&gt;<br/>
+  &lt;IdleSettings&gt;<br/>
+   &lt;Duration&gt;PT10M&lt;/Duration&gt;<br/>
+   &lt;WaitTimeout&gt;PT1H&lt;/WaitTimeout&gt;<br/>
+   &lt;StopOnIdleEnd&gt;true&lt;/StopOnIdleEnd&gt;<br/>
+   &lt;RestartOnIdle&gt;false&lt;/RestartOnIdle&gt;<br/>
+  &lt;/IdleSettings&gt;<br/>
+  &lt;AllowStartOnDemand&gt;true&lt;/AllowStartOnDemand&gt;<br/>
+  &lt;Enabled&gt;true&lt;/Enabled&gt;<br/>
+  &lt;Hidden&gt;false&lt;/Hidden&gt;<br/>
+  &lt;RunOnlyIfIdle&gt;false&lt;/RunOnlyIfIdle&gt;<br/>
+  &lt;WakeToRun&gt;false&lt;/WakeToRun&gt;<br/>
+  &lt;ExecutionTimeLimit&gt;PT72H&lt;/ExecutionTimeLimit&gt;<br/>
+  &lt;Priority&gt;7&lt;/Priority&gt;<br/>
+ &lt;/Settings&gt;<br/>
+ &lt;Actions Context=&quot;Author&quot;&gt;<br/>
+  &lt;Exec&gt;<br/>
+   &lt;Command&gt;cmd.exe&lt;/Command&gt;<br/>
+   &lt;Arguments&gt;/C &quot;echo Hello World &amp;gt; c:\windows\hello.txt&quot;&lt;/Arguments&gt;<br/>
+  &lt;/Exec&gt;<br/>
+ &lt;/Actions&gt;<br/>
+ &lt;Principals&gt;<br/>
+  &lt;Principal id=&quot;Author&quot;&gt;<br/>
+   &lt;UserId&gt;$USER&lt;/UserId&gt;<br/>
+   &lt;LogonType&gt;S4U&lt;/LogonType&gt;<br/>
+   &lt;RunLevel&gt;LeastPrivilege&lt;/RunLevel&gt;<br/>
+  &lt;/Principal&gt;<br/>
+ &lt;/Principals&gt;<br/>
+&lt;/Task&gt;</body></html>

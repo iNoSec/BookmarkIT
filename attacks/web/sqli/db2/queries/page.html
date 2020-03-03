@@ -1,0 +1,94 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Queries</title>
+</head><body>Some can only be run by admin, marked by * or -priv<br/>
+<br/>
+Version 				select versionnumber, version_timestamp from sysibm.sysversions;<br/>
+Comments 			select blah from foo; — comment like this<br/>
+Current User 			select user from sysibm.sysdummy1;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select session_user from sysibm.sysdummy1;</li>
+<li style="list-style-type: none"> select system_user from sysibm.sysdummy1;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Users 			N/A (I think DB2 uses OS-level user accounts for authentication.)Database authorities (like roles, I think) can be listed like this:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select grantee from syscat.dbauth;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Password Hashes 	N/A (I think DB2 uses OS-level user accounts for authentication.)<br/>
+List Privileges 		select * from syscat.tabauth; — privs on tables<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select * from syscat.dbauth where grantee = current user;</li>
+<li style="list-style-type: none"> select * from syscat.tabauth where grantee = current user;</li>
+<li style="list-style-type: none"> select * from SYSIBM.SYSUSERAUTH – List db2 system privilegies</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List DBA Accounts 		select name from SYSIBM.SYSUSERAUTH where SYSADMAUTH = ‘Y’ or SYSADMAUTH = ‘G’<br/>
+Current Database 		select current server from sysibm.sysdummy1;<br/>
+List Databases 		SELECT schemaname FROM syscat.schemata;<br/>
+List Columns 			select name, tbname, coltype from sysibm.syscolumns;<br/>
+List Tables 			select name from sysibm.systables;<br/>
+Find Tables From <br/>
+Column Name 		select tbname from sysibm.syscolumns where name=’username’<br/>
+Select Nth Row 		select name from (SELECT name FROM sysibm.systables order by<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> name fetch first N+M-1 rows only) sq order by name desc fetch first N rows only;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Select Nth Char 		SELECT SUBSTR(‘abc’,2,1) FROM sysibm.sysdummy1; — returns b<br/>
+Bitwise AND 			This page seems to indicate that DB2 has no support for bitwise operators!<br/>
+ASCII Value -&gt; Char 	select chr(65) from sysibm.sysdummy1; — returns ‘A’<br/>
+Char -&gt; ASCII Value 	select ascii(‘A’) from sysibm.sysdummy1; — returns 65<br/>
+Casting 				SELECT cast(’123′ as integer) FROM sysibm.sysdummy1;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT cast(1 as char) FROM sysibm.sysdummy1;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+String Concatenation 	SELECT ‘a’ concat ‘b’ concat ‘c’ FROM sysibm.sysdummy1; — returns ‘abc’<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select ‘a’ || ‘b’ from sysibm.sysdummy1; — returns ‘ab’</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+If Statement 			TODO<br/>
+Case Statement 		TODO<br/>
+Avoiding Quotes 		TODO<br/>
+Time Delay 			???See Heavy Queries article for some ideas.<br/>
+Make DNS Requests 	TODO<br/>
+Command Execution 	TODO<br/>
+Local File Access 		TODO<br/>
+Hostname, IP Address 	TODO<br/>
+Location of DB files 	TODO<br/>
+Default/System <br/>
+Databases 			TODO</body></html>

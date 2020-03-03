@@ -1,0 +1,16 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Backend Types</title>
+</head><body>Backwards compatibility:<br/>
+Plaintext<br/>
+smbpasswd 				maintains a plan ASCII layout with windows LM and NT passwords<br/>
+ldapsam_compat		<br/>
+<br/>
+New Account Storage Systems<br/>
+tdbsam					Stores old smbpasswd information plus NT/200x SAM information into TDB file<br/>
+	tdbsam:/etc/samba/private/passdb.tdb<br/>
+ldapsam:url				Rich directory backend<br/>
+	ldapsam:&quot;ldap://ldap-1.example.com ldap://ldap-2.example.com&quot;<br/>
+	ldapsam:&quot;ldap://ldap-1.example.com ldap-2.example.com&quot;<br/>
+</body></html>

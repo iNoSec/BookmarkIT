@@ -1,0 +1,58 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>exe2bat.py</title>
+</head><body>https://awarenetwork.org/home/rattle/source/python/exe2bat.py <br/>
+<br/>
+##########################################################################<br/>
+#<br/>
+#  EXE to BAT converter Version 1.0                   #<br/>
+#  This will use the classic DEBUG method to HEX-encode an executable  #<br/>
+#  into a batch script file. Enjoy.                   #<br/>
+#                                    #<br/>
+#                     rattle | awarenetwork | org  #<br/>
+                                    #<br/>
+##########################################################################<br/>
+ <br/>
+from sys import argv as a, exit, stdout<br/>
+die = lambda x,n: stdout.write(x+'\n') or exit(n)<br/>
+<br/>
+try: f,b = open(a[1],'rb'),open(a[2],'w')<br/>
+except: die('[!] usage: exe2bat.py &lt;exefile&gt; &lt;batchfile&gt;',1);<br/>
+<br/>
+FOOTER = ''.join(map(lambda x:&quot;%%E%% &quot;+x+&quot;&gt;&gt;T\n&quot;,<br/>
+[&quot;RCX&quot;,&quot;%X &quot;,&quot;N T.BIN&quot;,&quot;WDS:0&quot;,&quot;Q&quot;])) <br/>
+FOOTER += 'DEBUG&lt;T 1&gt;NUL\nMOVE T.BIN T.EXE 1&gt;NUL 2&gt;NUL\nT.EXE'<br/>
+<br/>
+FC,CX = 0, f.seek(0,2) or f.tell()<br/>
+<br/>
+if (CX &gt; 0xFFFF): <br/>
+ f.close(); b.close()<br/>
+ die('[!] filesize exceeds 64kb, quitting.',1);<br/>
+<br/>
+f.seek(0,0)<br/>
+b.write('@ECHO OFF\nSET E=ECHO\nDEL T 1&gt;NUL 2&gt;NUL\n')<br/>
+<br/>
+for chunk in xrange(0x1000):<br/>
+ t = f.read(16) or b.write(FOOTER%CX) or die(&quot;&quot;,0)<br/>
+ if t.count('\0')==0x10: FC += 1<br/>
+ else:<br/>
+  if FC &gt; 0:<br/>
+   b.write('%%E%% FDS:%X L %X 00&gt;&gt;T\n'%((chunk-FC)*0x10,FC*0x10))<br/>
+   FC = 0<br/>
+  b.write('%%E%% EDS:%X '%(chunk*0x10))<br/>
+  b.write(' '.join(map(lambda x:&quot;%02X&quot;%ord(x),t))+'&gt;&gt;T\n')<br/>
+<br/>
+                              ##   ,<br/>
+    ####a             ,d###########m,  ,##',  a#<br/>
+   ###']#i             a##&quot;.#&quot;`#  &quot;####a,## #' .##'<br/>
+  ##P' &quot;&quot;            .d#P'.# .I   &quot;#:##:aaad##'<br/>
+  ##P' ,ama,  .aa, .ama.g mmm d#P' # .I'    ##:#####&quot;<br/>
+ ###' d#I,`#..a#&quot;PI ,#I&quot;## I##' d##  ]IaI'    d#[<br/>
+ ###' ]P &quot;&quot;m#mP#']P .#I #&quot;   d##'  `&quot;     .##<br/>
+ ##I ]P[ .I'.#   ##' # I[ ,##P ,ama  ,ama, d#[ .ama.g<br/>
+###' I#, .I' ]#, ,##B d# aI  (##',##&quot;#) d#I,`#. ## ,#I&quot;##<br/>
+### `####&quot; '####&quot; &quot;##&quot;&quot;#m&quot;  I## ### #[ ]P &quot;&quot;m#m##[.#I #&quot;<br/>
+###,      _,aaaaaa,_    I## #&quot; # ]P[ .I' ## ##' # I[<br/>
+ ###a,.  .,add##########bma.  )##, .]I I#, .I' )##a#B d# aI<br/>
+  ########&quot;&quot;'    `#&quot;&quot;&quot;&quot;&quot;&quot;#  &quot;#####P&quot; `####&quot; `###&quot;&quot;##&quot;&quot;#m&quot;</body></html>

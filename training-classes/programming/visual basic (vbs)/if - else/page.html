@@ -1,0 +1,60 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>IF / Else</title>
+</head><body>' =============================================<br/>
+<br/>
+option explicit<br/>
+<br/>
+Dim x<br/>
+<br/>
+<br/>
+x = InputBox(&quot;Podaj liczbe wieksza od 7&quot;, &quot;Tester liczb&quot;, &quot;Wpisz liczbe tutaj...&quot;)<br/>
+<br/>
+' ============= IF STATMENT ====================<br/>
+'If x &gt; 7 Then<br/>
+'	MsgBox &quot;Tak jest wieksze niz 7&quot;<br/>
+'Else<br/>
+'	MsgBox &quot;Nie liczba jest mniejsza niz 7&quot;<br/>
+'End If<br/>
+<br/>
+' ============= IF STATMENT ====================<br/>
+'If x &gt; 7 Then<br/>
+'	MsgBox &quot;Tak jest wieksze niz 7&quot;<br/>
+'ElseIf x &gt; 6 Then<br/>
+'	MsgBox &quot;Liczba rowna sie 6&quot;<br/>
+'Else<br/>
+'	MsgBox &quot;Liczba jest mniejsza niz 6&quot;<br/>
+'End If<br/>
+<br/>
+<br/>
+' ============= IF STATMENT ====================<br/>
+If x &gt; 7 Then<br/>
+	MsgBox &quot;Tak jest wieksze niz 7&quot;<br/>
+End If<br/>
+<br/>
+If x &lt; 7 Then<br/>
+	MsgBox &quot;Tak jest mniejsza niz 7&quot;<br/>
+End If<br/>
+<br/>
+Dim strName1, strName2<br/>
+strName1 = &quot;Paula&quot;<br/>
+strName2 = &quot;Kubus&quot;<br/>
+<br/>
+' ============= IF STATMENT &lt;&gt; Condition ====================<br/>
+<br/>
+If strName1 &lt;&gt; strName2 Then<br/>
+	MsgBox &quot;Imiona sa rozne&quot;<br/>
+End If<br/>
+<br/>
+' ============= IF STATMENT AND OR ====================<br/>
+Dim number1, nubmer2 ,number3, number4<br/>
+<br/>
+number1 = 5<br/>
+nubmer2 = 5<br/>
+number3 = 4<br/>
+number4 = 4<br/>
+<br/>
+If number1 = nubmer2 AND number3 = number4 Then<br/>
+	MsgBox &quot;Liczby sa rowne&quot;<br/>
+End IF</body></html>

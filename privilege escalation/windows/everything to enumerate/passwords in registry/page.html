@@ -1,0 +1,29 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Passwords in Registry</title>
+</head><body># Similarly the two commands below can be used to grep the registry for keywords, in this case &quot;password&quot;.<br/>
+reg query HKLM /f password /t REG_SZ /s<br/>
+reg query HKCU /f password /t REG_SZ /s<br/>
+<br/>
+# Additional<br/>
+reg query HKLM /s | findstr /i password &gt; temp.txt<br/>
+reg query HKCU /s | findstr /i password &gt; temp.txt<br/>
+<br/>
+VNC Stored:<br/>
+reg query &quot;HKCU\Software\ORL\WinVNC3\Password&quot;<br/>
+<br/>
+Windows Autologin: <br/>
+reg query &quot;HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon&quot;<br/>
+<br/>
+SNMP Parameters:<br/>
+reg query &quot;HKLM\SYSTEM\Current\ControlSet\Services\SNMP&quot;<br/>
+<br/>
+Putty clear text proxy credentials:<br/>
+reg query&quot; HKCU\Software\SimonTatham\PuTTY\Sessions&quot;<br/>
+<br/>
+<br/>
+PowerShell: Get-ItemProperty &lt;registry_key&gt;<br/>
+Reg: reg.exe query &lt;registry_key&gt;<br/>
+Regedit<br/>
+</body></html>

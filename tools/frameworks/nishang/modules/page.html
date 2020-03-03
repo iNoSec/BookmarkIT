@@ -1,0 +1,121 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Modules</title>
+</head><body>Scripts<br/>
+Nishang currently contains the following scripts and payloads.<br/>
+<br/>
+<b>ActiveDirectory</b><br/>
+Set-DCShadowPermissions	Modify AD objects to provide minimal permissions required for DCShadow.<br/>
+<br/>
+<b>Antak - the Webshell</b><br/>
+Antak           			Execute PowerShell scripts in memory, run commands, and download and upload files using this webshell.<br/>
+<br/>
+<b>Backdoors</b><br/>
+HTTP-Backdoor				A backdoor which can receive instructions from third party websites and execute PowerShell scripts in memory.<br/>
+DNS_TXT_Pwnage			A backdoor which can receive commands and PowerShell scripts from DNS TXT queries, execute them on a target, and be remotely controlled using the queries.<br/>
+<br/>
+Execute-OnTime			A backdoor which can execute PowerShell scripts at a given time on a target.<br/>
+Gupt-Backdoor				A backdoor which can receive commands and scripts from a WLAN SSID without connecting to it.<br/>
+Add-ScrnSaveBackdoor		A backdoor which can use Windows screen saver for remote command and script execution.<br/>
+Invoke-ADSBackdoor			A backdoor which can use alternate data streams and Windows Registry to achieve persistence.<br/>
+Add-RegBackdoor			A backdoor which uses well known Debugger trick to execute payload with Sticky keys and Utilman (Windows key + U).<br/>
+Set-RemoteWMI			Modify permissions of DCOM and WMI namespaces to allow access to a non-admin user.<br/>
+Set-RemotePSRemoting		Modify permissions of PowerShell remoting to allow access to a non-admin user.<br/>
+<br/>
+<b>Bypass</b><br/>
+Invoke-AmsiBypass			Implementation of publicly known methods to bypass/avoid AMSI.<br/>
+<br/>
+<b>Client</b><br/>
+Out-CHM					Create infected CHM files which can execute PowerShell commands and scripts.<br/>
+Out-Word					Create Word files and infect existing ones to run PowerShell commands and scripts.<br/>
+Out-Excel					Create Excel files and infect existing ones to run PowerShell commands and scripts.<br/>
+Out-HTA					Create a HTA file which can be deployed on a web server and used in phishing campaigns.<br/>
+Out-Java					Create signed JAR files which can be used with applets for script and command execution.<br/>
+Out-Shortcut				Create shortcut files capable of executing PowerShell commands and scripts.<br/>
+Out-WebQuery				Create IQY files for phishing credentials and SMB hashes.<br/>
+Out-JS					Create JS files capable of executing PowerShell commands and scripts.<br/>
+Out-SCT					Create SCT files capable of executing PowerShell commands and scripts.<br/>
+Out-SCF					Create a SCF file which can be used for capturing NTLM hash challenges.<br/>
+<br/>
+<b>Escalation</b><br/>
+Enable-DuplicateToken		When SYSTEM privileges are required.<br/>
+Remove-Update				Introduce vulnerabilities by removing patches.<br/>
+Invoke-PsUACme			Bypass UAC.<br/>
+<br/>
+<b>Execution</b><br/>
+Download-Execute-PS		Download and execute a PowerShell script in memory.<br/>
+Download_Execute			Download an executable in text format, convert it to an executable, and execute.<br/>
+Execute-Command-MSSQL	Run PowerShell commands, native commands, or SQL commands on a MSSQL Server with sufficient privileges.<br/>
+Execute-DNSTXT-Code		Execute shellcode in memory using DNS TXT queries.<br/>
+Out-RundllCommand			Execute PowerShell commands and scripts or a reverse PowerShell session using rundll32.exe.<br/>
+<br/>
+<b>Gather</b><br/>
+Check-VM				Check for a virtual machine.<br/>
+Copy-VSS				Copy the SAM file using Volume Shadow Copy Service.<br/>
+Invoke-CredentialsPhish		Trick a user into giving credentials in plain text.<br/>
+FireBuster FireListener		A pair of scripts for egress testing<br/>
+Get-Information				Get juicy information from a target.<br/>
+Get-LSASecret				Get LSA Secret from a target.<br/>
+Get-PassHashes			Get password hashes from a target.<br/>
+Get-WLAN-Keys			Get WLAN keys in plain text from a target.<br/>
+Keylogger					Log keystrokes from a target.<br/>
+Invoke-MimikatzWdigestDowngrade	Dump user passwords in plain on Windows 8.1 and Server 2012<br/>
+Get-PassHints				Get password hints of Windows users from a target.<br/>
+Show-TargetScreen			Connect back and Stream target screen using MJPEG.<br/>
+Invoke-Mimikatz			Load mimikatz in memory. Updated and with some customisation.<br/>
+Invoke-Mimikittenz			Extract juicy information from target process (like browsers) memory using regex.<br/>
+Invoke-SSIDExfil			Exfiltrate information like user credentials, using WLAN SSID.<br/>
+Invoke-SessionGopher		Identify admin jump-boxes and/or computers used to access Unix machines.<br/>
+<br/>
+<b>MITM</b><br/>
+Invoke-Interceptor			A local HTTPS proxy for MITM attacks.<br/>
+<br/>
+<b>Pivot</b><br/>
+Create-MultipleSessions		Check credentials on multiple computers and create PSSessions.<br/>
+Run-EXEonRemote 			Copy and execute an executable on multiple machines.<br/>
+Invoke-NetworkRelay 			Create network relays between computers.<br/>
+<br/>
+<b>Prasadhak</b><br/>
+Prasadhak				Check running hashes of running process against the VirusTotal database.<br/>
+<br/>
+<b>Scan<br/>
+</b>Brute-Force				Brute force FTP, Active Directory, MSSQL, and Sharepoint.<br/>
+Port-Scan					A handy port scanner.<br/>
+<br/>
+<b>Powerpreter</b><br/>
+Powerpreter				All the functionality of nishang in a single script module.<br/>
+<br/>
+<b>Shells</b><br/>
+Invoke-PsGcat				Send commands and scripts to specifed Gmail account to be executed by Invoke-PsGcatAgent<br/>
+Invoke-PsGcatAgent			Execute commands and scripts sent by Invoke-PsGcat.<br/>
+Invoke-PowerShellTcp		An interactive PowerShell reverse connect or bind shell<br/>
+Invoke-PowerShellTcpOneLine	Stripped down version of Invoke-PowerShellTcp. Also contains, a skeleton version which could fit in two tweets.<br/>
+Invoke-PowerShellTcpOneLineBind	Bind version of Invoke-PowerShellTcpOneLine.<br/>
+Invoke-PowerShellUdp		An interactive PowerShell reverse connect or bind shell over UDP<br/>
+Invoke-PowerShellUdpOneLine	Stripped down version of Invoke-PowerShellUdp.<br/>
+Invoke-PoshRatHttps			Reverse interactive PowerShell over HTTPS.<br/>
+Invoke-PoshRatHttp			Reverse interactive PowerShell over HTTP.<br/>
+Remove-PoshRat			Clean the system after using Invoke-PoshRatHttps<br/>
+Invoke-PowerShellWmi		Interactive PowerShell using WMI.<br/>
+Invoke-PowerShellIcmp		An interactive PowerShell reverse shell over ICMP.<br/>
+Invoke-JSRatRundll			An interactive PowerShell reverse shell over HTTP using rundll32.exe.<br/>
+Invoke-JSRatRegsvr			An interactive PowerShell reverse shell over HTTP using regsvr32.exe.<br/>
+<br/>
+<b>Utility</b><br/>
+Add-Exfiltration				Add data exfiltration capability to Gmail, Pastebin, a web server, and DNS to any script.<br/>
+Add-Persistence			Add reboot persistence capability to a script.<br/>
+Remove-Persistence			Remote persistence added by the Add-Persistence script.<br/>
+Do-Exfiltration				Pipe (|) this to any script to exfiltrate the output.<br/>
+Download					Transfer a file to the target.<br/>
+Parse_Keys				Parse keys logged by the keylogger.<br/>
+Invoke-Encode				Encode and compress a script or string.<br/>
+Invoke-Decode				Decode and decompress a script or string from Invoke-Encode.<br/>
+Start-CaptureServer			Run a web server which logs Basic authentication and SMB hashes.<br/>
+ConvertTo-ROT13			Encode a string to ROT13 or decode a ROT13 string.<br/>
+Out-DnsTxt				Generate DNS TXT records which could be used with other scripts.<br/>
+<br/>
+[Base64ToString]<br/>
+[StringToBase64]<br/>
+[ExetoText]<br/>
+[TexttoExe]</body></html>

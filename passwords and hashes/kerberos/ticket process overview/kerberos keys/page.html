@@ -1,0 +1,19 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Kerberos Keys</title>
+</head><body>1. The KDC long-term secret key (domain key)<br/>
+	Under the <i>mysterious</i>krbtgt account (rc4, aes128, aes256, etc)<br/>
+	Needed to sign Microsoft specific data in &quot;PAC&quot;, encrypt TGT<br/>
+<br/>
+2. The Client long-term secret key (derived from password)<br/>
+	Under the user/computer/sever account<br/>
+	Needed to check AS-REQ, encrypt session key<br/>
+<br/>
+3. The Target/Service long-term secret key (derived from password)<br/>
+	Under the computer/sever account<br/>
+	Needed to countersign data in &quot;PAC&quot; of TGS, encrypt TGS<br/>
+<br/>
+<img src="image.png"/><br/>
+<br/>
+</body></html>

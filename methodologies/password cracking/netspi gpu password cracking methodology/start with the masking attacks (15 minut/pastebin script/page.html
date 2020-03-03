@@ -1,0 +1,48 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Pastebin script</title>
+</head><body>#!/usr/bin/perl<br/>
+# hcmasks.pl by epixoip<br/>
+# calculates hashcat mask for each word, then sorts and prints masks in desc order<br/>
+<br/>
+use strict;<br/>
+no strict &quot;subs&quot;;<br/>
+<br/>
+my %masks = ();<br/>
+<br/>
+sub desc {<br/>
+    $masks{$b} &lt;=&gt; $masks{$a};<br/>
+}<br/>
+<br/>
+<br/>
+while (&lt;STDIN&gt;)<br/>
+{<br/>
+    chomp;<br/>
+<br/>
+    my $mask;<br/>
+    my @line = split(//);<br/>
+<br/>
+    foreach my $char (@line)<br/>
+    {<br/>
+        if ($char =~ /[a-z]/) {<br/>
+            $mask .= &quot;?l&quot;;<br/>
+        }<br/>
+        elsif ($char =~ /[A-Z]/) {<br/>
+            $mask .= &quot;?u&quot;;<br/>
+        }<br/>
+        elsif ($char =~ /[0-9]/) {<br/>
+            $mask .= &quot;?d&quot;;<br/>
+        }<br/>
+        elsif ($char =~ /[\W_]/) {<br/>
+            $mask .= &quot;?s&quot;;<br/>
+        }<br/>
+    }<br/>
+<br/>
+    $masks{$mask}++;<br/>
+}<br/>
+<br/>
+foreach my $mask (sort desc(keys(%masks)))<br/>
+{<br/>
+    printf(&quot;%10d  %s\n&quot;, $masks{$mask}, $mask);<br/>
+}</body></html>

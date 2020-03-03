@@ -1,0 +1,61 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>KarmaSMB</title>
+</head><body>karmaSMB.py<br/>
+<br/>
+A SMB Server that answers specific file contents regardless of the SMB share and pathname specified.<br/>
+<br/>
+# Karma SMB<br/>
+#<br/>
+# Description:<br/>
+#  The idea of this script is to answer any file read request<br/>
+#  with a set of predefined contents based on the extension <br/>
+#  asked, regardless of the sharename and/or path.<br/>
+#  When executing this script w/o a config file the pathname <br/>
+#  file contents will be sent for every request. <br/>
+#  If a config file is specified, format should be this way:<br/>
+#   &lt;extension&gt; = &lt;pathname&gt;<br/>
+#  for example:<br/>
+#   bat = /tmp/batchfile<br/>
+#   com = /tmp/comfile<br/>
+#   exe = /tmp/exefile<br/>
+#<br/>
+#  The SMB2 support works with a caveat. If two different<br/>
+#  filenames at the same share are requested, the first<br/>
+#  one will work and the second one will not work if the request<br/>
+#  is performed right away. This seems related to the <br/>
+#  QUERY_DIRECTORY request, where we return the files available.<br/>
+#  In the first try, we return the file that was asked to open.<br/>
+#  In the second try, the client will NOT ask for another <br/>
+#  QUERY_DIRECTORY but will use the cached one. This time the new file<br/>
+#  is not there, so the client assumes it doesn't exist.<br/>
+#  After a few seconds, looks like the client cache is cleared and<br/>
+#  the operation works again. Further research is needed trying<br/>
+#  to avoid this from happening.<br/>
+#<br/>
+#  SMB1 seems to be working fine on that scenario.<br/>
+#<br/>
+#  ToDo:<br/>
+#  [ ] A lot of testing needed under different OSes. <br/>
+#    I'm still not sure how reliable this approach is.<br/>
+#  [ ] Add support for other SMB read commands. Right now just<br/>
+#    covering SMB_COM_NT_CREATE_ANDX<br/>
+#  [ ] Disable write request, now if the client tries to copy <br/>
+#    a file back to us, it will overwrite the files we're <br/>
+#    hosting. *CAREFUL!!!*<br/>
+<br/>
+usage: karmaSMB.py [--help] [-config pathname] [-smb2support] pathname<br/>
+<br/>
+For every file request received, this module will return the pathname contents<br/>
+<br/>
+positional arguments:<br/>
+ pathname     Pathname's contents to deliver to SMB clients<br/>
+<br/>
+optional arguments:<br/>
+ --help      show this help message and exit<br/>
+ -config pathname config file name to map extensions to files to deliver.<br/>
+          For those extensions not present, pathname will be<br/>
+          delivered<br/>
+ -smb2support   SMB2 Support (experimental!)<br/>
+</body></html>

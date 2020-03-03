@@ -1,0 +1,49 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Linux Local Enum</title>
+</head><body>Linux-local-enum.sh<br/>
+# ###############################################################################################################<br/>
+# v1.0<br/>
+#<br/>
+# Provides the following functions<br/>
+# Cat files:<br/>
+#   /etc/issue<br/>
+#   /etc/*-release<br/>
+#   /etc/sysconfig/network<br/>
+#   /etc/resolv.conf<br/>
+#   /etc/fstab<br/>
+#   /etc/passwd<br/>
+#   /etc/shadow<br/>
+#   /etc/group<br/>
+#   /etc/sudoers<br/>
+#<br/>
+# Run commands:<br/>
+#   uname -ar<br/>
+#   df -h     			(This information includes the file system name, the total space<br/>
+#				  			 allocated in the file system, the amount of space	allocated<br/>
+#				   			to existing files, the total amount of space available for<br/>
+#				   			the creation of new files by unprivileged users, and the<br/>
+#				   			percentage of normally available space that is currently<br/>
+#				   			allocated to all files on the file system. This option over-<br/>
+#				   			rides the -b, -e, -n, and -t options.<br/>
+#          			)<br/>
+#   mount | column -t<br/>
+#   ls -ahlR /home/<br/>
+#   ls -ahlR /root/<br/>
+#   w			   																	##find logged on users and what they're doing<br/>
+#   last			 																	##Last logged on users<br/>
+#   ps -ef | /bin/grep root															##Processes running as root<br/>
+#   dpkg -l																			##List installed packages for Debian/RHEL based systems<br/>
+#   rpm -qa																			##List installed packages for RHEL/Debian based systems<br/>
+#   chkconfig --list | grep $(runlevel | awk '{ print $2}'):on						##RHEL/CentOS services that start at Boot<br/>
+#   ls /etc/init.d/																	##List of init scripts / system services<br/>
+#<br/>
+# Find files:<br/>
+#<br/>
+# find / -perm -g=s -o -perm -4000 ! -type l -maxdepth 3 -exec ls -ld {} \; 2&gt;/dev/null ##Sticky Bit Files<br/>
+# find / -perm -222 -type d 2&gt;/dev/null 												 ##World Writable Directories<br/>
+# find / -type f -perm 0777 2&gt;/dev/null													 ##World Writable Files<br/>
+# find / -user $(whoami) 2&gt;/dev/null													 ##Files owned by Current User<br/>
+#<br/>
+################################################################################################################</body></html>

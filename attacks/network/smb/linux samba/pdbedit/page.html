@@ -1,0 +1,51 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>pdbedit</title>
+</head><body>https://www.samba.org/samba/docs/current/man-html/pdbedit.8.html<br/>
+pdbedit -h                                                 <br/>
+Usage: [OPTION...]                                            <br/>
+ -L, --list              		list all users                            <br/>
+ -v, --verbose             	be verbose                          <br/>
+ -w, --smbpasswd-style    		give output in smbpasswd style     <br/>
+ -u, --user=USER          	use username                      <br/>
+ -N, --account-desc=STRING 	set account description           <br/>
+ -f, --fullname=STRING         set full name                     <br/>
+ -h, --homedir=STRING         set home directory                <br/>
+ -D, --drive=STRING          	set home drive                     <br/>
+ -S, --script=STRING          	set logon script                     <br/>
+ -p, --profile=STRING         	set profile path                     <br/>
+ -I, --domain=STRING          	set a users' domain                <br/>
+ -U, --user SID=STRING         set user SID or RID                 <br/>
+ -M, --machine SID=STRING       set machine SID or RID           <br/>
+ -a, --create             		create user                            <br/>
+ -r, --modify             		modify user                           <br/>
+ -m, --machine             	account is a machine account           <br/>
+ -x, --delete             		delete user                            <br/>
+ -b, --backend=STRING         use different passdb backend as default backend<br/>
+ -i, --import=STRING          	import user accounts from this backend         <br/>
+ -e, --export=STRING          export user accounts to this backend           <br/>
+ -g, --group              		use -i and -e for groups<br/>
+ -y, --policies            		use -i and -e to move account policies between backends<br/>
+   --policies-reset         	restore default policies                       <br/>
+ -P, --account-policy=STRING      value of an account policy (like maximum password age)<br/>
+ -C, --value=LONG           	set the account policy to this value<br/>
+ -c, --account-control=STRING     Values of account control     <br/>
+   --force-initialized-passwords   Force initialization of corrupt password strings in a passdb backend<br/>
+ -z, --bad-password-count-reset    reset bad password count<br/>
+ -Z, --logon-hours-reset        	reset logon hours          <br/>
+   --time-format=STRING       The time format for time parameters<br/>
+ -t, --password-from-stdin       get password from standard in      <br/>
+ -K, --kickoff-time=STRING       set the kickoff time              <br/>
+   --set-nt-hash=STRING       set password from nt-hash<br/>
+                                                  <br/>
+Help options:                                        <br/>
+ -?, --help              		Show this help message         <br/>
+   --usage              		Display brief usage message     <br/>
+                                                   <br/>
+Common samba options:                               <br/>
+ -d, --debuglevel=DEBUGLEVEL      Set debug level       <br/>
+ -s, --configfile=CONFIGFILE      Use alternate configuration file<br/>
+ -l, --log-basename=LOGFILEBASE    Base name for log files   <br/>
+ -V, --version             Print version                     <br/>
+   --option=name=value        Set smb.conf option from command line </body></html>

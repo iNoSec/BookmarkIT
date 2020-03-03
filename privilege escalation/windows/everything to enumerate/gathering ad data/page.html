@@ -1,0 +1,98 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Gathering AD Data</title>
+</head><body>On a Windows client, install the <a href="https://www.microsoft.com/en-us/download/details.aspx?id=45520">Remote Sever Administration Tools (RSAT)</a>and ensure the Active Directory PowerShell module is installed.<br/>
+<br/>
+On a Windows server (2008 R2 or newer), run the following commands in a PowerShell console (as an Adminsitrator):<br/>
+<br/>
+<i>Import-Module ServerManager ; Add-WindowsFeature RSAT-AD-PowerShell<br/>
+</i><br/>
+Requires AD Web Services (ADWS) running on targeted DC (9389)<br/>
+Get-ADDomainController -Discover -Service &quot;ADWS&quot;<i><br/>
+</i><br/>
+<br/>
+dir ad: 								Browse AD like a filesystem<br/>
+<br/>
+Finding Useful Commands (Cmdlets):<br/>
+Get-Module -ListAvailable				Discover available PowerShell Modules<br/>
+Get-Command -module ActiveDirectory	Discover cmdlets in a PowerShell module<br/>
+<br/>
+<br/>
+<b>Finding Active Directory Flexible Master Single Operation (FSMO) Roles:</b><br/>
+<b>Active Directory Module:</b><br/>
+<ul><li>(Get-ADForest).SchemaMaster </li>
+<li>(Get-ADForest).DomainNamingMaster </li>
+<li>(Get-ADDomain).InfrastructureMaster </li>
+<li>(Get-ADDomain).PDCEmulator </li>
+<li>(Get-ADDomain).RIDMaster </li>
+</ul>
+<br/>
+<b>.NET Calls:</b><br/>
+<ul><li>([System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()).SchemaRoleOwner </li>
+<li>([System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()).NamingRoleOwner </li>
+<li>([System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()).InfrastructureRoleOwner </li>
+<li>([System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()).PdcRoleOwner </li>
+<li>([System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()).RidRoleOwner </li>
+</ul>
+<br/>
+<b>Active Directory PowerShell Module Cmdlet Examples:</b><br/>
+Get-RootDSE								LDAP server info (os and more)<br/>
+Get-ADForest								Current Forest info <br/>
+Get-ADDomain							Current AD info<br/>
+Get-ADDomainController					Specific DC Info. Easy to find all DCs in a site <br/>
+Get-ADDomainController -Discover -ForceDiscover -Service &quot;PrimaryDC&quot; -DomainName &quot;&lt;DOMAIN&gt;<br/>
+Get-ADDomainController -Discover -Site &quot;HQ&quot;<br/>
+Get-ADDomainController -Filter {(isGlobalCatalog -eq $True) -AND (isReadOnly -eq $True)}<br/>
+Get-ADComputer							Computer object info (run with -Prop *)<br/>
+Get-ADUser								User object info (run with -Prop *)<br/>
+Get-ADGroup								AD Group info.<br/>
+Get-ADGroup -Filter {GroupCategory -eq 'Security'} 	Find Security groups<br/>
+Get-ADGroupMember						Enumerate and return group members. Recurse for nested<br/>
+Get-ADGroupMember 'Administrators' -Recursive<br/>
+Get-ADReplicationParterNetadata 			#Windows 2012 and newer<br/>
+Get-ADReplicationparnterfailure				DC Replication failure status. Also can specify -Target<br/>
+Get-ADReplicationUptodatenessVectorTable		Tracks replication status between DCs<br/>
+Get-ADDefaultDomainPasswordPolicy			Get the default password policy for the domain<br/>
+<br/>
+Ot<span style="font-size: 10pt">hers<br/>
+</span><span style="font-size: 10pt"><span style="font-family: sans-serif">Get/Set-ADForest<br/>
+Get/Set-ADDomain<br/>
+Get/Set-ADDomainController<br/>
+Get/Set-ADUser<br/>
+Get/Set-ADComputer<br/>
+Get/Set-ADGroup<br/>
+Get/Set-ADGroupMember<br/>
+Get/Set-ADObject<br/>
+Get/Set-ADOrganizationalUnit<br/>
+Enable-ADOptionalFeature<br/>
+Disable/Enable-ADAccount<br/>
+Move-ADDirectoryServerOperationMasterRole<br/>
+New-ADUser<br/>
+New-ADComputer<br/>
+New-ADGroup<br/>
+New-ADObject<br/>
+New-ADOrganizationalUnit<br/>
+<br/>
+*-ADResourcePropertyListMember<br/>
+*-ADAuthenticationPolicy<br/>
+*-ADAuthenticationPolicySilo<br/>
+*-ADCentralAccessPolicy<br/>
+*-ADCentralAccessRule<br/>
+*-ADResourceProperty<br/>
+*-ADResourcePropertyList<br/>
+*-ADResourcePropertyValueType<br/>
+*-ADDCCloneConfigFile<br/>
+*-ADReplicationAttributeMetadata<br/>
+*-ADReplicationConnection<br/>
+*-ADReplicationFailure<br/>
+*-ADReplicationPartnerMetadata<br/>
+*-ADReplicationQueueOperation<br/>
+*-ADReplicationSite<br/>
+*-ADReplicationSiteLink<br/>
+*-ADReplicationSiteLinkBridge<br/>
+*-ADReplicationSubnet<br/>
+*-ADReplicationUpToDatenessVectorTable<br/>
+</span></span><span style="font-size: 10pt"><span style="font-family: sans-serif">Sync-ADObject</span></span><br/>
+<br/>
+</body></html>

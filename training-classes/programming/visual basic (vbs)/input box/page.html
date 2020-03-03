@@ -1,0 +1,24 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Input Box</title>
+</head><body>' =============================================<br/>
+<br/>
+option explicit<br/>
+<br/>
+Dim name, surname, age, koniec<br/>
+Dim number1, number2, sum<br/>
+<br/>
+name = InputBox(&quot;Podaj imie&quot;)<br/>
+surname = InputBox(&quot;Podaj nazwisko&quot;)<br/>
+age = InputBox(&quot;Podaj wiek&quot;)<br/>
+<br/>
+MsgBox &quot;Twoje imie to: &quot; &amp; name &amp; &quot; Naziwsko: &quot; &amp; surname &amp; &quot; Wiek: &quot; &amp; age<br/>
+<br/>
+number1 = InputBox(&quot;Podaj pierwsza liczbe: &quot;)<br/>
+number2 = InputBox(&quot;Podaj drugą liczbe: &quot;)<br/>
+sum = CInt(number1) + CInt(number2)<br/>
+<br/>
+MsgBox &quot;Suma liczb to: &quot; &amp; sum<br/>
+<br/>
+koniec = InputBox(&quot;Pozegnanie&quot;, &quot;TITLE&quot;, &quot;Put inout here&quot;, 500,500)</body></html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Mimikatz RPC Controller</title>
+</head><body># Description: Mini shell to control a remote mimikatz RPC server developed by @gentilkiwi<br/>
+<br/>
+usage: mimikatz.py [-h] [-file FILE] [-debug] [-hashes LMHASH:NTHASH]<br/>
+         [-no-pass] [-k] [-aesKey hex key] [-dc-ip ip address]<br/>
+         [-target-ip ip address]<br/>
+         target<br/>
+<br/>
+<b>SMB client implementation.</b><br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -file FILE      input file with commands to execute in the mini shell<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+<br/>
+connection:<br/>
+ -dc-ip ip address   IP Address of the domain controller. If omitted it<br/>
+            will use the domain part (FQDN) specified in the<br/>
+            target parameter<br/>
+ -target-ip ip address<br/>
+            IP Address of the target machine. If omitted it will<br/>
+            use whatever was specified as target. This is useful<br/>
+            when target is the NetBIOS name and you cannot resolve<br/>
+            it<br/>
+</body></html>

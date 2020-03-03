@@ -1,0 +1,357 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>GitHub Readme</title>
+</head><body># Summary<br/>
+<br/>
+Siofra is a tool designed to identify and exploit DLL hijacking vulnerabilities <br/>
+in Windows programs. It is able to simulate the Windows loader in order to give <br/>
+visibility into all of the dependencies (and corresponding vulnerabilities) of <br/>
+a PE on disk, or alternatively an image file in memory corresponding to an active <br/>
+process. More significantly, the tool has the ability to easily generate DLLs to <br/>
+exploit these types of vulnerabilities via PE infection with dynamic shellcode creation. <br/>
+These infected DLLs retain the code (DllMain, exported functions) as well as the <br/>
+resources of a DLL to seamlessly preserve the functionality of the application loading <br/>
+them, while at the same time allowing the researcher to specify an executable payload <br/>
+to be either run as a separate process or loaded into the target as a module. Additionally, <br/>
+the tool contains automated methods of combining UAC auto-elevation criteria with <br/>
+the aforementioned functionality in order to scan for UAC bypass vulnerabilities.<br/>
+<br/>
+# Vulnerabilities<br/>
+<br/>
+At present, there is a very large number of vulnerabilities which this tool exposes. <br/>
+While testing this tool I encountered only several applications which were not vulnerable <br/>
+out of hundreds which I tested against. Note that these vulnerabilities can be exploited <br/>
+despite SafeDllSearchMode. A common misconception results from confusing the &quot;current <br/>
+directory&quot; (fixed with SafeDllSearchMode) with the &quot;application directory&quot; (the <br/>
+folder containing the .exe itself). The vast majority of DLL hijacking vulnerabilities <br/>
+currently present in Windows programs stem from the application directory (which <br/>
+comes first in the Windows search order). Several highlights are listed below in <br/>
+the output produced by the scanner in the tool. The last time these vulnerabilities <br/>
+were tested was in mid-July 2017.<br/>
+<br/>
+* Application name: Internet Explorer<br/>
+* Tested on OS: Windows 10 x64 Home/Pro<br/>
+* Command/output: <br/>
+<br/>
+Siofra64.exe --mode file-scan -f &quot;c:\Program Files\Internet Explorer\iexplore.exe&quot; <br/>
+--enum-dependency --dll-hijack<br/>
+<br/>
+======== c:\Program Files\Internet Explorer\iexplore.exe [64-bit PE] ========<br/>
+iexplore.exe<br/>
+  USER32.dll [KnownDLL]<br/>
+    win32u.dll [Base]<br/>
+    api-ms-win-core-privateprofile-l1-1-1.dll [API set]<br/>
+      kernel32.dll [KnownDLL]<br/>
+    GDI32.dll [KnownDLL]<br/>
+      api-ms-win-gdi-internal-uap-l1-1-0.dll [API set]<br/>
+        gdi32full.dll [Base]<br/>
+          msvcp_win.dll [Base]<br/>
+            api-ms-win-crt-string-l1-1-0.dll [API set]<br/>
+              ucrtbase.dll [Base]<br/>
+  msvcrt.dll [KnownDLL]<br/>
+  api-ms-win-downlevel-shell32-l1-1-0.dll [API set]<br/>
+    shcore.dll [KnownDLL]<br/>
+      RPCRT4.dll [KnownDLL]<br/>
+      combase.dll [KnownDLL]<br/>
+        bcryptPrimitives.dll [Base]<br/>
+  ADVAPI32.dll [KnownDLL]<br/>
+    api-ms-win-eventing-controller-l1-1-0.dll [API set]<br/>
+      sechost.dll [KnownDLL]<br/>
+  iertutil.dll [!]<br/>
+<br/>
+[!] Module iertutil.dll vulnerable at c:\Program Files\Internet Explorer\iertutil.dll <br/>
+(real path: C:\WINDOWS\system32\iertutil.dll)<br/>
+<br/>
+* Application name: Windows Defender<br/>
+* Tested on OS: Windows 10 x64 Home/Pro<br/>
+* Command/output: <br/>
+<br/>
+Siofra64.exe --mode file-scan -f &quot;c:\Program Files\Windows Defender\MpCmdRun.exe&quot; <br/>
+--enum-dependency --dll-hijack<br/>
+<br/>
+======== c:\Program Files\Windows Defender\MpCmdRun.exe [64-bit PE] ========<br/>
+MpCmdRun.exe<br/>
+  msvcrt.dll [KnownDLL]<br/>
+  KERNEL32.dll [KnownDLL]<br/>
+  OLEAUT32.dll [KnownDLL]<br/>
+    msvcp_win.dll [Base]<br/>
+      api-ms-win-crt-string-l1-1-0.dll [API set]<br/>
+        ucrtbase.dll [Base]<br/>
+    combase.dll [KnownDLL]<br/>
+      RPCRT4.dll [KnownDLL]<br/>
+      bcryptPrimitives.dll [Base]<br/>
+  ADVAPI32.dll [KnownDLL]<br/>
+    api-ms-win-eventing-controller-l1-1-0.dll [API set]<br/>
+      sechost.dll [KnownDLL]<br/>
+  OLE32.dll [KnownDLL]<br/>
+    GDI32.dll [KnownDLL]<br/>
+      api-ms-win-gdi-internal-uap-l1-1-0.dll [API set]<br/>
+        gdi32full.dll [Base]<br/>
+          USER32.dll [KnownDLL]<br/>
+            win32u.dll [Base]<br/>
+  SspiCli.dll [!]<br/>
+  mpclient.dll [!]<br/>
+    CRYPT32.dll [Base]<br/>
+      MSASN1.dll [Base]<br/>
+  WINTRUST.dll [Base]<br/>
+<br/>
+[!] Module SspiCli.dll vulnerable at c:\Program Files\Windows Defender\SspiCli.dll <br/>
+(real path: C:\WINDOWS\system32\SspiCli.dll)<br/>
+<br/>
+* Application name: WMI<br/>
+* Tested on OS: Windows 10 x64 Home/Pro<br/>
+* Command/output: <br/>
+<br/>
+Siofra64.exe --mode file-scan -f &quot;c:\WINDOWS\System32\wbem\wmiprvse.exe&quot; --enum-dependency <br/>
+--dll-hijack<br/>
+<br/>
+======== c:\WINDOWS\System32\wbem\wmiprvse.exe [64-bit PE] ========<br/>
+wmiprvse.exe<br/>
+  msvcrt.dll [KnownDLL]<br/>
+  FastProx.dll [!]<br/>
+    wbemcomn.dll [!]<br/>
+      bcrypt.dll [!]<br/>
+      WS2_32.dll [KnownDLL]<br/>
+        api-ms-win-eventing-obsolete-l1-1-0.dll [API set]<br/>
+          sechost.dll [KnownDLL]<br/>
+            RPCRT4.dll [KnownDLL]<br/>
+            api-ms-win-core-heap-obsolete-l1-1-0.dll [API set]<br/>
+              kernel32.dll [KnownDLL]<br/>
+  NCObjAPI.DLL [!]<br/>
+<br/>
+[!] Module wbemcomn.dll vulnerable at c:\WINDOWS\System32\wbem\wbemcomn.dll (real <br/>
+path: C:\WINDOWS\system32\wbemcomn.dll)<br/>
+[!] Module bcrypt.dll vulnerable at c:\WINDOWS\System32\wbem\bcrypt.dll (real path: <br/>
+C:\WINDOWS\system32\bcrypt.dll)<br/>
+[!] Module NCObjAPI.DLL vulnerable at c:\WINDOWS\System32\wbem\NCObjAPI.DLL (real <br/>
+path: C:\WINDOWS\system32\NCObjAPI.DLL)<br/>
+<br/>
+* Application name: Windows Search Indexer/Search Protocol Host<br/>
+* Tested on OS: Windows 10 x64 Home/Pro<br/>
+* Command/output: <br/>
+<br/>
+Siofra64.exe --mode file-scan -f &quot;c:\WINDOWS\System32\SearchProtocolHost.exe&quot; --enum-dependency <br/>
+--dll-hijack --explicit-loadlibrary<br/>
+<br/>
+======== c:\WINDOWS\System32\SearchProtocolHost.exe [64-bit PE] ========<br/>
+SearchProtocolHost.exe<br/>
+  msvcrt.dll [KnownDLL]<br/>
+  TQUERY.DLL [!]<br/>
+    OLEAUT32.dll [KnownDLL]<br/>
+      msvcp_win.dll [Base]<br/>
+        api-ms-win-crt-string-l1-1-0.dll [API set]<br/>
+          ucrtbase.dll [Base]<br/>
+      combase.dll [KnownDLL]<br/>
+        RPCRT4.dll [KnownDLL]<br/>
+        api-ms-win-core-heap-obsolete-l1-1-0.dll [API set]<br/>
+          kernel32.dll [KnownDLL]<br/>
+        bcryptPrimitives.dll [Base]<br/>
+    cryptdll.dll [!]<br/>
+  api-ms-win-security-lsalookup-l2-1-1.dll [API set]<br/>
+    advapi32.dll [KnownDLL]<br/>
+      api-ms-win-eventing-controller-l1-1-0.dll [API set]<br/>
+        sechost.dll [KnownDLL]<br/>
+  api-ms-win-shell-namespace-l1-1-0.dll [API set]<br/>
+    windows.storage.dll [Base]<br/>
+      api-ms-win-shlwapi-winrt-storage-l1-1-1.dll [API set]<br/>
+        shlwapi.dll [KnownDLL]<br/>
+          GDI32.dll [KnownDLL]<br/>
+            api-ms-win-gdi-internal-uap-l1-1-0.dll [API set]<br/>
+              gdi32full.dll [Base]<br/>
+                USER32.dll [KnownDLL]<br/>
+                  win32u.dll [Base]<br/>
+      api-ms-win-appmodel-state-l1-2-0.dll [API set]<br/>
+        kernel.appcore.dll [Base]<br/>
+      api-ms-win-shcore-path-l1-1-0.dll [API set]<br/>
+        shcore.dll [KnownDLL]<br/>
+      api-ms-win-power-base-l1-1-0.dll [API set]<br/>
+        powrprof.dll [Base]<br/>
+      profapi.dll [Base]<br/>
+  msfte.dll [Potential explicit Unicode] [!]<br/>
+  msTracer.dll [Potential explicit Unicode] [!]<br/>
+  Msidle.dll [Potential explicit Unicode] [!]<br/>
+  winhttp.dll [Potential explicit Unicode] [!]<br/>
+<br/>
+[!] Module msfte.dll vulnerable at C:\WINDOWS\system32\msfte.dll (real path: Unknown)<br/>
+[!] Module msTracer.dll vulnerable at C:\WINDOWS\system32\msTracer.dll (real path: <br/>
+Unknown)<br/>
+<br/>
+# Capabilities<br/>
+<br/>
+The capabilities of this tool can be split into 3 separate categories, each corresponding <br/>
+to one of the execution modes of this tool.<br/>
+<br/>
+ ## Infection mode<br/>
+ <br/>
+ When in infection mode, the tool is capable of generating infected copies of both <br/>
+ 32 and 64-bit DLL files. These infected files are able to hijack the execution flow <br/>
+ of a target application when they are loaded during process initialization, causing <br/>
+ either a payload DLL to be loaded or a payload executable to be launched prior to <br/>
+ the execution of the target application entry point.<br/>
+ <br/>
+ ## File scanning mode<br/>
+ <br/>
+ When in file scanning mode, the tool may be given either an executable file path <br/>
+ or a folder (which will be searched for executable files, optionally with recursion) <br/>
+ which will recursively have its PE imports, delay load imports, API sets, assembly <br/>
+ dependencies, and explicitly loaded libraries enumerated and processed to determine <br/>
+ the path at which each will be loaded during runtime process initialization. With <br/>
+ this information, the tool is able to identify modules which are vulnerable to hijacking. <br/>
+ During PE processing and loader simulation, the tool is capable of handling:<br/>
+  1. Modules imported using the primary PE imports section.<br/>
+  2. Modules imported via delay load.<br/>
+  3. WinSxS assembly dependency resolution (the PE manifest resource is parsed, assembly <br/>
+   dependency IDs are extracted, and the WinSxS module path is identified using<br/>
+   a custom implementation).<br/>
+  4. Explicitly loaded modules, imported via LoadLibrary at runtime.<br/>
+  5. API set resolution of all of the above import types. This is achieved via a <br/>
+   custom implementation of a parser for the undocumented data structures found in <br/>
+   ApiSetSchema.dll (note that only versions 2, 4 and 6 have been tested).<br/>
+  6. Searching for specific imported modules by name.<br/>
+  7. Identifying Windows components which can be leveraged for UAC bypass attacks <br/>
+   (the UAC auto-elevation criteria are applied to a specified target PE in an<br/>
+   automated way, then used in conjunction with a hijacking attack if one is present).<br/>
+  8. Automatically detect and filter module dependencies which are not<br/>
+   vulnerable on the basis of:<br/>
+    * KnownDLLs<br/>
+    * Exempt (&quot;Base&quot;) DLL status. Kernelbase.dll, ntdll.dll, etc.<br/>
+    * Manifest override security mechanism (used by Microsoft in sysprep.exe)<br/>
+ <br/>
+ ## Memory scanning mode<br/>
+ <br/>
+ When in memory scanning mode, the tool can either enumerate local process names/IDs <br/>
+ or it can be given a process ID to scan. Rather than parsing the image file corresponding <br/>
+ to the given PID on disk, the tool will enumerate the modules currently loaded into <br/>
+ the process and identify which of them may be vulnerable to hijacking. This is useful <br/>
+ in instances where an executable on disk is packed/obfuscated and its imports cannot <br/>
+ be identified through parsing the PE header.<br/>
+<br/>
+# Usage<br/>
+<br/>
+In order to display the tool usage information, simply run it with no parameters <br/>
+(output shown below). It is very important to use the appropriate compilation of <br/>
+the tool (32 or 64-bit) for the desired target depending upon whether it is a 32-bit PE <br/>
+or 64-bit PE file. Similarly, the 32-bit version of the tool can only enumerate and/or <br/>
+target 32-bit processes (Wow64 on an x64 OS) and the 64-bit version can only enumerate <br/>
+and/or target 64-bit processes. This principle applies both to scanning (Siofra64.exe <br/>
+will skip 32-bit PE and Siofra32.exe will skip 64-bit PE) and to PE infection. Siofra32.exe <br/>
+should be used to infect 32-bit DLLs and Siofra64.exe should be used to infect 64-bit <br/>
+DLLs.<br/>
+<br/>
+When the 32-bit version of the tool is run on x64 systems Wow64 path redirection <br/>
+is explicitly disabled by the tool, which means that if you were to target \Windows\System32\notepad.exe <br/>
+it would be a 64-bit PE (and therefore \Windows\Syswow64\notepad.exe should be used instead). <br/>
+Similarly if you were to target \Program Files\Common Files\microsoft shared\MSInfo\msinfo32.exe <br/>
+it would be a 64-bit PE, and therefore \Program Files (x86)\Common Files\microsoft shared\MSInfo\msinfo32.exe <br/>
+should be used instead.<br/>
+<br/>
+Siofra version 1.13 usage: Siofra32.exe --mode [Supported modes: &quot;file-scan&quot;, &quot;mem-scan&quot; <br/>
+and &quot;infect&quot;] -v [Optional. Output verbosity level]<br/>
+  Verbosity levels:<br/>
+    0 - No output<br/>
+    1 - Only critical success/failure status (default)<br/>
+    2 - Additional status details for success/failure status, including discarded PEs<br/>
+    3 - Everything<br/>
+  File scan mode:<br/>
+    -f [File or directory to scan]<br/>
+    -r [Optional. Recursive scan]<br/>
+    --signed [Optional. Process only signed binaries]<br/>
+    --delayload [Optional. Include delayload imports in dependency list]<br/>
+    --explicit-loadlibrary [Optional. Include potentially explicit imports in <br/>
+dependency list (these are *.dll strings which may have been called via LoadLibrary(Ex)A/W]<br/>
+    --auto-elevate [Optional. Scan only auto-elevate binaries]<br/>
+  Memory scan mode:<br/>
+    --pid [Target process ID to scan. When not specified, a list of either 32 <br/>
+or 64-bit process names/PIDs will be enumerated (corresponding to either the 32 <br/>
+or 64-bit version of this tool)]<br/>
+  Any scan mode:<br/>
+    --enum-dependency [Enumerate dependencies]<br/>
+    --show-unmapped-apiset [Optional. Include API sets which failed to map to <br/>
+a module from output (ignored by default)]<br/>
+    --dll-hijack [Enumerate DLL hijacking vulns]<br/>
+    --find-module [Optional. Scan dependencies for a specific module. Note that <br/>
+this excludes KnownDLLs]<br/>
+  Infect mode:<br/>
+    -f [DLL file to infect]<br/>
+    -o [Output file]<br/>
+    --payload-path [Path of DLL to be loaded into infected DLL at runtime, <br/>
+or path of executable to be launched at runtime]<br/>
+    --payload-type [The type of payload specified in the parasite payload path. <br/>
+This can be &quot;process&quot; (generally indicating a exe) or &quot;library&quot; (generally indicating <br/>
+a DLL)]<br/>
+<br/>
+ ## Examples<br/>
+ <br/>
+ 1. Scanning the entire home drive for 32-bit programs vulnerable to DLL hijacking <br/>
+  using either standard or delay load imports through their PE headers.<br/>
+ <br/>
+  Siofra32.exe --mode file-scan -f &quot;C:/&quot; -r --enum-dependency --dll-hijack --delayload<br/>
+ <br/>
+ 2. Scanning the Windows Defender application folder on an x64 version of Windows <br/>
+  for vulnerable modules loaded through the standard import table in their PE header.<br/>
+ <br/>
+  Siofra64.exe --mode file-scan -f &quot;C:\Program Files\Windows Defender&quot; -r --enum-dependency <br/>
+  --dll-hijack<br/>
+ <br/>
+ 3. Scanning the 32-bit Java Update Scheduler program on an x64 version of Windows <br/>
+  for vulnerable modules loaded through any known channel (standard or delayload imports, <br/>
+  WinSxS, LoadLibrary).<br/>
+ <br/>
+  Siofra32.exe --mode file-scan -f &quot;C:\Program Files (x86)\Common Files\Java\Java <br/>
+  Update\jusched.exe&quot; --enum-dependency --dll-hijack --delayload --explicit-loadlibrary<br/>
+ <br/>
+ 4. Scanning the Windows folder (and all its subfolders) for vulnerable modules <br/>
+  (imported via the standard imports table in the PE header) in 64-bit programs which <br/>
+  could be used for a UAC bypass attack (signed by Microsoft with an auto-elevate <br/>
+  manifest).<br/>
+ <br/>
+  Siofra64.exe --mode file-scan -f &quot;C:\Windows&quot; -r --enum-dependency --dll-hijack <br/>
+  --auto-elevate --signed<br/>
+ <br/>
+ 5. Infecting a 32-bit copy of WININET.dll (copied from \Windows\SysWOW64\WININET.dll <br/>
+  to .\WININET_original.dll) with an implant which will launch a new notepad process <br/>
+  when loaded during process initialization by a vulnerable program. It's important <br/>
+  to note that simply loading an infected copy of this DLL (via LoadLibrary for example) <br/>
+  will not trigger the payload. Infected DLLs are only meant to work in the context <br/>
+  of a vulnerable module loaded via the standard imports section of its host process.<br/>
+ <br/>
+  Siofra32.exe --mode infect -f WININET_original.dll -o WININET.dll --payload-type <br/>
+  process --payload-path c:\windows\system32\notepad.exe<br/>
+ <br/>
+ 6. Infecting a 64-bit copy of USERENV.dll (copied from \Windows\System32\USERENV.dll <br/>
+  to .\USERENV_original.dll) with an implant which will load a hypothetical payload <br/>
+  DLL stored at C:\Payload.dll. It's important to note that all DLLs loaded by a 64-bit <br/>
+  process must be 64-bit DLLs, and all DLLs loaded by a 32-bit process must be 32-bit <br/>
+  DLLs. Therefore in this hypothetical scenario, Payload.dll would need to be a 64-bit PE <br/>
+  file for it to be loaded successfully by the implant in USERENV.dll.<br/>
+ <br/>
+  Siofra64.exe --mode infect -f USERENV_original.dll -o USERENV.dll --payload-type <br/>
+  library --payload-path &quot;C:\Payload.dll&quot;<br/>
+<br/>
+# Future improvements<br/>
+<br/>
+* 32 and 64-bit versions of the tool to be combined into a single executable.<br/>
+* Capability to perform PE infections which can successfully load DLL/executable <br/>
+ payloads within infected DLL files loaded explicitly via LoadLibrary or through <br/>
+ delayed imports.<br/>
+* Support for all API set versions.<br/>
+ <br/>
+# Source code<br/>
+<br/>
+I've decided to make some of this tool open source to help other security <br/>
+researchers understand the technical details of this project. Specifically I've <br/>
+provided assembler source code for one of the 64-bit implant shellcodes (for 64-bit PE <br/>
+DLL infection when specifying a &quot;process&quot; payload type).<br/>
+<br/>
+Details surrounding other technical aspects of the tool and OS details related<br/>
+to the Windows loader/search order, UAC, WinSxS etc. can be found within the<br/>
+PDF for this project.<br/>
+<br/>
+# License<br/>
+<br/>
+Siofra is licensed under the GPL 3 license. See LICENSE.MD for details.<br/>
+<br/>
+# Contact<br/>
+<br/>
+Forrest Williams - forrest-RE@protonmail.com / forrest.williams@cybereason.com</body></html>

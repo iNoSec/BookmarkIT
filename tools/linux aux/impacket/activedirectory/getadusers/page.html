@@ -1,0 +1,46 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>GetADUsers</title>
+</head><body># Description:<br/>
+#   This script will gather data about the domain's users and their corresponding email addresses. It will also<br/>
+#   include some extra information about last logon and last password set attributes.<br/>
+#   You can enable or disable the the attributes shown in the final table by changing the values in line 184 and<br/>
+#   headers in line 190.<br/>
+#   If no entries are returned that means users don't have email addresses specified. If so, you can use the<br/>
+#   -all-users parameter.<br/>
+#<br/>
+# Reference for:<br/>
+#   LDAP<br/>
+<br/>
+usage: GetADUsers.py [-h] [-user username] [-all-users] [-debug]<br/>
+          [-hashes LMHASH:NTHASH] [-no-pass] [-k] [-aesKey hex key]<br/>
+          [-dc-ip ip address]<br/>
+          target<br/>
+<br/>
+Queries target domain for users data<br/>
+<br/>
+positional arguments:<br/>
+ target        domain/username[:password]<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -user username    Requests data for specific user<br/>
+ -all-users      Return all users, including those with no email<br/>
+            addresses<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+ -dc-ip ip address   IP Address of the domain controller. If ommited it use<br/>
+            the domain part (FQDN) specified in the target<br/>
+            parameter<br/>
+</body></html>

@@ -1,0 +1,1066 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Invoke-EncryptedZip.ps1</title>
+</head><body>&lt;#<br/>
+<br/>
+  Invoke-MakeEncZip via .NET<br/>
+  Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+  License: BSD 3-Clause<br/>
+  Required Dependencies: None<br/>
+  Optional Dependencies: None<br/>
+<br/>
+#&gt;<br/>
+<br/>
+<br/>
+function Invoke-EncryptedZip {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Invoke-EncryptedZip<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Invoke-EncryptedZip is a utility to make a Enrypted Zip compresed file from a provided folder.<br/>
+    This allows users to stage files in designated folder for exfil, or protection from final storage location. <br/>
+<br/>
+    Refrence: https://technet.microsoft.com/en-us/library/2009.04.heyscriptingguy.aspx<br/>
+<br/>
+  .PARAMETER SourceDirectory<br/>
+<br/>
+    Required source directory to be Zip Encrypted archived<br/>
+<br/>
+  .PARAMETER ZipFileName<br/>
+<br/>
+    Required Zip file name to be outputed<br/>
+<br/>
+  .PARAMETER ZipFilePath<br/>
+<br/>
+    Required Zip file output directory<br/>
+<br/>
+  .PARAMETER EncryptedFileName<br/>
+<br/>
+    Required final encrypted file name <br/>
+<br/>
+  .PARAMETER EncryptedFilePath<br/>
+<br/>
+    Required final encrypted file path<br/>
+<br/>
+  .PARAMETER ZipMethod<br/>
+<br/>
+    Select the Method (COM, NET) to be used to Zip file (DEFAULT: NET)<br/>
+<br/>
+  .PARAMETER EncryptMethod<br/>
+<br/>
+    Select the Method (Stream, Memory) to be used to to encrypt the (DEFAULT: Stream)<br/>
+    Memory is only good to about 1MB max to prevent PS consuming to much mem.<br/>
+<br/>
+  .PARAMETER CleanUp<br/>
+<br/>
+    Switch to enable clean up of source folder and zip file created. (DEFAULT: False)<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    Invoke-EncryptedZip -SourceDirectory &quot;C:\CINEBENCHR15.038&quot; -ZipFileName &quot;test.zip&quot; -ZipFilePath &quot;C:\&quot; -EncryptedFilePath &quot;C:\&quot;<br/>
+    <br/>
+    Invoke-EncryptedZip -SourceDirectory &quot;C:\CINEBENCHR15.038&quot; -ZipFileName &quot;test.zip&quot; -ZipFilePath &quot;C:\\&quot; -EncryptedFilePath &quot;C:\&quot; -ZipMethod 'COM' <br/>
+<br/>
+    Invoke-EncryptedZip -SourceDirectory &quot;C:\CINEBENCHR15.038&quot; -ZipFileName &quot;test.zip&quot; -ZipFilePath &quot;C:\\&quot; -EncryptedFilePath &quot;C:\&quot; -ZipMethod 'COM' -EncryptMethod 'Memory'<br/>
+<br/>
+    Invoke-EncryptedZip -SourceDirectory &quot;C:\CINEBENCHR15.038&quot; -ZipFileName &quot;test.zip&quot; -ZipFilePath &quot;C:\\&quot; -EncryptedFilePath &quot;C:\&quot; -ZipMethod 'NET' -EncryptMethod 'Stream' -ZipMethod 'NET' -EncryptMethod 'Stream' -CleanUp -Verbose<br/>
+<br/>
+    <br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $true, Position = 0)]<br/>
+    [String]<br/>
+    $SourceDirectory,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [string]<br/>
+    $ZipFileName,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 2)]<br/>
+    [string]<br/>
+    $ZipFilePath,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 3)]<br/>
+    [string]<br/>
+    $EncryptedFileName,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 4)]<br/>
+    [string]<br/>
+    $EncryptedFilePath,<br/>
+<br/>
+    [Parameter(Mandatory = $false, Position = 5)]<br/>
+    [ValidateSet(&quot;COM&quot;, &quot;NET&quot;)]<br/>
+    [String]<br/>
+    $ZipMethod = &quot;NET&quot;,<br/>
+<br/>
+    [Parameter(Mandatory = $false, Position = 6)]<br/>
+    [ValidateSet(&quot;Stream&quot;, &quot;Memory&quot;)]<br/>
+    [String]<br/>
+    $EncryptMethod = &quot;Stream&quot;,<br/>
+<br/>
+    [Parameter(Mandatory = $false, Position = 7)]<br/>
+    [Switch]<br/>
+    $CleanUp = $false<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    if(![IO.Directory]::Exists($SourceDirectory)){<br/>
+        Write-Error &quot;[!] Cant find source directory $SourceDirectory, baling out&quot;<br/>
+        Exit<br/>
+    }<br/>
+    # Create zip file and test to make sure it was wrote to correct location<br/>
+    if ($ZipMethod -eq &quot;COM&quot;) {<br/>
+      Create-ZipFileCOM -SourceDirectory $SourceDirectory -ZipFileName $ZipFileName -ZipFilePath $ZipFilePath<br/>
+    }<br/>
+    if ($ZipMethod -eq &quot;NET&quot;) {<br/>
+      Create-ZipFileNET -SourceDirectory $SourceDirectory -ZipFileName $ZipFileName -ZipFilePath $ZipFilePath<br/>
+    } <br/>
+    $ZipFile = &quot;$ZipFilePath$ZipFileName&quot;<br/>
+    if(-not (test-path($ZipFile))) {<br/>
+      Write-Output &quot;[!] No zip present after creation, baling out!&quot;<br/>
+      Exit<br/>
+    }<br/>
+    sleep 2<br/>
+  }<br/>
+  <br/>
+  <br/>
+  Process {<br/>
+    #Begin main process block exec of encryption <br/>
+    if ($EncryptMethod -eq &quot;Stream&quot;) {<br/>
+      Write-Verbose &quot;[*] Stream encryption selected&quot;<br/>
+      $AesKey = Create-AesKey<br/>
+      $Result = Encrypt-AESFileStream -SourceDirectory $ZipFilePath -SourceFile $ZipFileName -EncryptedFileName $EncryptedFileName -EncryptedFilePath $EncryptedFilePath -AesKey $AesKey<br/>
+      remove-variable AesKey<br/>
+      [GC]::Collect()<br/>
+<br/>
+    }<br/>
+    if ($EncryptMethod -eq &quot;Memory&quot;) {<br/>
+      Write-Verbose &quot;[*] Memory encryption selected&quot;<br/>
+      $FileBytes = [System.IO.File]::ReadAllBytes($ZipFile)<br/>
+      $AesKey = Create-AesKey<br/>
+      $EncryptedBytes = Encrypt-Bytes -AesKey $AesKey -Bytes $FileBytes<br/>
+      remove-variable FileBytes<br/>
+      [GC]::Collect()<br/>
+      $EncryptedFile = &quot;$EncryptedFilePath$EncryptedFileName&quot;<br/>
+      [io.file]::WriteAllBytes($EncryptedFile, $EncryptedBytes)<br/>
+      remove-variable EncryptedBytes<br/>
+      [GC]::Collect()<br/>
+      $Result = New-Object –TypeName PSObject<br/>
+      $Result | Add-Member –MemberType NoteProperty –Name Computer –Value $env:COMPUTERNAME<br/>
+      $Result | Add-Member –MemberType NoteProperty –Name Key –Value $AesKey<br/>
+      $Result | Add-Member –MemberType NoteProperty –Name Files –Value $EncryptedFile<br/>
+    }<br/>
+  }<br/>
+<br/>
+  End {<br/>
+    [GC]::Collect()<br/>
+    if ($CleanUp) {<br/>
+      # start file clean up routine <br/>
+      Remove-Item $SourceDirectory -Recurse -Force<br/>
+      Write-Verbose &quot;[*] Source folder deleted: $SourceDirectory&quot;<br/>
+      Remove-Item $ZipFile -Force<br/>
+      Write-Verbose &quot;[*] Zip archive deleted: $ZipFile&quot;<br/>
+      if([IO.Directory]::Exists($SourceDirectory)){<br/>
+        Write-Warning &quot;[!] WARNING: Source folder deletion failed, please manualy remove: $SourceDirectory&quot;<br/>
+      }<br/>
+      if([System.IO.File]::Exists($ZipFileName)){<br/>
+        Write-Warning &quot;[!] WARNING: Zip deletion failed, please manualy remove: $ZipFile&quot;<br/>
+      }<br/>
+    }<br/>
+    return $Result<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+<br/>
+function Invoke-DecryptZip {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Invoke-EncryptedZip<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Invoke-DecryptZip is a utility to decrypt files created with this utility.<br/>
+<br/>
+    Refrence: https://technet.microsoft.com/en-us/library/2009.04.heyscriptingguy.aspx<br/>
+<br/>
+  .PARAMETER EncryptedFileName<br/>
+<br/>
+    Required final encrypted file name <br/>
+<br/>
+  .PARAMETER EncryptedFilePath<br/>
+<br/>
+    Required final encrypted file path<br/>
+<br/>
+  .PARAMETER ZipMethod<br/>
+<br/>
+    Select the Method (COM, NET) to be used to Zip file (DEFAULT: NET)<br/>
+<br/>
+  .PARAMETER EncryptMethod<br/>
+<br/>
+    Select the Method (Stream, Memory) to be used to to encrypt the (DEFAULT: Stream)<br/>
+    Memory is only good to about 1MB max to prevent PS consuming to much mem.<br/>
+<br/>
+  .PARAMETER CleanUp<br/>
+<br/>
+    Switch to enable clean up of source folder and zip file created. (DEFAULT: False)<br/>
+<br/>
+  .EXAMPLE<br/>
+    <br/>
+    Invoke-DecryptZip -EncryptedFileName 'shellcode.dat' -EncryptedFilePath 'C:\Users\admin\Desktop\' -AesKey 'H2dbIaoK2MFYU2ge/4cx00XjLuLSC63odhqhKP4vC84=' <br/>
+<br/>
+    Invoke-DecryptZip -EncryptedFileName 'shellcode.dat' -EncryptedFilePath 'C:\Users\admin\Desktop\' -AesKey 'H2dbIaoK2MFYU2ge/4cx00XjLuLSC63odhqhKP4vC84=' -CleanUp -Verbose<br/>
+<br/>
+    Computer   Key                     Files<br/>
+    --------   ---                     -----<br/>
+    TEST     H2dbIaoK2MFYU2ge/4cx00XjLuLSC63odhqhKP4vC84= C:\Users\admin\Desktop\shellcode.zip<br/>
+    <br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [string]<br/>
+    $AesKey,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 2)]<br/>
+    [string]<br/>
+    $EncryptedFileName,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 3)]<br/>
+    [string]<br/>
+    $EncryptedFilePath,<br/>
+<br/>
+    [Parameter(Mandatory = $false, Position = 4)]<br/>
+    [ValidateSet(&quot;COM&quot;, &quot;NET&quot;)]<br/>
+    [String]<br/>
+    $ZipMethod = &quot;NET&quot;,<br/>
+<br/>
+    [Parameter(Mandatory = $false, Position = 5)]<br/>
+    [ValidateSet(&quot;Stream&quot;, &quot;Memory&quot;)]<br/>
+    [String]<br/>
+    $EncryptMethod = &quot;Stream&quot;,<br/>
+<br/>
+    [Parameter(Mandatory = $false, Position = 6)]<br/>
+    [Switch]<br/>
+    $CleanUp = $false<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    $EncryptedFile = &quot;$EncryptedFilePath$EncryptedFileName&quot;<br/>
+    $DecryptedFile = $EncryptedFileName.Split(&quot;.&quot;)[0] + &quot;.zip&quot;<br/>
+    if(![System.IO.File]::Exists($EncryptedFile)){<br/>
+        Write-Error &quot;[!] Cant find Encrypted File $EncryptedFile, baling out&quot;<br/>
+    }<br/>
+    if ($EncryptMethod -eq &quot;Stream&quot;) {<br/>
+      Write-Verbose &quot;[*] Stream dcryption selected&quot;<br/>
+      $Result = Decrypt-AESFileStream -DestionationDirectory $EncryptedFilePath -DestionationFile $DecryptedFile -EncryptedFileName $EncryptedFileName -EncryptedFilePath $EncryptedFilePath -AesKey $AesKey<br/>
+      remove-variable AesKey<br/>
+      [GC]::Collect()<br/>
+<br/>
+    }<br/>
+  }<br/>
+  <br/>
+  <br/>
+  Process {<br/>
+    #Begin main process block exec of de ziping <br/>
+    $ZipFile = &quot;$EncryptedFilePath$DecryptedFile&quot;<br/>
+    $DecryptedFolder = $EncryptedFileName.Split(&quot;.&quot;)[0]<br/>
+    $DecompressedZipFolder = &quot;$EncryptedFilePath$DecryptedFolder&quot;<br/>
+    if ($ZipMethod -eq &quot;NET&quot;) {<br/>
+      Create-DecompressedZipFileNET -ZipFilePath $ZipFile -OutputFolderPath $DecompressedZipFolder<br/>
+    } <br/>
+    Write-Verbose &quot;[*] Zip decompressed to: $DecompressedZipFolder&quot;<br/>
+    if(![IO.Directory]::Exists($DecompressedZipFolder)){<br/>
+        Write-Error &quot;[!] No folder Decompressed present after creation, baling out!&quot;<br/>
+    }<br/>
+  }<br/>
+<br/>
+  End {<br/>
+    [GC]::Collect()<br/>
+    if ($CleanUp) {<br/>
+      # start file clean up routine <br/>
+      Remove-Item $EncryptedFile -Force<br/>
+      Write-Verbose &quot;[*] Source file deleted: $EncryptedFile&quot;<br/>
+      Remove-Item $ZipFile -Force<br/>
+      Write-Verbose &quot;[*] Zip archive deleted: $ZipFile&quot;<br/>
+      if([IO.Directory]::Exists($EncryptedFile)){<br/>
+        Write-Warning &quot;[!] WARNING: Source folder deletion failed, please manualy remove: $EncryptedFile&quot;<br/>
+      }<br/>
+      if([System.IO.File]::Exists($ZipFile)){<br/>
+        Write-Warning &quot;[!] WARNING: Zip deletion failed, please manualy remove: $ZipFile&quot;<br/>
+      }<br/>
+    }<br/>
+    return $Result<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+function Create-AesManagedObject {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Makes the required AES object for encryption and decryption <br/>
+<br/>
+    Refrence: https://gist.github.com/ctigeek/2a56648b923d198a6e60<br/>
+<br/>
+  .PARAMETER AesKey<br/>
+<br/>
+    The required AES key being used for encryption (base64 key)<br/>
+<br/>
+  .PARAMETER AesIV<br/>
+<br/>
+    The required AES IV being used for encryption (base64 iv)<br/>
+<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    Create-AesManagedObject $key $iv<br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $false, Position = 0)]<br/>
+    [String]<br/>
+    $AesKey,<br/>
+<br/>
+    [Parameter(Mandatory = $false, Position = 1)]<br/>
+    [string]<br/>
+    $AesIV<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    if ($AesKey) {<br/>
+      Write-Verbose &quot;[*] Key being used for encryption: $AesKey&quot;<br/>
+    }<br/>
+    if ($AesIV) {<br/>
+      Write-Verbose &quot;[*] IV being used for encryption: $iv&quot;<br/>
+    }<br/>
+  }<br/>
+ <br/>
+  Process {<br/>
+      #Begin main process block<br/>
+      $ErrorActionPreference = &quot;Stop&quot;<br/>
+      $aesManaged = New-Object &quot;System.Security.Cryptography.AesManaged&quot;<br/>
+      $aesManaged.Mode = [System.Security.Cryptography.CipherMode]::CBC<br/>
+      $aesManaged.Padding = [System.Security.Cryptography.PaddingMode]::Zeros<br/>
+      $aesManaged.BlockSize = 128<br/>
+      $aesManaged.KeySize = 256<br/>
+      if ($AesIV) {<br/>
+        if ($AesIV.getType().Name -eq &quot;String&quot;) {<br/>
+          $aesManaged.IV = [System.Convert]::FromBase64String($AesIV)<br/>
+        }<br/>
+        else {<br/>
+          $aesManaged.IV = $AesIV<br/>
+        }<br/>
+      }<br/>
+      if ($AesKey) {<br/>
+        if ($AesKey.getType().Name -eq &quot;String&quot;) {<br/>
+          $aesManaged.Key = [System.Convert]::FromBase64String($AesKey)<br/>
+        }<br/>
+        else {<br/>
+          $aesManaged.Key = $AesKey<br/>
+        }<br/>
+      }<br/>
+  }<br/>
+<br/>
+  End {<br/>
+<br/>
+    Write-Verbose &quot;[*] Completed AES object creation&quot;<br/>
+    # return obj to pipeline<br/>
+    $aesManaged<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+function Create-AesKey {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Makes the required AES key object to pass<br/>
+<br/>
+    Refrence: https://gist.github.com/ctigeek/2a56648b923d198a6e60<br/>
+<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    $b64key = Create-AesKey <br/>
+#&gt;<br/>
+<br/>
+  Begin {<br/>
+    Write-Verbose &quot;[*] AES key creation started&quot;<br/>
+    }<br/>
+  <br/>
+  <br/>
+    Process {<br/>
+  <br/>
+      #Begin main process block<br/>
+      $ErrorActionPreference = &quot;Stop&quot;<br/>
+      $aesManaged = Create-AesManagedObject<br/>
+      $aesManaged.GenerateKey()<br/>
+  }<br/>
+<br/>
+  End {<br/>
+<br/>
+    Write-Verbose &quot;[*] Completed AES key creation&quot;<br/>
+    # return obj to pipeline<br/>
+    $AesKey = [System.Convert]::ToBase64String($aesManaged.Key)<br/>
+    Write-Verbose &quot;[*] AES key created: $AesKey&quot;<br/>
+    return $AesKey<br/>
+  }<br/>
+  <br/>
+}<br/>
+<br/>
+<br/>
+function Encrypt-Bytes {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Makes the required AES object for encryption and decryption <br/>
+<br/>
+    Refrence: https://gist.github.com/ctigeek/2a56648b923d198a6e60<br/>
+<br/>
+  .PARAMETER AesKey<br/>
+<br/>
+    The required AES key being used for encryption (base64 key)<br/>
+<br/>
+  .PARAMETER Bytes<br/>
+<br/>
+    The bytes to be encrypted via AES<br/>
+<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    Encrypt-Bytes $AesKey $FileBytes<br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $true, Position = 0)]<br/>
+    [String]<br/>
+    $AesKey,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    $Bytes<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    Write-Verbose &quot;[*] Key being used for encryption of bytes: $key&quot;<br/>
+    }<br/>
+  <br/>
+  <br/>
+    Process {<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    $aesManaged = Create-AesManagedObject $AesKey<br/>
+    $encryptor = $aesManaged.CreateEncryptor()<br/>
+    $encryptedData = $encryptor.TransformFinalBlock($Bytes, 0, $Bytes.Length);<br/>
+    [byte[]] $fullData = $aesManaged.IV + $encryptedData<br/>
+    $aesManaged.Dispose()<br/>
+    # $finalbytes = [System.Convert]::ToBase64String($fullData)<br/>
+    $finalbytes = $fullData<br/>
+<br/>
+  }<br/>
+<br/>
+  End {<br/>
+<br/>
+    Write-Verbose &quot;[*] Completed AES encryption of bytes&quot;<br/>
+    # return obj to pipeline<br/>
+    $finalbytes<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+function Create-ZipFileCOM {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Makes the required AES object for encryption and decryption <br/>
+<br/>
+    Refrence: https://serverfault.com/questions/456095/zipping-only-files-using-powershell<br/>
+<br/>
+  .PARAMETER SourceDirectory<br/>
+<br/>
+    Required source directory to be Zip archived<br/>
+<br/>
+  .PARAMETER ZipFileName<br/>
+<br/>
+    Required Zip file name to be outputed<br/>
+<br/>
+  .PARAMETER ZipFilePath<br/>
+<br/>
+    Required Zip file output directory<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    Create-ZipFile -SourceDirectory &quot;C:\Users\KILLSWITCH-GUI\Desktop\Ethereum-Wallet-win32-0-8-10\win-ia32-unpacked&quot; -ZipFileName &quot;test.zip&quot; -ZipFilePath &quot;C:\Users\KILLSWITCH-GUI\Desktop\&quot; -Verbose<br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $true, Position = 0)]<br/>
+    [String]<br/>
+    $SourceDirectory,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [string]<br/>
+    $ZipFileName,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [string]<br/>
+    $ZipFilePath<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    $zipFile = &quot;$ZipFilePath$ZipFileName&quot;<br/>
+    Write-Verbose &quot;[*] Full Zip file output path: $zipFile&quot;<br/>
+    Write-Verbose &quot;[*] Full path of folder to be zipped: $SourceDirectory&quot;<br/>
+    #Prepare zip file on disk<br/>
+    if(-not (test-path($zipFile))) {<br/>
+      set-content $zipFile (&quot;PK&quot; + [char]5 + [char]6 + (&quot;$([char]0)&quot; * 18))<br/>
+      (dir $zipFile).IsReadOnly = $false <br/>
+    }<br/>
+  }<br/>
+  <br/>
+  Process {<br/>
+    $shellApplication = new-object -com shell.application<br/>
+    $zipPackage = $shellApplication.NameSpace($zipFile)<br/>
+    $files = Get-ChildItem -Path $SourceDirectory <br/>
+<br/>
+    foreach($file in $files) { <br/>
+      $zipPackage.CopyHere($file.FullName)<br/>
+      while($zipPackage.Items().Item($file.name) -eq $null){<br/>
+      Write-Verbose &quot;[*] Completed compression on file: $file&quot;<br/>
+        Start-sleep -seconds 1<br/>
+      }<br/>
+    }<br/>
+<br/>
+  }<br/>
+<br/>
+  End {<br/>
+    $len = (Get-Item &quot;$zipFile&quot;).length<br/>
+    # TODO: Fix addtype<br/>
+    # $size = Convert-Size -Size $len<br/>
+    $size = $len<br/>
+    Write-Verbose &quot;[*] Completed Zip file creation&quot;<br/>
+    Write-Verbose &quot;[*] Final Zip file size: $size&quot;<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+<br/>
+function Create-DecompressedZipFileNET {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Uses .NET to Decompressed zip file to directory<br/>
+<br/>
+    Refrence: https://stackoverflow.com/questions/1153126/how-to-create-a-zip-archive-with-powershell<br/>
+<br/>
+  .PARAMETER ZipFilePath<br/>
+<br/>
+    Required Zip file full file path Ex: C:\Windows\Tasks\test.zip<br/>
+<br/>
+  .PARAMETER OutputFolderPath<br/>
+<br/>
+    Required output directory that will be created Ex: C:\Windows\Tasks\test<br/>
+    This creates a directory. As .NET can only zip a directory.<br/>
+   <br/>
+  .EXAMPLE<br/>
+<br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $true, Position = 0)]<br/>
+    [String]<br/>
+    $ZipFilePath,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [string]<br/>
+    $OutputFolderPath<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    Write-Verbose &quot;[*] Full path of file to be Decompressed: $ZipFilePath&quot;<br/>
+    Write-Verbose &quot;[*] Full path of zip file to be stored to: $OutputFolderPath&quot;<br/>
+  }<br/>
+  <br/>
+  Process {<br/>
+    [Reflection.Assembly]::LoadWithPartialName(&quot;System.IO.Compression.FileSystem&quot;) &gt; $null<br/>
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipFilePath,$OutputFolderPath)<br/>
+  }<br/>
+<br/>
+  End {<br/>
+    Write-Verbose &quot;[*] Completed Decompressed file creation&quot;<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+function Create-ZipFileNET {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Uses .NET to zip file directory<br/>
+<br/>
+    Refrence: https://stackoverflow.com/questions/1153126/how-to-create-a-zip-archive-with-powershell<br/>
+<br/>
+  .PARAMETER SourceDirectory<br/>
+<br/>
+    Required source directory to be Zip archived<br/>
+<br/>
+  .PARAMETER ZipFileName<br/>
+<br/>
+    Required Zip file name to be outputed<br/>
+<br/>
+  .PARAMETER ZipFilePath<br/>
+<br/>
+    Required Zip file output directory<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    Create-ZipFile -SourceDirectory &quot;C:\Users\KILLSWITCH-GUI\Desktop\Ethereum-Wallet-win32-0-8-10\win-ia32-unpacked&quot; -ZipFileName &quot;test.zip&quot; -ZipFilePath &quot;C:\Users\KILLSWITCH-GUI\Desktop\&quot; -Verbose<br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $true, Position = 0)]<br/>
+    [String]<br/>
+    $SourceDirectory,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [string]<br/>
+    $ZipFileName,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [string]<br/>
+    $ZipFilePath<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    $zipFile = &quot;$ZipFilePath$ZipFileName&quot;<br/>
+    Write-Verbose &quot;[*] Full Zip file output path: $zipFile&quot;<br/>
+    Write-Verbose &quot;[*] Full path of folder to be zipped: $SourceDirectory&quot;<br/>
+  }<br/>
+  <br/>
+  Process {<br/>
+    [Reflection.Assembly]::LoadWithPartialName(&quot;System.IO.Compression.FileSystem&quot;) &gt; $null<br/>
+    $compressionLevel = [System.IO.Compression.CompressionLevel]::Optimal<br/>
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($SourceDirectory,<br/>
+      $zipFile, $compressionLevel, $false)<br/>
+  }<br/>
+<br/>
+  End {<br/>
+    $len = (Get-Item &quot;$zipFile&quot;).length<br/>
+    # TODO: Fix addtype<br/>
+    # $size = Convert-Size -Size $len<br/>
+    $size = $len<br/>
+    Write-Verbose &quot;[*] Completed Zip file creation&quot;<br/>
+    Write-Verbose &quot;[*] Final Zip file size: $size&quot;<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+function Encrypt-AESFileStream {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Uses .NET to encrypt using file stream rather than fully in mem.<br/>
+<br/>
+    Refrence: https://stackoverflow.com/questions/1153126/how-to-create-a-zip-archive-with-powershell<br/>
+         https://msdn.microsoft.com/en-us/library/system.security.cryptography.cryptostream.cryptostream(v=vs.110).aspx<br/>
+         https://gallery.technet.microsoft.com/scriptcenter/EncryptDecrypt-files-use-65e7ae5d<br/>
+<br/>
+<br/>
+  .PARAMETER SourceDirectory<br/>
+<br/>
+    Required source directory of file directory to be encrypted<br/>
+  <br/>
+  .PARAMETER SourceFile<br/>
+<br/>
+    Required source file name to be encrypted<br/>
+<br/>
+  .PARAMETER EncryptedFileName<br/>
+<br/>
+    Required final encrypted file name <br/>
+<br/>
+  .PARAMETER EncryptedFilePath<br/>
+<br/>
+    Required final encrypted file path<br/>
+<br/>
+  .PARAMETER AesKey<br/>
+<br/>
+    Required AES key to be used for encryption<br/>
+  <br/>
+  .NOTES<br/>
+    <br/>
+    Adapted from Tyler Siegrist.<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    $key = Create-AesKey<br/>
+<br/>
+    Encrypt-AESFileStream -SourceDirectory &quot;C:\Users\admin\Desktop\&quot; -SourceFile &quot;secrets.txt&quot; -EncryptedFileName &quot;secrets.crypto&quot; -EncryptedFilePath &quot;C:\Users\admin\Desktop\&quot; -AesKey $key<br/>
+<br/>
+    Computer   Key                     Files<br/>
+    --------   ---                     -----<br/>
+    TEST     7f/3e9cQF8yx2UNhG/Dc6XYLKYqXptK1ALB+tP3QUwA= C:\Users\admin\Desktop\secrets.crypto<br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $true, Position = 0)]<br/>
+    [String]<br/>
+    $SourceDirectory,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [String]<br/>
+    $SourceFile,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 2)]<br/>
+    [string]<br/>
+    $EncryptedFileName,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 3)]<br/>
+    [string]<br/>
+    $EncryptedFilePath,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 4)]<br/>
+    [string]<br/>
+    $AesKey<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    $EncryptedFile = &quot;$EncryptedFilePath$EncryptedFileName&quot;<br/>
+    $SourceFileName = &quot;$SourceDirectory$SourceFile&quot;<br/>
+    $AESProvider = Create-AesManagedObject -AesKey $AesKey<br/>
+    [System.Reflection.Assembly]::LoadWithPartialName('System.Security.Cryptography')<br/>
+    if(![System.IO.File]::Exists($SourceFileName)){<br/>
+      Write-Verbose &quot;[*] File check failed: $SourceFileName&quot;<br/>
+      Write-Error &quot;[!] File not present? Check your self!&quot;<br/>
+    }<br/>
+    Write-Verbose &quot;[*] File check passed: $SourceFileName&quot;<br/>
+  }<br/>
+  <br/>
+  Process {<br/>
+    # create the file stream for the encryptor<br/>
+    $FileStreamReader = New-Object System.IO.FileStream($SourceFileName, [System.IO.FileMode]::Open)<br/>
+   <br/>
+ <br/>
+    # create destination file<br/>
+    Try<br/>
+    {<br/>
+      $FileStreamWriter = New-Object System.IO.FileStream($EncryptedFile, [System.IO.FileMode]::Create)<br/>
+    }<br/>
+    Catch<br/>
+    {<br/>
+      Write-Error &quot;[!] Unable to open file to write: $FileStreamWriter&quot;<br/>
+      $FileStreamReader.Close()<br/>
+      $FileStreamWriter.Close()<br/>
+    }<br/>
+    # write IV length &amp; IV to encrypted file header<br/>
+    $AESProvider.GenerateIV()<br/>
+    $FileStreamWriter.Write([System.BitConverter]::GetBytes($AESProvider.IV.Length), 0, 4)<br/>
+    $FileStreamWriter.Write($AESProvider.IV, 0, $AESProvider.IV.Length)<br/>
+    # start encryption routine <br/>
+    Write-Verbose &quot;[*] Encrypting $SourceFileName with an IV of $([System.Convert]::ToBase64String($AESProvider.IV))&quot;<br/>
+<br/>
+    try<br/>
+    {<br/>
+      $Transform = $AESProvider.CreateEncryptor()<br/>
+      $CryptoStream = New-Object System.Security.Cryptography.CryptoStream($FileStreamWriter, $Transform, [System.Security.Cryptography.CryptoStreamMode]::Write)<br/>
+      [Int]$Count = 0<br/>
+      [Int]$BlockSizeBytes = $AESProvider.BlockSize / 8<br/>
+      [Byte[]]$Data = New-Object Byte[] $BlockSizeBytes<br/>
+      Do<br/>
+      {<br/>
+        $Count = $FileStreamReader.Read($Data, 0, $BlockSizeBytes)<br/>
+        $CryptoStream.Write($Data, 0, $Count)<br/>
+      }<br/>
+      While($Count -gt 0)<br/>
+  <br/>
+      #Close open files<br/>
+      $CryptoStream.FlushFinalBlock()<br/>
+      $CryptoStream.Close()<br/>
+      $FileStreamReader.Close()<br/>
+      $FileStreamWriter.Close()<br/>
+      # finshed<br/>
+      Write-Verbose &quot;[*] Successfully encrypted file: $EncryptedFile&quot;<br/>
+    }<br/>
+    catch<br/>
+    {<br/>
+      Write-Error &quot;[!] Failed to encrypt: $SourceFileName&quot;<br/>
+      $CryptoStream.Close()<br/>
+      $FileStreamWriter.Close()<br/>
+      $FileStreamReader.Close()<br/>
+      Remove-Item $EncryptedFile -Force<br/>
+    }<br/>
+  }<br/>
+<br/>
+  End {<br/>
+    $len = (Get-Item &quot;$EncryptedFile&quot;).length<br/>
+    # TODO: Fix addtype<br/>
+    # $size = Convert-Size -Size $len<br/>
+    $size = $len<br/>
+    Write-Verbose &quot;[*] Final encrypted file size: $size&quot;<br/>
+    $Result = New-Object –TypeName PSObject<br/>
+    $Result | Add-Member –MemberType NoteProperty –Name Computer –Value $env:COMPUTERNAME<br/>
+    $Result | Add-Member –MemberType NoteProperty –Name Key –Value $AesKey<br/>
+    $Result | Add-Member –MemberType NoteProperty –Name Files –Value $EncryptedFile<br/>
+    return $Result<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+function Decrypt-AESFileStream {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Author: Alexander Rymdeko-Harvey (@Killswitch-GUI)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Uses .NET to decrypt using file stream rather than fully in mem.<br/>
+<br/>
+    Refrence: https://stackoverflow.com/questions/1153126/how-to-create-a-zip-archive-with-powershell<br/>
+         https://msdn.microsoft.com/en-us/library/system.security.cryptography.cryptostream.cryptostream(v=vs.110).aspx<br/>
+         https://gallery.technet.microsoft.com/scriptcenter/EncryptDecrypt-files-use-65e7ae5d<br/>
+<br/>
+<br/>
+  .PARAMETER DestionationDirectory<br/>
+<br/>
+    Required Destionation directory of file to be placed on disk<br/>
+  <br/>
+  .PARAMETER DestionationFile<br/>
+<br/>
+    Required Destionation file name to be placed on disk<br/>
+<br/>
+  .PARAMETER EncryptedFileName<br/>
+<br/>
+    Required encrypted file name <br/>
+<br/>
+  .PARAMETER EncryptedFilePath<br/>
+<br/>
+    Required encrypted file path<br/>
+<br/>
+  .PARAMETER AesKey<br/>
+<br/>
+    Required AES key to be used for decryption<br/>
+  <br/>
+  .NOTES<br/>
+    <br/>
+    Adapted from Tyler Siegrist.<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    Decrypt-AESFileStream -DestionationDirectory 'C:\Users\admin\Desktop\' -DestionationFile 'secrets2.txt' -EncryptedFileName 'secrets.crypto' -EncryptedFilePath 'C:\Users\admin\Desktop\' -AesKey 7f/3e9cQF8yx2UNhG/Dc6XYLKYqXptK1ALB+tP3QUwA= -Verbose<br/>
+    <br/>
+    Computer   Key                     Files<br/>
+    --------   ---                     -----<br/>
+    RYMDEKO-TEST 7f/3e9cQF8yx2UNhG/Dc6XYLKYqXptK1ALB+tP3QUwA= C:\Users\admin\Desktop\secrets2.txt<br/>
+<br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $true, Position = 0)]<br/>
+    [String]<br/>
+    $DestionationDirectory,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 1)]<br/>
+    [String]<br/>
+    $DestionationFile,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 2)]<br/>
+    [string]<br/>
+    $EncryptedFileName,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 3)]<br/>
+    [string]<br/>
+    $EncryptedFilePath,<br/>
+<br/>
+    [Parameter(Mandatory = $true, Position = 4)]<br/>
+    [string]<br/>
+    $AesKey<br/>
+  )<br/>
+<br/>
+  Begin {<br/>
+    $ErrorActionPreference = &quot;Stop&quot;<br/>
+    $EncryptedFile = &quot;$EncryptedFilePath$EncryptedFileName&quot;<br/>
+    $FileName = &quot;$DestionationDirectory$DestionationFile&quot;<br/>
+    [System.Reflection.Assembly]::LoadWithPartialName('System.Security.Cryptography')<br/>
+    $AESProvider = Create-AesManagedObject -AesKey $AesKey<br/>
+  }<br/>
+  <br/>
+  Process {<br/>
+    # create the file stream for the encryptor<br/>
+    Try<br/>
+    {<br/>
+      $FileStreamReader = New-Object System.IO.FileStream($EncryptedFile, [System.IO.FileMode]::Open)<br/>
+    }<br/>
+    Catch<br/>
+    {<br/>
+      Write-Error &quot;[!] Unable to open file stream object: $EncryptedFile &quot;<br/>
+      exit<br/>
+    }<br/>
+    # create destination file<br/>
+    Try<br/>
+    {<br/>
+      $FileStreamWriter = New-Object System.IO.FileStream($FileName, [System.IO.FileMode]::Create)<br/>
+    }<br/>
+    Catch<br/>
+    {<br/>
+      Write-Error &quot;[!] Unable to open file to write: $FileStreamWriter&quot;<br/>
+      $FileStreamReader.Close()<br/>
+      $FileStreamWriter.Close()<br/>
+      exit<br/>
+    }<br/>
+    #Get IV<br/>
+    try<br/>
+    {<br/>
+      [Byte[]]$LenIV = New-Object Byte[] 4<br/>
+      $FileStreamReader.Seek(0, [System.IO.SeekOrigin]::Begin) | Out-Null<br/>
+      $FileStreamReader.Read($LenIV, 0, 3) | Out-Null<br/>
+      [Int]$LIV = [System.BitConverter]::ToInt32($LenIV, 0)<br/>
+      [Byte[]]$IV = New-Object Byte[] $LIV<br/>
+      $FileStreamReader.Seek(4, [System.IO.SeekOrigin]::Begin) | Out-Null<br/>
+      $FileStreamReader.Read($IV, 0, $LIV) | Out-Null<br/>
+      $AESProvider.IV = $IV<br/>
+      Write-Verbose &quot;[*] Decrypting $EncryptedFile with an IV of $([System.Convert]::ToBase64String($AESProvider.IV))&quot;<br/>
+<br/>
+    }<br/>
+    catch<br/>
+    {<br/>
+      Write-Error '[!] Bad IV or File coruption of IV header, check back to backup data returned from encryption.'<br/>
+      return<br/>
+    }<br/>
+<br/>
+    # decrypt routine<br/>
+    try<br/>
+    {<br/>
+      $Transform = $AESProvider.CreateDecryptor()<br/>
+      [Int]$Count = 0<br/>
+      [Int]$BlockSizeBytes = $AESProvider.BlockSize / 8<br/>
+      [Byte[]]$Data = New-Object Byte[] $BlockSizeBytes<br/>
+      $CryptoStream = New-Object System.Security.Cryptography.CryptoStream($FileStreamWriter, $Transform, [System.Security.Cryptography.CryptoStreamMode]::Write)<br/>
+      Do<br/>
+      {<br/>
+        $Count = $FileStreamReader.Read($Data, 0, $BlockSizeBytes)<br/>
+        $CryptoStream.Write($Data, 0, $Count)<br/>
+      }<br/>
+      While ($Count -gt 0)<br/>
+<br/>
+      $CryptoStream.FlushFinalBlock()<br/>
+      $CryptoStream.Close()<br/>
+      $FileStreamWriter.Close()<br/>
+      $FileStreamReader.Close()<br/>
+      Write-Verbose &quot;Successfully decrypted file: $EncryptedFile&quot;<br/>
+    }<br/>
+    catch<br/>
+    {<br/>
+      Write-Error &quot;Failed to decrypt $EncryptedFile&quot;<br/>
+      $CryptoStream.Close()<br/>
+      $FileStreamWriter.Close()<br/>
+      $FileStreamReader.Close()<br/>
+      Remove-Item $FileName -Force<br/>
+    } <br/>
+  }<br/>
+<br/>
+  End {<br/>
+    $len = (Get-Item &quot;$FileName&quot;).length<br/>
+    # TODO: re write the add-type before using this<br/>
+    # $size = Convert-Size -Size $len<br/>
+    $size = $len<br/>
+    Write-Verbose &quot;[*] Final decrypted file size: $size&quot;<br/>
+    $Result = New-Object –TypeName PSObject<br/>
+    $Result | Add-Member –MemberType NoteProperty –Name Computer –Value $env:COMPUTERNAME<br/>
+    $Result | Add-Member –MemberType NoteProperty –Name Key –Value $AesKey<br/>
+    $Result | Add-Member –MemberType NoteProperty –Name Files –Value $FileName<br/>
+    return $Result<br/>
+  }<br/>
+  <br/>
+<br/>
+}<br/>
+<br/>
+</body></html>

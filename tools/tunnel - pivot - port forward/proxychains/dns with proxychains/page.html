@@ -1,0 +1,19 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>DNS With Proxychains</title>
+</head><body>DNS with proxychains<br/>
+Proxychains doesn’t follow socks RFC when it comes to resolving hostnames. It intercepts gethostbyname libc call and tunnels tcp DNS request through the socks proxy. The things is, the DNS server is hardcoded to 4.2.2.2. You might want to change the nameserver in order to resolve names on the internal network. A typical scenario is to change the nameserver to domain controller if you are pentesting windows environment. The setup is located at /usr/lib/proxychains3/proxyresolv:<br/>
+<br/>
+#!/bin/sh<br/>
+# This script is called by proxychains to resolve DNS names<br/>
+<br/>
+# DNS server used to resolve names<br/>
+DNS_SERVER=${PROXYRESOLV_DNS:-4.2.2.2}  #change nameserver here<br/>
+<br/>
+<br/>
+if [ $# = 0 ] ; then<br/>
+  echo &quot; usage:&quot;<br/>
+  echo &quot;   proxyresolv &lt;hostname&gt; &quot;<br/>
+  exit<br/>
+fi</body></html>

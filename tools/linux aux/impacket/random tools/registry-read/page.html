@@ -1,0 +1,31 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Registry-Read</title>
+</head><body>registry-read.py<br/>
+<br/>
+A Windows offline registry Reader example<br/>
+<br/>
+# Description: A Windows Registry Reader Example<br/>
+<br/>
+usage: registry-read.py [-h]<br/>
+            hive {enum_key,enum_values,get_value,get_class,walk}<br/>
+            ...<br/>
+<br/>
+Reads data from registry hives.<br/>
+<br/>
+positional arguments:<br/>
+ hive         registry hive to open<br/>
+ {enum_key,enum_values,get_value,get_class,walk}<br/>
+            actions<br/>
+  enum_key      enumerates the subkeys of the specified open registry<br/>
+            key<br/>
+  enum_values     enumerates the values for the specified open registry<br/>
+            key<br/>
+  get_value      retrieves the data for the specified registry value<br/>
+  get_class      retrieves the data for the specified registry class<br/>
+  walk        walks the registry from the name node down<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+</body></html>

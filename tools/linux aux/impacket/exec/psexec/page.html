@@ -1,0 +1,56 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>PSExec</title>
+</head><body>psexec.py<br/>
+<br/>
+PSEXEC like functionality example using RemComSvc(https://github.com/kavika13/RemCom)<br/>
+<br/>
+# PSEXEC like functionality example using RemComSvc (https://github.com/kavika13/RemCom)<br/>
+<br/>
+usage: psexec.py [-h] [-c pathname] [-path PATH] [-file FILE] [-debug]<br/>
+        [-hashes LMHASH:NTHASH] [-no-pass] [-k] [-aesKey hex key]<br/>
+        [-dc-ip ip address] [-target-ip ip address]<br/>
+        [-port [destination port]] [-service-name service name]<br/>
+        target [command [command ...]]<br/>
+<br/>
+PSEXEC like functionality example using RemComSvc.<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+ command        command (or arguments if -c is used) to execute at the<br/>
+            target (w/o path) - (default:cmd.exe)<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -c pathname      copy the filename for later execution, arguments are<br/>
+            passed in the command option<br/>
+ -path PATH      path of the command to execute<br/>
+ -file FILE      alternative RemCom binary (be sure it doesn't require<br/>
+            CRT)<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+<br/>
+connection:<br/>
+ -dc-ip ip address   IP Address of the domain controller. If omitted it<br/>
+            will use the domain part (FQDN) specified in the<br/>
+            target parameter<br/>
+ -target-ip ip address<br/>
+            IP Address of the target machine. If omitted it will<br/>
+            use whatever was specified as target. This is useful<br/>
+            when target is the NetBIOS name and you cannot resolve<br/>
+            it<br/>
+ -port [destination port]<br/>
+            Destination port to connect to SMB Server<br/>
+ -service-name service name<br/>
+            This will be the name of the service</body></html>

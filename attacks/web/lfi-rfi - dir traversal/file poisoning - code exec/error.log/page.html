@@ -1,0 +1,131 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>error.log</title>
+</head><body>The server error log, whose name and location is set by the ErrorLog directive, is the most important log file. This is the place where Apache httpd will send diagnostic information and record any errors that it encounters in processing requests. <br/>
+<br/>
+The format of the error log is defined by the ErrorLogFormat directive, with which you can customize what values are logged. A default is format defined if you don't specify one. A typical log message follows:<br/>
+<br/>
+[Fri Sep 09 10:42:29.902022 2011] [core:error] [pid 35708:tid 4328636416] [client 72.15.99.187] File does not exist: /usr/local/apache2/htdocs/favicon.ico<br/>
+<br/>
+ErrorLogFormat allows to specify what supplementary information is logged in the error log in addition to the actual log message.<br/>
+<br/>
+#Simple example<br/>
+ErrorLogFormat &quot;[%t] [%l] [pid %P] %F: %E: [client %a] %M&quot;<br/>
+<br/>
+Modified Token					Meaning<br/>
+%-{Referer}i					Logs a - if Referer is not set.<br/>
+%+{Referer}i					Omits the entire line if Referer is not set.<br/>
+%4{Referer}i					Logs the Referer only if the log message severity is higher than 4.<br/>
+<br/>
+<b>Available log items</b><br/>
+Format String					Description<br/>
+%%							The percent sign<br/>
+%a							Client IP address and port of the request<br/>
+%{c}a						Underlying peer IP address and port of the connection (see <ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">the mod_remoteip module)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+%A							Local IP-address and port<br/>
+%{name}e						Request environment variable name<br/>
+%E							APR/OS error status code and string<br/>
+%F							Source file name and line number of the log call<br/>
+%{name}i						Request header name<br/>
+%k							Number of keep-alive requests on this connection<br/>
+%l							Loglevel of the message<br/>
+%L							Log ID of the request<br/>
+%{c}L						Log ID of the connection<br/>
+%{C}L						Log ID of the connection if used in connection scope, empty <ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">otherwise</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+%m							Name of the module logging the message<br/>
+%M							The actual log message<br/>
+%{name}n						Request note name<br/>
+%P							Process ID of current process<br/>
+%T							Thread ID of current thread<br/>
+%{g}T						System unique thread ID of current thread (the same ID as <ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">displayed by e.g. top; currently Linux only)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+%t							The current time<br/>
+%{u}t						The current time including micro-seconds<br/>
+%{cu}t						The current time in compact ISO 8601 format, including micro-<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">seconds</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+%v							The canonical ServerName of the current server.<br/>
+%V							The server name of the server serving the request according to <ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">the UseCanonicalName setting.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+\ (backslash space)				Non-field delimiting space<br/>
+% (percent space)				Field delimiter<br/>
+<br/>
+<b>Fields available to fuzz</b><br/>
+These will be the most likely values to appear in the error.log<br/>
+Log message (includes failed GET request string for example)<br/>
+<br/>
+<br/>
+<br/>
+</body></html>

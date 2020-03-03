@@ -1,0 +1,21 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Write File</title>
+</head><body>option explicit<br/>
+<br/>
+Dim objFSO, objFile, LogFile<br/>
+<br/>
+LogFile = &quot;C:\Users\KrzysztofGajewski\Desktop\Log.txt&quot;<br/>
+Set objFSO = CreateObject(&quot;Scripting.FileSystemObject&quot;)<br/>
+<br/>
+If objFSO.FileExists(LogFile) Then<br/>
+	WScript.Echo &quot;The file exists&quot;<br/>
+	Set objFile = objFSO.OpenTextFile(LogFile, 8)<br/>
+	objFile.Write &quot;Nowy wpis&quot; &amp; Now &amp; VbCrLf<br/>
+Else<br/>
+	WScript.Echo &quot;The file does not exist&quot;<br/>
+	Set objFile = objFSO.CreateTextFile(LogFile, 2)<br/>
+	objFile.Write &quot;Pierwszy wpis&quot; &amp; Now &amp; VbCrLf<br/>
+End If<br/>
+	objFile.Close</body></html>

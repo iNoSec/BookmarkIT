@@ -1,0 +1,70 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>WMIPersist</title>
+</head><body>wmipersist.py<br/>
+<br/>
+This script creates/removes a WMI Event Consumer/Filter and link between both to execute Visual Basic based on the WQL filter or timer specified.<br/>
+<br/>
+# This script creates/removes a WMI Event Consumer/Filter and link <br/>
+# between both to execute Visual Basic based on the WQL filter <br/>
+# or timer specified.<br/>
+#<br/>
+# Example: <br/>
+# write a file toexec.vbs the following:<br/>
+#	Dim objFS, objFile<br/>
+#	Set objFS = CreateObject(&quot;Scripting.FileSystemObject&quot;)<br/>
+#	Set objFile = objFS.OpenTextFile(&quot;C:\ASEC.log&quot;, 8, true)<br/>
+#	objFile.WriteLine &quot;Hey There!&quot;<br/>
+#	objFile.Close<br/>
+#<br/>
+# then execute this script this way, VBS will be triggered once<br/>
+# somebody opens calc.exe:<br/>
+#<br/>
+# wmipersist.py domain.net/adminuser:mypwd@targetHost install -name ASEC <br/>
+#  -vbs toexec.vbs <br/>
+#  -filter 'SELECT * FROM __InstanceCreationEvent WITHIN 5 WHERE TargetInstance <br/>
+#      ISA &quot;Win32_Process&quot; AND TargetInstance.Name = &quot;calc.exe&quot;'<br/>
+#<br/>
+# or, if you just want to execute the VBS every XXX milliseconds:<br/>
+#<br/>
+# wmipersist.py domain.net/adminuser:mypwd@targetHost install -name ASEC <br/>
+#  -vbs toexec.vbs -timer XXX <br/>
+#<br/>
+# to remove the event:<br/>
+#	wmipersist.py domain.net/adminuser:mypwd@targetHost remove -name ASEC<br/>
+#<br/>
+# if you don't specify the password, it will be asked by the script.<br/>
+# domain is optional.<br/>
+<br/>
+usage: wmipersist.py [-h] [-debug] [-hashes LMHASH:NTHASH] [-no-pass] [-k]<br/>
+          [-aesKey hex key] [-dc-ip ip address]<br/>
+          target {install,remove} ...<br/>
+<br/>
+Creates/Removes a WMI Event Consumer/Filter and link between both to execute<br/>
+Visual Basic based on the WQL filter or timer specified.<br/>
+<br/>
+positional arguments:<br/>
+ target        [domain/][username[:password]@]&lt;address&gt;<br/>
+ {install,remove}   actions<br/>
+  install       installs the wmi event consumer/filter<br/>
+  remove       removes the wmi event consumer/filter<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+ -dc-ip ip address   IP Address of the domain controller. If ommited it use<br/>
+            the domain part (FQDN) specified in the target<br/>
+            parameter<br/>
+</body></html>

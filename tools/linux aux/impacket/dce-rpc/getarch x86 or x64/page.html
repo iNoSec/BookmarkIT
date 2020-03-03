@@ -1,0 +1,27 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>getArch</title>
+</head><body># Description:<br/>
+#  This script will connect against a target (or list of targets) machine/s and gather the OS architecture type<br/>
+#  installed.<br/>
+#  The trick has been discovered many years ago and is actually documented by Microsoft here:<br/>
+#   https://msdn.microsoft.com/en-us/library/cc243948.aspx#Appendix_A_53<br/>
+#  and doesn't require any authentication at all.<br/>
+#<br/>
+#  Have in mind this trick will *not* work if the target system is running Samba. Don't know what happens with macOS.<br/>
+<br/>
+usage: getArch.py [-h] [-target TARGET] [-targets TARGETS] [-timeout TIMEOUT]<br/>
+         [-debug]<br/>
+<br/>
+Gets the target system's OS architecture version<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help    show this help message and exit<br/>
+ -target TARGET  &lt;targetName or address&gt;<br/>
+ -targets TARGETS input file with targets system to query Arch from (one per<br/>
+          line).<br/>
+ -timeout TIMEOUT socket timeout out when connecting to the target (default<br/>
+          2 sec)<br/>
+ -debug      Turn DEBUG output ON<br/>
+</body></html>

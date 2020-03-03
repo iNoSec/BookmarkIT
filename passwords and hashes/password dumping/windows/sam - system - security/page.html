@@ -1,0 +1,30 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>SAM / SYSTEM / SECURITY</title>
+</head><body>1 – Dumping the SAM file <br/>
+This is probably the most common way to escalate privileges. Often, it is possible to retrieve the LM hashes from a system thatmay include some domain credentials. <br/>
+<br/>
+Depending on the penetration test, this can be done repeatedly, onmany servers, until you find a domain administrator's hash. It is also possible to utilize theshadow copy feature from Microsoft Systems to get the &quot;SYSKEY&quot; and &quot;SAM&quot; files. One of thepossible tools that could be used for this is hobocopy.<br/>
+<br/>
+Once you have the SAM and SYSTEM, many other tools can extract the hashes<br/>
+	Cain &amp; Abel<br/>
+	Creddump<br/>
+	Mimikatz<br/>
+	Meterpreter<br/>
+	gsecdump<br/>
+	fgdump<br/>
+	pwdump<br/>
+	hobocopy<br/>
+<br/>
+The SAM and SYSTEM are located by default in<br/>
+C:\Windows\System32\config<br/>
+<br/>
+You can also check in <br/>
+C:\Windows\repair\<br/>
+<br/>
+<br/>
+If WinLogon CachedLogonsCount &gt; 0, then credentials should be cached in the registry in:<br/>
+HKLM:\SECURITY\Cache<br/>
+Remember to specify the right format, which is either mscash (xp, w2k3) or mscash2 (vista, w7, w2k8 …). <br/>
+Note that you can’t perform “pass-the-hash” style attacks with this type of hash.</body></html>

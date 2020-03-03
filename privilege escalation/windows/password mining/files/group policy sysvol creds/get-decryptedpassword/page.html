@@ -1,0 +1,40 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Get-DecryptedPassword</title>
+</head><body>#Function in Get-GPPPassword.ps1<br/>
+  function Get-DecryptedCpassword {<br/>
+    [CmdletBinding()]<br/>
+    Param (<br/>
+      [string] $Cpassword <br/>
+    )<br/>
+<br/>
+    try {<br/>
+      #Append appropriate padding based on string length <br/>
+      $Mod = ($Cpassword.length % 4)<br/>
+      <br/>
+      switch ($Mod) {<br/>
+      '1' {$Cpassword = $Cpassword.Substring(0,$Cpassword.Length -1)}<br/>
+      '2' {$Cpassword += ('=' * (4 - $Mod))}<br/>
+      '3' {$Cpassword += ('=' * (4 - $Mod))}<br/>
+      }<br/>
+<br/>
+      $Base64Decoded = [Convert]::FromBase64String($Cpassword)<br/>
+      <br/>
+      #Create a new AES .NET Crypto Object<br/>
+      $AesObject = New-Object System.Security.Cryptography.AesCryptoServiceProvider<br/>
+      [Byte[]] $AesKey = @(0x4e,0x99,0x06,0xe8,0xfc,0xb6,0x6c,0xc9,0xfa,0xf4,0x93,0x10,0x62,0x0f,0xfe,0xe8,<br/>
+                0xf4,0x96,0xe8,0x06,0xcc,0x05,0x79,0x90,0x20,0x9b,0x09,0xa4,0x33,0xb6,0x6c,0x1b)<br/>
+      <br/>
+      #Set IV to all nulls to prevent dynamic generation of IV value<br/>
+      $AesIV = New-Object Byte[]($AesObject.IV.Length) <br/>
+      $AesObject.IV = $AesIV<br/>
+      $AesObject.Key = $AesKey<br/>
+      $DecryptorObject = $AesObject.CreateDecryptor() <br/>
+      [Byte[]] $OutBlock = $DecryptorObject.TransformFinalBlock($Base64Decoded, 0, $Base64Decoded.length)<br/>
+      <br/>
+      return [System.Text.UnicodeEncoding]::Unicode.GetString($OutBlock)<br/>
+    } <br/>
+    <br/>
+    catch {Write-Error $Error[0]}<br/>
+} </body></html>

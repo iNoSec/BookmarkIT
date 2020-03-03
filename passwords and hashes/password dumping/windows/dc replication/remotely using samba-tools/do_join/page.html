@@ -1,0 +1,49 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>do_join</title>
+</head><body>  def do_join(ctx):<br/>
+    # nc_list is the list of naming context (NC) for which we will<br/>
+    # replicate in and send a updateRef command to the partner DC<br/>
+<br/>
+    # full_nc_list is the list of naming context (NC) we hold<br/>
+    # read/write copies of. These are not subsets of each other.<br/>
+    ctx.nc_list = [ ctx.config_dn, ctx.schema_dn ]<br/>
+    ctx.full_nc_list = [ ctx.base_dn, ctx.config_dn, ctx.schema_dn ]<br/>
+<br/>
+    if ctx.subdomain and ctx.dns_backend != &quot;NONE&quot;:<br/>
+      ctx.full_nc_list += [ctx.domaindns_zone]<br/>
+<br/>
+    elif not ctx.subdomain:<br/>
+      ctx.nc_list += [ctx.base_dn]<br/>
+<br/>
+      if ctx.dns_backend != &quot;NONE&quot;:<br/>
+        ctx.nc_list += [ctx.domaindns_zone]<br/>
+        ctx.nc_list += [ctx.forestdns_zone]<br/>
+        ctx.full_nc_list += [ctx.domaindns_zone]<br/>
+        ctx.full_nc_list += [ctx.forestdns_zone]<br/>
+<br/>
+    if not ctx.clone_only:<br/>
+      if ctx.promote_existing:<br/>
+        ctx.promote_possible()<br/>
+      else:<br/>
+        ctx.cleanup_old_join()<br/>
+<br/>
+    try:<br/>
+      if not ctx.clone_only:<br/>
+        ctx.join_add_objects()<br/>
+      ctx.join_provision()<br/>
+      ctx.join_replicate()<br/>
+      if (not ctx.clone_only and ctx.subdomain):<br/>
+        ctx.join_add_objects2()<br/>
+        ctx.join_provision_own_domain()<br/>
+        ctx.join_setup_trusts()<br/>
+      ctx.join_finalise()<br/>
+    except:<br/>
+      try:<br/>
+        print &quot;Join failed - cleaning up&quot;<br/>
+      except IOError:<br/>
+        pass<br/>
+      if not ctx.clone_only:<br/>
+        ctx.cleanup_old_join()<br/>
+      raise</body></html>

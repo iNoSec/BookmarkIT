@@ -1,0 +1,14 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Attaching To The Process</title>
+</head><body>Attaching to the process<br/>
+First, we'll need a <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724176%28v=vs.85%29.aspx">handle</a>to the process so that we can interact with it. This is done with the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms684320%28v=vs.85%29.aspx">OpenProcess()</a>function. We also need to request certain <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms684880%28v=vs.85%29.aspx">access rights</a>in order for us to perform the tasks below. These specfic rights var across Windows versions, however the following should work for most: <br/>
+<br/>
+hHandle = OpenProcess(	PROCESS_CREATE_THREAD | <br/>
+					PROCESS_QUERY_INFORMATION | <br/>
+					PROCESS_VM_OPERATION | <br/>
+					PROCESS_VM_WRITE |<br/>
+					PROCESS_VM_READ,<br/>
+					FALSE,<br/>
+					procID );</body></html>

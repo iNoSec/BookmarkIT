@@ -1,0 +1,20 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>System Information</title>
+</head><body>============================================= PRODUCT NAME =================================================<br/>
+reg query &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion&quot; /v ProductName<br/>
+<br/>
+<br/>
+============================================= INSTALATION DATE =================================================<br/>
+reg query &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion&quot; /v Installdate<br/>
+systeminfo|find /i &quot;original&quot;<br/>
+<br/>
+============================================= REGISTERED OWNER =================================================<br/>
+reg query &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion&quot; /v rEGISTEREDoWNER<br/>
+<br/>
+============================================= TCP IP =================================================<br/>
+reg query HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters /v Hostname<br/>
+<br/>
+reg query HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters /v IPEnableRouter<br/>
+reg add &quot; HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters&quot; /v IPEnableRouter /t REG_DWORD /d 0x1 /f</body></html>

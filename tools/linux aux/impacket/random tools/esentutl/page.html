@@ -1,0 +1,28 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Esentutl</title>
+</head><body>esentutl.py<br/>
+<br/>
+Allows dumping catalog, pages and tables of ESE databases (e.g. NTDS.dit)<br/>
+<br/>
+# Description:<br/>
+#       ESE utility. Allows dumping catalog, pages and tables.<br/>
+<br/>
+usage: esentutl.py [-h] [-debug] [-page PAGE]<br/>
+         databaseFile {dump,info,export} ...<br/>
+<br/>
+Extensive Storage Engine utility. Allows dumping catalog, pages and tables.<br/>
+<br/>
+positional arguments:<br/>
+ databaseFile    ESE to open<br/>
+ {dump,info,export} actions<br/>
+  dump       dumps an specific page<br/>
+  info       dumps the catalog info for the DB<br/>
+  export      dumps the catalog info for the DB<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help     show this help message and exit<br/>
+ -debug       Turn DEBUG output ON<br/>
+ -page PAGE     page to open<br/>
+</body></html>

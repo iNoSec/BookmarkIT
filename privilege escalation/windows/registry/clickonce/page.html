@@ -1,0 +1,31 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>ClickOnce</title>
+</head><body>This can be a vector for both initial exploitation and privilege escalation<br/>
+<br/>
+By default, ClickOnce packages that come from My Computer, Local Intranet, IE Trusted Sites, and the Internet allow a user to grant the application temporary admin privileges in order to install.<br/>
+\HKEY_LOCAL_MACHINE\SOFTWARE\MICROSOFT\.NETFramework\Security\TrustManager\PromptingLevel<br/>
+<br/>
+Option				Registry setting value			Description<br/>
+Enable the trust prompt.	Enabled					The ClickOnce trust prompt is display so that end users <ul><li style="list-style-type: none">										can grant trust to ClickOnce applications.</li>
+</ul>
+Restrict the trust prompt.	AuthenticodeRequired		The ClickOnce trust prompt is only displayed if ClickOnce <br/>
+											applications are signed with a certificate that identifies the <br/>
+											publisher.<br/>
+Disable the trust prompt.	Disabled					The ClickOnce trust prompt is not displayed for any <br/>
+											ClickOnce applications that are not signed with an <br/>
+											explicitly trusted certificate.<br/>
+<br/>
+Zone			Applications	Office solutions<br/>
+MyComputer	Enabled		Enabled<br/>
+LocalIntranet	Enabled		Enabled<br/>
+TrustedSites	Enabled		Enabled<br/>
+Internet		Enabled		AuthenticodeRequired<br/>
+UntrustedSites	Disabled		Disabled<br/>
+<br/>
+<br/>
+Complete<br/>
+https://blog.netspi.com/all-you-need-is-one-a-clickonce-love-story/<br/>
+https://bohops.com/2017/12/02/clickonce-twice-or-thrice-a-technique-for-social-engineering-and-untrusted-command-execution/<br/>
+</body></html>

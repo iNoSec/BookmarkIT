@@ -1,0 +1,116 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Queries</title>
+</head><body>Some can only be run by admin, marked by * or -priv<br/>
+<br/>
+Version 				SELECT DBINFO(‘version’, ‘full’) FROM systables WHERE tabid = 1;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT DBINFO(‘version’, ‘server-type’) FROM systables WHERE tabid = 1;</li>
+<li style="list-style-type: none"> SELECT DBINFO(‘version’, ‘major’), DBINFO(‘version’, ‘minor’), DBINFO(‘version’, ‘level’) FROM systables WHERE tabid = 1;</li>
+<li style="list-style-type: none"> SELECT DBINFO(‘version’, ‘os’) FROM systables WHERE tabid = 1; — T=Windows, U=32 bit app on 32-bit Unix, H=32-bit app running on 64-bit Unix, F=64-bit app running on 64-bit unix</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Comments 			select 1 FROM systables WHERE tabid = 1; — comment<br/>
+Current User 			SELECT USER FROM systables WHERE tabid = 1;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select CURRENT_ROLE FROM systables WHERE tabid = 1;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Users 	 		select username, usertype, password from sysusers;<br/>
+List Password Hashes 	TODO<br/>
+List Privileges 		select tabname, grantor, grantee, tabauth FROM systabauth join systables on systables.tabid = systabauth.tabid; — which 					tables are accessible by which users<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select procname, owner, grantor, grantee from sysprocauth join sysprocedures on sysprocauth.procid = sysprocedures.procid; — which procedures are accessible by which users</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List DBA Accounts 		TODO<br/>
+Current Database 		SELECT DBSERVERNAME FROM systables where tabid = 1; — server name<br/>
+List Databases 		select name, owner from sysdatabases;<br/>
+List Columns 			select tabname, colname, owner, coltype FROM syscolumns join systables on syscolumns.tabid = systables.tabid;<br/>
+List Tables 			select tabname, owner FROM systables;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select tabname, viewtext FROM sysviews join systables on systables.tabid = sysviews.tabid;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Stored Procedures 	select procname, owner FROM sysprocedures;<br/>
+Find Tables From <br/>
+Column Name 		select tabname, colname, owner, coltype FROM syscolumns join systables on syscolumns.tabid = systables.tabid where 						colname like ‘%pass%’;<br/>
+Select Nth Row 		select first 1 tabid from (select first 10 tabid from systables order by tabid) as sq order by tabid desc; — selects the 10th row<br/>
+Select Nth Char 		SELECT SUBSTRING(‘ABCD’ FROM 3 FOR 1) FROM systables where tabid = 1; — returns ‘C’<br/>
+Bitwise AND 			select bitand(6, 1) from systables where tabid = 1; — returns 0<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select bitand(6, 2) from systables where tabid = 1; — returns 2</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ASCII Value -&gt; Char 	TODO<br/>
+Char -&gt; ASCII Value 	select ascii(‘A’) from systables where tabid = 1;<br/>
+Casting 				select cast(’123′ as integer) from systables where tabid = 1;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select cast(1 as char) from systables where tabid = 1;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+String Concatenation 	SELECT ‘A’ || ‘B’ FROM systables where tabid = 1; — returns ‘AB’<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT concat(‘A’, ‘B’) FROM systables where tabid = 1; — returns ‘AB’</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+String Length 			SELECT tabname, length(tabname), char_length(tabname), octet_length(tabname) from systables;<br/>
+If Statement 			TODO<br/>
+Case Statement 		select tabid, case when tabid&gt;10 then “High” else ‘Low’ end from systables;<br/>
+Avoiding Quotes 		TODO<br/>
+Time Delay 			TODO<br/>
+Make DNS Requests 	TODO<br/>
+Command Execution 	TODO<br/>
+Local File Access 		TODO<br/>
+Hostname, IP Address 	SELECT DBINFO(‘dbhostname’) FROM systables WHERE tabid = 1; — hostname<br/>
+Location of DB files 	TODO<br/>
+Default/System <br/>
+Databases 			These are the system databases:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> sysmaster</li>
+<li style="list-style-type: none"> sysadmin*</li>
+<li style="list-style-type: none"> sysuser*</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+sysutils*</body></html>

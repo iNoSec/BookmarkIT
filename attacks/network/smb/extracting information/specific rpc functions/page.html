@@ -1,0 +1,25 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Specific RPC Functions</title>
+</head><body>These should be accessible from the hidden SMB share IPC$<br/>
+Even with null session authentication<br/>
+rpcclient can call specific functions with the '-c' option<br/>
+<br/>
+In a default configuration, most functions within SAMR and LSARPC pipes cannot be executed, but worth trying<br/>
+<br/>
+samr:<br/>
+	Connect4<br/>
+	EnumDomains<br/>
+	LookupDomain<br/>
+	OpenDomain<br/>
+	QueryDisplayInfo<br/>
+lsarpc:<br/>
+	LsaOpenPolicy<br/>
+	LsaQueryInformationPolicy<br/>
+netlogon:<br/>
+	GetDcName<br/>
+	DsrGetDcName<br/>
+	DsrGetDcNameEx<br/>
+	DsrGetDcNameEx2<br/>
+</body></html>

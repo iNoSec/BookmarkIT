@@ -1,0 +1,187 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Powershell</title>
+</head><body>WebLogic Password Decryptor<br/>
+Requires BouncyCastle.Crypto.dll<br/>
+<br/>
+Import the module<br/>
+<br/>
+Import-Module .\Invoke-WebLogicPasswordDecryptor.psm1<br/>
+<br/>
+Decrypt AES<br/>
+Invoke-WebLogicPasswordDecryptor -SerializedSystemIni C:\SerializedSystemIni.dat -CipherText &quot;{AES}8/rTjIuC4mwlrlZgJK++LKmAThcoJMHyigbcJGIztug=&quot;<br/>
+<br/>
+Decrypt 3DES<br/>
+Invoke-WebLogicPasswordDecryptor -SerializedSystemIni C:\SerializedSystemIni.dat -CipherText &quot;{3DES}JMRazF/vClP1WAgy1czd2Q==&quot;<br/>
+<br/>
+<br/>
+<br/>
+&lt;#<br/>
+  Author: Eric Gruber 2015, NetSPI<br/>
+  .Synopsis<br/>
+  PowerShell script to decrypt WebLogic passwords<br/>
+  .EXAMPLE<br/>
+  Invoke-WebLogicPasswordDecryptor -SerializedSystemIni C:\SerializedSystemIni.dat -CipherText &quot;{3DES}JMRazF/vClP1WAgy1czd2Q==&quot;<br/>
+  .EXAMPLE<br/>
+  Invoke-WebLogicPasswordDecryptor -SerializedSystemIni C:\SerializedSystemIni.dat -CipherText &quot;{AES}8/rTjIuC4mwlrlZgJK++LKmAThcoJMHyigbcJGIztug=&quot;<br/>
+#&gt;<br/>
+function Invoke-WebLogicPasswordDecryptor<br/>
+{<br/>
+  [CmdletBinding()]<br/>
+  Param<br/>
+  (<br/>
+    [Parameter(Mandatory = $true,<br/>
+    Position = 0)]<br/>
+    [String]<br/>
+    $SerializedSystemIni,<br/>
+<br/>
+    [Parameter(Mandatory = $true,<br/>
+    Position = 0)]<br/>
+    [String]<br/>
+    $CipherText,<br/>
+<br/>
+    [Parameter(Mandatory = $false,<br/>
+    Position = 0)]<br/>
+    [String]<br/>
+    $BouncyCastle<br/>
+  )<br/>
+<br/>
+  if (!$BouncyCastle)<br/>
+  {<br/>
+    $BouncyCastle = '.\BouncyCastle.Crypto.dll'<br/>
+  }<br/>
+<br/>
+  Add-Type -Path $BouncyCastle<br/>
+<br/>
+  $Pass = '0xccb97558940b82637c8bec3c770f86fa3a391a56'<br/>
+  $Pass = $Pass.ToCharArray()<br/>
+<br/>
+  if ($CipherText.StartsWith('{AES}'))<br/>
+  {<br/>
+    $CipherText = $CipherText.TrimStart('{AES}')<br/>
+  }<br/>
+  elseif ($CipherText.StartsWith('{3DES}'))<br/>
+  {<br/>
+    $CipherText = $CipherText.TrimStart('{3DES}')<br/>
+  }<br/>
+<br/>
+  $DecodedCipherText = [System.Convert]::FromBase64String($CipherText)<br/>
+<br/>
+  $BinaryReader = New-Object -TypeName System.IO.BinaryReader -ArgumentList ([System.IO.File]::Open($SerializedSystemIni, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite))<br/>
+  $NumberOfBytes = $BinaryReader.ReadByte()<br/>
+  $Salt = $BinaryReader.ReadBytes($NumberOfBytes)<br/>
+  $Version = $BinaryReader.ReadByte()<br/>
+  $NumberOfBytes = $BinaryReader.ReadByte()<br/>
+  $EncryptionKey = $BinaryReader.ReadBytes($NumberOfBytes)<br/>
+<br/>
+  if ($Version -ge 2)<br/>
+  {<br/>
+    $NumberOfBytes = $BinaryReader.ReadByte()<br/>
+    $EncryptionKey = $BinaryReader.ReadBytes($NumberOfBytes)<br/>
+<br/>
+    $ClearText = Invoke-DecryptAES -Salt $Salt -EncryptionKey $EncryptionKey -Pass $Pass -DecodedCipherText $DecodedCipherText<br/>
+  }<br/>
+  else<br/>
+  {<br/>
+    $ClearText = Invoke-Decrypt3DES -Salt $Salt -EncryptionKey $EncryptionKey -Pass $Pass -DecodedCipherText $DecodedCipherText<br/>
+  }<br/>
+<br/>
+  Write-Output $ClearText<br/>
+}<br/>
+<br/>
+function Invoke-DecryptAES<br/>
+{<br/>
+  param<br/>
+  (<br/>
+    [byte[]]<br/>
+    $Salt,<br/>
+<br/>
+    [byte[]]<br/>
+    $EncryptionKey,<br/>
+<br/>
+    [char[]]<br/>
+    $Pass,<br/>
+<br/>
+    [byte[]]<br/>
+    $DecodedCipherText<br/>
+  )<br/>
+<br/>
+  $EncryptionCipher = 'AES/CBC/PKCS5Padding'<br/>
+<br/>
+  $EncryptionKeyCipher = 'PBEWITHSHAAND128BITRC2-CBC'<br/>
+<br/>
+  $IV = New-Object -TypeName byte[] -ArgumentList 16<br/>
+<br/>
+  [array]::Copy($DecodedCipherText,0,$IV, 0 ,16)<br/>
+<br/>
+  $CipherText = New-Object -TypeName byte[] -ArgumentList ($DecodedCipherText.Length - 16)<br/>
+  [array]::Copy($DecodedCipherText,16,$CipherText,0,($DecodedCipherText.Length - 16))<br/>
+<br/>
+<br/>
+  $AlgorithmParameters = [Org.BouncyCastle.Security.PbeUtilities]::GenerateAlgorithmParameters($EncryptionKeyCipher,$Salt,5)<br/>
+<br/>
+  $CipherParameters = [Org.BouncyCastle.Security.PbeUtilities]::GenerateCipherParameters($EncryptionKeyCipher,$Pass,$AlgorithmParameters)<br/>
+<br/>
+<br/>
+  $KeyCipher = [Org.BouncyCastle.Security.PbeUtilities]::CreateEngine($EncryptionKeyCipher)<br/>
+  $KeyCipher.Init($false, $CipherParameters)<br/>
+<br/>
+  $Key = $KeyCipher.DoFinal($EncryptionKey)<br/>
+<br/>
+<br/>
+  $Cipher = [Org.BouncyCastle.Security.CipherUtilities]::GetCipher($EncryptionCipher)<br/>
+  $KeyParameter = [Org.BouncyCastle.Crypto.Parameters.KeyParameter] $Key<br/>
+  $ParametersWithIV = [Org.BouncyCastle.Crypto.Parameters.ParametersWithIV]::new($KeyParameter , $IV)<br/>
+<br/>
+  $Cipher.Init($false, $ParametersWithIV)<br/>
+  $ClearText = $Cipher.DoFinal($CipherText)<br/>
+<br/>
+  [System.Text.Encoding]::ASCII.GetString($ClearText)<br/>
+}<br/>
+<br/>
+function Invoke-Decrypt3DES<br/>
+{<br/>
+  param<br/>
+  (<br/>
+    [byte[]]<br/>
+    $Salt,<br/>
+<br/>
+    [byte[]]<br/>
+    $EncryptionKey,<br/>
+<br/>
+    [char[]]<br/>
+    $Pass,<br/>
+<br/>
+    [byte[]]<br/>
+    $DecodedCipherText<br/>
+  )<br/>
+<br/>
+  $EncryptionCipher = 'DESEDE/CBC/PKCS5Padding'<br/>
+<br/>
+  $EncryptionKeyCipher = 'PBEWITHSHAAND128BITRC2-CBC'<br/>
+<br/>
+  $IV = New-Object -TypeName byte[] -ArgumentList 8<br/>
+<br/>
+  [array]::Copy($Salt,0,$IV, 0 ,4)<br/>
+  [array]::Copy($Salt,0,$IV, 4 ,4)<br/>
+<br/>
+  $AlgorithmParameters = [Org.BouncyCastle.Security.PbeUtilities]::GenerateAlgorithmParameters($EncryptionKeyCipher,$Salt,5)<br/>
+  $CipherParameters = [Org.BouncyCastle.Security.PbeUtilities]::GenerateCipherParameters($EncryptionKeyCipher,$Pass,$AlgorithmParameters)<br/>
+<br/>
+  $KeyCipher = [Org.BouncyCastle.Security.PbeUtilities]::CreateEngine($EncryptionKeyCipher)<br/>
+  $KeyCipher.Init($false, $CipherParameters)<br/>
+<br/>
+  $Key = $KeyCipher.DoFinal($EncryptionKey)<br/>
+<br/>
+  $Cipher = [Org.BouncyCastle.Security.CipherUtilities]::GetCipher($EncryptionCipher)<br/>
+  $KeyParameter = [Org.BouncyCastle.Crypto.Parameters.KeyParameter] $Key<br/>
+  $ParametersWithIV = [Org.BouncyCastle.Crypto.Parameters.ParametersWithIV]::new($KeyParameter , $IV)<br/>
+<br/>
+  $Cipher.Init($false, $ParametersWithIV)<br/>
+  $ClearText = $Cipher.DoFinal($DecodedCipherText)<br/>
+<br/>
+  [System.Text.Encoding]::ASCII.GetString($ClearText)<br/>
+}<br/>
+<br/>
+Export-ModuleMember -Function Invoke-WebLogicPasswordDecryptor</body></html>

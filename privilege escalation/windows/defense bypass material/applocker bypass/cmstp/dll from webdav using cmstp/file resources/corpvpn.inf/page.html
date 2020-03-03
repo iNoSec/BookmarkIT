@@ -1,0 +1,294 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>CorpVPN.inf</title>
+</head><body>;===========================================================================<br/>
+;<br/>
+; All of the customizable sections of this file are in the [Strings] section<br/>
+; at the bottom.<br/>
+;<br/>
+;===========================================================================<br/>
+[version]<br/>
+Signature=$chicago$<br/>
+AdvancedINF=2.5<br/>
+<br/>
+[CmDial32.Dll]<br/>
+Version=458754<br/>
+Build=943259648<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; All User Installs<br/>
+; -------------------------------------------------------------------<br/>
+[DefaultInstall]<br/>
+SmartReboot=N<br/>
+CustomDestination=CustInstDestSectionAllUsers<br/>
+RunPreSetupCommands=RunPreSetupCommandsSection<br/>
+;CopyFiles=Xnstall.CopyFiles, Xnstall.CopyFiles.ICM<br/>
+;AddReg=Xnstall.AddReg.AllUsers<br/>
+RegisterOCXs=RegisterOCXSection<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; Launches the All User postinstall commands<br/>
+; -------------------------------------------------------------------<br/>
+[PostInstall]<br/>
+SmartReboot=N<br/>
+CustomDestination=CustInstDestSectionAllUsers<br/>
+RunPostSetupCommands=RunPostSetupCommandsSection<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; Single User Installs<br/>
+; -------------------------------------------------------------------<br/>
+[DefaultInstall_SingleUser]<br/>
+SmartReboot=N<br/>
+CustomDestination=CustInstDestSectionSingleUsers<br/>
+RunPreSetupCommands=RunPreSetupCommandsSection<br/>
+CopyFiles=Xnstall.CopyFiles.SingleUser, Xnstall.CopyFiles.ICM<br/>
+AddReg = Xnstall.AddReg.Private<br/>
+RegisterOCXs=RegisterOCXSection<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; Launches the Single User postinstall commands<br/>
+; -------------------------------------------------------------------<br/>
+[PostInstall_Single]<br/>
+SmartReboot=N<br/>
+CustomDestination=CustInstDestSectionSingleUsers<br/>
+RunPostSetupCommands=RunPostSetupCommandsSection<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; This file section sets up the desktop icon GUID and is thus<br/>
+; only needed on legacy systems.<br/>
+; -------------------------------------------------------------------<br/>
+[Xnstall_Legacy]<br/>
+SmartReboot=N<br/>
+CustomDestination=CustInstDestSectionAllUsers<br/>
+AddReg=Xnstall.AddReg.DesktopIcon, Xnstall.AddReg.Icon<br/>
+<br/>
+; These section are kept for legacy compatibility but are no longer used.<br/>
+[Xnstall_Private]<br/>
+[Xnstall_AllUser]<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; Section used to uninstall Private user profiles<br/>
+; -------------------------------------------------------------------<br/>
+[Remove_Private]<br/>
+Cleanup=1<br/>
+SmartReboot=N<br/>
+BeginPrompt=RemoveBeginPromptSection<br/>
+EndPrompt=RemoveEndPromptSection<br/>
+RunPreSetupCommands=RunPreUnInstCommandsSection<br/>
+CustomDestination=CustUnInstDestSectionPrivate<br/>
+DelFiles=Remove.DelFiles, Remove.DelFiles.ICM<br/>
+DelReg=Remove.DelReg.Private<br/>
+DelDirs=CleanDir<br/>
+RunPostSetupCommands=RunPostUnInstCommandsSection<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; Section used to uninstall All User profiles <br/>
+; -------------------------------------------------------------------<br/>
+[Remove]<br/>
+Cleanup=1<br/>
+SmartReboot=N<br/>
+BeginPrompt=RemoveBeginPromptSection<br/>
+EndPrompt=RemoveEndPromptSection<br/>
+RunPreSetupCommands=RunPreUnInstCommandsSection<br/>
+CustomDestination=CustUninstDestSectionAllUsers<br/>
+DelFiles=Remove.DelFiles, Remove.DelFiles.ICM<br/>
+DelReg=Remove.DelReg.AllUser<br/>
+DelDirs=CleanDir<br/>
+RunPostSetupCommands=RunPostUnInstCommandsSection<br/>
+<br/>
+; The following Run(Pre/Post)SetupCommandsSections allow you to run commands before or<br/>
+; after the profile is installed.<br/>
+;<br/>
+; Similarly the following Run(Pre/Post)UnInstCommandsSections will allow you to run<br/>
+; commands before or after the profile is uninstalled.<br/>
+;<br/>
+; An example command line is:<br/>
+; Myprogram.exe /&lt;switches&gt; &lt;options&gt;<br/>
+<br/>
+[RunPreSetupCommandsSection]<br/>
+; Commands Here will be run Before Setup Begins to install<br/>
+<br/>
+[RunPostSetupCommandsSection]<br/>
+;Commands here will be run After setup finishes<br/>
+<br/>
+[RunPreUnInstCommandsSection]<br/>
+;Commands here will be run before Uninstall Begins<br/>
+<br/>
+[RunPostUnInstCommandsSection]<br/>
+;Commands here will be run after Uninstall Finishes<br/>
+<br/>
+[RegisterOCXSection]<br/>
+c:\cmstp\AllTheThings.dll<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; These are the registry entries for installation.<br/>
+; -------------------------------------------------------------------<br/>
+[Xnstall.AddReg.DesktopIcon]<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%&quot;,,,&quot;%ServiceName%&quot;<br/>
+&quot;HKLM&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\explorer\Desktop\NameSpace\%DesktopGUID%&quot;,,&quot;0x00001000&quot;,&quot;%ServiceName%&quot;<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%\ShellFolder&quot;,&quot;Attributes&quot;,1,&quot;00&quot;,&quot;00&quot;,&quot;00&quot;,&quot;00&quot;<br/>
+; Please make sure the following three commands are alphabetized by the %Open%, %Delete%,<br/>
+; and %Settings% entries defined in the Strings section<br/>
+; the Connect Command<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%\Shell\Open\Command&quot;,,,&quot;cmmgr32.exe &quot;&quot;%49000%\%ShortSvcName%.cmp&quot;&quot;&quot;<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%\Shell\Open&quot;,,,&quot;%Open%&quot;<br/>
+; the Delete Command<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%\Shell\Delete\Command&quot;,,,&quot;cmstp.exe /u &quot;&quot;%49000%\%ShortSvcName%\%ShortSvcName%.inf&quot;&quot;&quot;<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%\Shell\Delete&quot;,,,&quot;%Delete%&quot;<br/>
+; the Properties Command<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%\Shell\Settings...\Command&quot;,,,&quot;cmmgr32.exe /settings &quot;&quot;%49000%\%ShortSvcName%.cmp&quot;&quot;&quot;<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%\Shell\Settings...&quot;,,,&quot;%Settings%&quot;<br/>
+<br/>
+[Xnstall.AddReg.AllUsers]<br/>
+&quot;HKLM&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\%ShortSvcName%&quot;, &quot;UninstallDir&quot;, &quot;0x00001000&quot;, &quot;%49001%&quot;<br/>
+&quot;HKLM&quot;, &quot;%AppAct%\Mappings&quot;,&quot;%ServiceName%&quot;,&quot;0x00001000&quot;,&quot;%49001%\%ShortSvcName%.cmp&quot;<br/>
+<br/>
+[Xnstall.AddReg.Private]<br/>
+; Single User Mappings is now written in code.<br/>
+;&quot;HKCU&quot;, &quot;%AppAct%\Mappings&quot;,&quot;%ServiceName%&quot;,&quot;&quot;,&quot;%%UserProfile%%\%PathFromProfileDir%\%ShortSvcName%.cmp&quot;<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; These are the registry settings which<br/>
+; are deleted during uninstall.<br/>
+; -------------------------------------------------------------------<br/>
+[Remove.DelReg.AllUser]<br/>
+&quot;HKLM&quot;, &quot;%AppAct%\%ServiceName%&quot;<br/>
+&quot;HKLM&quot;, &quot;%AppAct%\Mappings&quot;,&quot;%ServiceName%&quot;<br/>
+&quot;HKCU&quot;, &quot;%AppAct%\UserInfo\%ServiceName%&quot;<br/>
+&quot;HKCR&quot;, &quot;CLSID\%DesktopGUID%&quot;<br/>
+&quot;HKLM&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\explorer\Desktop\NameSpace\%DesktopGUID%&quot;<br/>
+&quot;HKLM&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\%ShortSvcName%&quot;<br/>
+<br/>
+[Remove.DelReg.Private]<br/>
+&quot;HKCU&quot;, &quot;%AppAct%\%ServiceName%&quot;<br/>
+&quot;HKCU&quot;, &quot;%AppAct%\Mappings&quot;,&quot;%ServiceName%&quot;<br/>
+&quot;HKCU&quot;, &quot;%AppAct%\SingleUserInfo\%ServiceName%&quot;<br/>
+&quot;HKCU&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\%ShortSvcName%&quot;<br/>
+<br/>
+[CleanDir]<br/>
+%49001%\%ShortSvcName%<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; These are the directory specifications.<br/>
+; -------------------------------------------------------------------<br/>
+<br/>
+[CustInstDestSectionAllUsers]<br/>
+49000,49001=AllUSer_LDIDSection, 7<br/>
+<br/>
+[CustInstDestSectionSingleUsers]<br/>
+49000,49001=SingleUser_LDIDSection, 7<br/>
+<br/>
+[CustUninstDestSectionAllUsers]<br/>
+49000,49001=XConnMgrLDIDSectionAllUsers, 5<br/>
+<br/>
+[CustUnInstDestSectionPrivate]<br/>
+49000,49001=XConnMgrLDIDSectionPrivate, 5<br/>
+<br/>
+[SingleUser_LDIDSection]<br/>
+&quot;HKCU&quot;, &quot;%AppAct%&quot;, &quot;ProfileInstallPath&quot;, &quot;%UnexpectedError%&quot;, &quot;&quot;<br/>
+<br/>
+[AllUSer_LDIDSection]<br/>
+&quot;HKLM&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\CMMGR32.EXE&quot;, &quot;ProfileInstallPath&quot;, &quot;%UnexpectedError%&quot;, &quot;&quot;<br/>
+<br/>
+[XConnMgrLDIDSectionAllUsers]<br/>
+&quot;HKLM&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\%ShortSvcName%&quot;, &quot;UninstallDir&quot;, &quot;&quot;, &quot;&quot;<br/>
+<br/>
+[XConnMgrLDIDSectionPrivate]<br/>
+&quot;HKCU&quot;, &quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\%ShortSvcName%&quot;, &quot;UninstallDir&quot;, &quot;&quot;, &quot;&quot;<br/>
+<br/>
+[DestinationDirs]<br/>
+Xnstall.CopyFiles=49001, %ShortSvcName%<br/>
+Xnstall.CopyFiles.SingleUser=49001, %ShortSvcName%<br/>
+Xnstall.CopyFiles.ICM=49001<br/>
+Remove.DelFiles=49001, %ShortSvcName%<br/>
+Remove.DelFiles.ICM=49001<br/>
+<br/>
+[SourceDisksNames]<br/>
+55=, , 0<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; These are the Prompt Sections<br/>
+; -------------------------------------------------------------------<br/>
+<br/>
+[RemoveBeginPromptSection]<br/>
+Prompt=%BeginPrompt%<br/>
+ButtonType=YESNO<br/>
+Title=%UninstallAppTitle%<br/>
+<br/>
+[RemoveEndPromptSection]<br/>
+Prompt=%EndPrompt%<br/>
+<br/>
+<br/>
+[Strings]<br/>
+; -------------------------------------------------------------------<br/>
+; These are the non localizable strings...<br/>
+; -------------------------------------------------------------------<br/>
+KEY_RENAME = &quot;Software\Microsoft\Windows\CurrentVersion\RenameFiles&quot;<br/>
+AppAct = &quot;SOFTWARE\Microsoft\Connection Manager&quot;<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; These are the localizable strings...<br/>
+; -------------------------------------------------------------------<br/>
+UnexpectedError = &quot;An unexpected error occurred. Please reboot and try the installation again.&quot;<br/>
+<br/>
+; When you localize these commands (they are the commands for the Desktop Icon on legacy<br/>
+; platforms) you must make sure to re-alphabetize the Registry add calls above. Win95<br/>
+; shows the menus in the order they were added and doesn't alphabetize them for you.<br/>
+Settings = &quot;P&amp;roperties&quot;<br/>
+Open = &quot;C&amp;onnect&quot;<br/>
+Delete = &quot;&amp;Delete&quot;<br/>
+<br/>
+; -------------------------------------------------------------------<br/>
+; The following strings are set by the Connection Manager Administration Kit<br/>
+; Do not change any of the following strings<br/>
+; -------------------------------------------------------------------<br/>
+ServiceName=&quot;CorpVPN&quot;<br/>
+ShortSvcName=&quot;CorpVPN&quot;<br/>
+DesktopGUID=&quot;{46E030C3-DC6A-4251-80A3-E3E2753FF0E2}&quot;<br/>
+UninstallAppTitle=&quot;CorpVPN&quot;<br/>
+DesktopIcon=&quot;&quot;<br/>
+PhonebookPath=&quot;&quot;<br/>
+BeginPrompt=&quot;Do you want to remove CorpVPN?&quot;<br/>
+EndPrompt=&quot;Successfully removed CorpVPN.&quot;<br/>
+DisplayLCID=1033<br/>
+CmLCID=1033<br/>
+Allow32bit=0<br/>
+<br/>
+[CMAK Status]<br/>
+InfVersion=5<br/>
+PhoneName=CorpBook<br/>
+LicenseFile=<br/>
+IncludeCMCode=0<br/>
+UpdatePhonebook=1<br/>
+<br/>
+[Extra Files]<br/>
+<br/>
+[Merge Profiles]<br/>
+<br/>
+<br/>
+[Xnstall.AddReg.Icon]<br/>
+HKCR,&quot;CLSID\%DesktopGUID%\DefaultIcon&quot;,,,&quot;%11%\CMMGR32.EXE,0&quot;<br/>
+<br/>
+[Xnstall.CopyFiles.SingleUser]<br/>
+CorpVPN.cms,,,4<br/>
+CorpVPN.inf<br/>
+<br/>
+[Xnstall.CopyFiles]<br/>
+CorpVPN.cms,,,4<br/>
+CorpVPN.inf<br/>
+<br/>
+[Xnstall.CopyFiles.ICM]<br/>
+CorpVPN.cmp<br/>
+<br/>
+[Remove.DelFiles.ICM]<br/>
+CorpVPN.cmp<br/>
+<br/>
+[SourceDisksFiles]<br/>
+CorpVPN.inf = 55<br/>
+CorpVPN.cmp = 55<br/>
+CorpVPN.cms = 55<br/>
+<br/>
+[Remove.DelFiles]<br/>
+CorpVPN.cms<br/>
+</body></html>

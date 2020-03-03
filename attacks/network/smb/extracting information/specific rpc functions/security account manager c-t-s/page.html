@@ -1,0 +1,153 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Security Account Manager C-t-S</title>
+</head><body><a href="https://msdn.microsoft.com/en-us/library/cc245703.aspx">MSDN</a>SAMR Client to Server<br/>
+<br/>
+This section specifies the methods of the protocol along with their processing.<br/>
+<br/>
+The return value space of all methods is the NTSTATUS type, specified in [MS-ERREF] section 2.3. Unless specifically called out, error codes are returned to the client of the protocol and are not handled by any special processing at the client; therefore, the exact error code is implementation-specific. Cases in which the client might handle a specific error code are called out. The set of such error codes are found in section 2.2.1.15.<br/>
+<br/>
+Methods in RPC Opnum Order<br/>
+<br/>
+Method							Description<br/>
+SamrConnect						Returns a handle to a server object.<br/>
+								Opnum: 0<br/>
+SamrCloseHandle					Closes any context handle obtained from this RPC interface.<br/>
+								Opnum: 1<br/>
+SamrSetSecurityObject				Sets the access control on a server, domain, user, group, or alias object.<br/>
+								Opnum: 2<br/>
+SamrQuerySecurityObject				Queries the access control on a server, domain, user, group, or alias object.<br/>
+								Opnum: 3<br/>
+Opnum4NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 4<br/>
+SamrLookupDomainInSamServer		Obtains the SID of a domain object.<br/>
+								Opnum: 5<br/>
+SamrEnumerateDomainsInSamServer		Obtains a listing of all domains hosted by the server side.<br/>
+								Opnum: 6<br/>
+SamrOpenDomain					Obtains a handle to a domain object.<br/>
+								Opnum: 7<br/>
+SamrQueryInformationDomain			Obtains attributes from a domain object.<br/>
+								Opnum: 8<br/>
+SamrSetInformationDomain			Updates attributes on a domain object.<br/>
+								Opnum: 9<br/>
+SamrCreateGroupInDomain			Creates a group object within a domain.<br/>
+								Opnum: 10<br/>
+SamrEnumerateGroupsInDomain		Enumerates all groups.<br/>
+								Opnum: 11<br/>
+SamrCreateUserInDomain				Creates a user.<br/>
+								Opnum: 12<br/>
+SamrEnumerateUsersInDomain			Enumerates all users.<br/>
+								Opnum: 13<br/>
+SamrCreateAliasInDomain				Creates an alias.<br/>
+								Opnum: 14<br/>
+SamrEnumerateAliasesInDomain		Enumerates all aliases.<br/>
+								Opnum: 15<br/>
+SamrGetAliasMembership				Obtains the union of all aliases of which a given set of SIDs is a member.<br/>
+								Opnum: 16<br/>
+SamrLookupNamesInDomain			Translates a set of account names into a set of RIDs.<br/>
+								Opnum: 17<br/>
+SamrLookupIdsInDomain				Translates a set of RIDs into account names.<br/>
+								Opnum: 18<br/>
+SamrOpenGroup					Obtains a handle to a group.<br/>
+								Opnum: 19<br/>
+SamrQueryInformationGroup			Obtains attributes from a group object.<br/>
+								Opnum: 20<br/>
+SamrSetInformationGroup				Updates attributes on a group object.<br/>
+								Opnum: 21<br/>
+SamrAddMemberToGroup				Adds a member to a group.<br/>
+								Opnum: 22<br/>
+SamrDeleteGroup					Removes a group object.<br/>
+								Opnum: 23<br/>
+SamrRemoveMemberFromGroup		Removes a member from a group.<br/>
+								Opnum: 24<br/>
+SamrGetMembersInGroup				Reads the members of a group.<br/>
+								Opnum: 25<br/>
+SamrSetMemberAttributesOfGroup		Sets the attributes of a member relationship.<br/>
+								Opnum: 26<br/>
+SamrOpenAlias						Obtains a handle to an alias.<br/>
+								Opnum: 27<br/>
+SamrQueryInformationAlias			Obtains attributes from an alias object.<br/>
+								Opnum: 28<br/>
+SamrSetInformationAlias				Updates attributes on an alias object.<br/>
+								Opnum: 29<br/>
+SamrDeleteAlias					Removes an alias object.<br/>
+								Opnum: 30<br/>
+SamrAddMemberToAlias				Adds a member to an alias.<br/>
+								Opnum: 31<br/>
+SamrRemoveMemberFromAlias			Removes a member from an alias.<br/>
+								Opnum: 32<br/>
+SamrGetMembersInAlias				Obtains the membership list of an alias.<br/>
+								Opnum: 33<br/>
+SamrOpenUser						Obtains a handle to a user.<br/>
+								Opnum: 34<br/>
+SamrDeleteUser					Removes a user object.<br/>
+								Opnum: 35<br/>
+SamrQueryInformationUser				Obtains attributes from a user object.<br/>
+								Opnum: 36<br/>
+SamrSetInformationUser				Updates attributes on a user object.<br/>
+								Opnum: 37<br/>
+SamrChangePasswordUser			Changes the password of a user object.<br/>
+								Opnum: 38<br/>
+SamrGetGroupsForUser				Obtains a list of groups of which a user is a member.<br/>
+								Opnum: 39<br/>
+SamrQueryDisplayInformation			Obtains a list of accounts in name-sorted order.<br/>
+								Opnum: 40<br/>
+SamrGetDisplayEnumerationIndex		Obtains an index into an account-name–sorted list of accounts.<br/>
+								Opnum: 41<br/>
+Opnum42NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 42<br/>
+Opnum43NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 43<br/>
+SamrGetUserDomainPasswordInformation	Obtains select password policy information.<br/>
+								Opnum: 44<br/>
+SamrRemoveMemberFromForeignDomain	Removes a member from all aliases.<br/>
+								Opnum: 45<br/>
+SamrQueryInformationDomain2			Obtains attributes from a domain object.<br/>
+								Opnum: 46<br/>
+SamrQueryInformationUser2			Obtains attributes from a user object.<br/>
+								Opnum: 47<br/>
+SamrQueryDisplayInformation2			Obtains a list of accounts in name-sorted order.<br/>
+								Opnum: 48<br/>
+SamrGetDisplayEnumerationIndex2		Obtains an index into an account-name–sorted list of accounts.<br/>
+								Opnum: 49<br/>
+SamrCreateUser2InDomain			Creates a user.<br/>
+								Opnum: 50<br/>
+SamrQueryDisplayInformation3			Obtains a list of accounts in name-sorted order.<br/>
+								Opnum: 51<br/>
+SamrAddMultipleMembersToAlias		Adds multiple members to an alias.<br/>
+								Opnum: 52<br/>
+SamrRemoveMultipleMembersFromAlias	Removes multiple members from an alias.<br/>
+								Opnum: 53<br/>
+SamrOemChangePasswordUser2		Changes a user's password.<br/>
+								Opnum: 54<br/>
+SamrUnicodeChangePasswordUser2		Changes a user account's password.<br/>
+								Opnum: 55<br/>
+SamrGetDomainPasswordInformation		Obtains select password policy information.<br/>
+								Opnum: 56<br/>
+SamrConnect2						Obtains a handle to a server object.<br/>
+								Opnum: 57<br/>
+SamrSetInformationUser2				Updates attributes on a user object.<br/>
+								Opnum: 58<br/>
+Opnum59NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 59<br/>
+Opnum60NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 60<br/>
+Opnum61NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 61<br/>
+SamrConnect4						Obtains a handle to a server object.<br/>
+								Opnum: 62<br/>
+Opnum63NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 63<br/>
+SamrConnect5						Obtains a handle to a server object.<br/>
+								Opnum: 64<br/>
+SamrRidToSid						Obtains the SID of an account.<br/>
+								Opnum: 65<br/>
+SamrSetDSRMPassword				Sets a local recovery password.<br/>
+								Opnum: 66<br/>
+SamrValidatePassword				Validates an application password against the locally stored policy.<br/>
+								Opnum: 67<br/>
+Opnum68NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 68<br/>
+Opnum69NotUsedOnWire				Reserved for local use.<br/>
+								Opnum: 69</body></html>

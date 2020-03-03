@@ -1,0 +1,51 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>WMIQuery</title>
+</head><body>wmiquery.py<br/>
+<br/>
+It allows to issue WQL queries and get description of WMI objects at the target system (e.g. select name from win32_account).<br/>
+<br/>
+# Description: [MS-WMI] example. It allows to issue WQL queries and<br/>
+#       get description of the objects.<br/>
+#<br/>
+#       e.g.: select name from win32_account<br/>
+#       e.g.: describe win32_process<br/>
+<br/>
+usage: wmiquery.py [-h] [-namespace NAMESPACE] [-file FILE] [-debug]<br/>
+         [-hashes LMHASH:NTHASH] [-no-pass] [-k] [-aesKey hex key]<br/>
+         [-dc-ip ip address]<br/>
+         [-rpc-auth-level [{integrity,privacy,default}]]<br/>
+         target<br/>
+<br/>
+Executes WQL queries and gets object descriptions using Windows Management<br/>
+Instrumentation.<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -namespace NAMESPACE namespace name (default //./root/cimv2)<br/>
+ -file FILE      input file with commands to execute in the WQL shell<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+ -dc-ip ip address   IP Address of the domain controller. If ommited it use<br/>
+            the domain part (FQDN) specified in the target<br/>
+            parameter<br/>
+ -rpc-auth-level [{integrity,privacy,default}]<br/>
+            default, integrity (RPC_C_AUTHN_LEVEL_PKT_INTEGRITY)<br/>
+            or privacy (RPC_C_AUTHN_LEVEL_PKT_PRIVACY). For<br/>
+            example CIM path &quot;root/MSCluster&quot; would require<br/>
+            privacy level by default)<br/>
+</body></html>

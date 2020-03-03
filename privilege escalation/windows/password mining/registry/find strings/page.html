@@ -1,0 +1,14 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Find Strings</title>
+</head><body># Similarly the two commands below can be used to grep the registry for keywords, in this case &quot;password&quot;.<br/>
+reg query HKLM /f password /t REG_SZ /s<br/>
+reg query HKCU /f password /t REG_SZ /s<br/>
+<br/>
+reg query HKLM /f passw /t REG_SZ /s<br/>
+reg query HKCU /f passw /t REG_SZ /s<br/>
+<br/>
+# Additional<br/>
+reg query HKLM /s | findstr /i password &gt; temp.txt<br/>
+reg query HKCU /s | findstr /i password &gt; temp.txt</body></html>

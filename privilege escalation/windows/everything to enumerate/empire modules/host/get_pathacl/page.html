@@ -1,0 +1,25 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Gt_PathACL</title>
+</head><body>Enumerates the ACL for a given file path<br/>
+Does not need ADmin<br/>
+<br/>
+Uses PowerView<br/>
+<br/>
+def generate(self, obfuscate=False, obfuscationCommand=&quot;&quot;):<br/>
+    <br/>
+    moduleName = self.info[&quot;Name&quot;]<br/>
+    <br/>
+    # read in the common powerview.ps1 module source code<br/>
+    moduleSource = self.mainMenu.installPath + &quot;/data/module_source/situational_awareness/network/powerview.ps1&quot;<br/>
+<br/>
+    try:<br/>
+      f = open(moduleSource, 'r')<br/>
+    except:<br/>
+      print helpers.color(&quot;[!] Could not read module source path at: &quot; + str(moduleSource))<br/>
+      return &quot;&quot;<br/>
+<br/>
+    moduleCode = f.read()<br/>
+    f.close()<br/>
+</body></html>

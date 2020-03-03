@@ -1,0 +1,40 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>FTP Server</title>
+</head><body>#!/usr/bin/env python3<br/>
+<br/>
+<br/>
+##Author : Paranoid Ninja<br/>
+##Email : paranoidninja@protonmail.com<br/>
+##Descr : Creates a Simple FTP Server in the tmp directory<br/>
+<br/>
+from pyftpdlib.authorizers import DummyAuthorizer<br/>
+from pyftpdlib.handlers import FTPHandler<br/>
+from pyftpdlib.servers import FTPServer<br/>
+<br/>
+FTP_PORT = 2121<br/>
+FTP_USER = &quot;ninja&quot;<br/>
+FTP_PASSWORD = &quot;ninja&quot;<br/>
+FTP_DIRECTORY = &quot;/media/paranoidninja/Files/my_git_repos/personal_projects/alpha-stage-scripts&quot;<br/>
+<br/>
+<br/>
+def main():<br/>
+  authorizer = DummyAuthorizer()<br/>
+  authorizer.add_user(FTP_USER, FTP_PASSWORD, FTP_DIRECTORY, perm='elradfmw')<br/>
+<br/>
+  handler = FTPHandler<br/>
+  handler.authorizer = authorizer<br/>
+  handler.banner = &quot;Python's Ninja FTP Server&quot;<br/>
+<br/>
+  address = ('', FTP_PORT)<br/>
+  server = FTPServer(address, handler)<br/>
+<br/>
+  server.max_cons = 256<br/>
+  server.max_cons_per_ip = 5<br/>
+<br/>
+  server.serve_forever()<br/>
+<br/>
+<br/>
+if __name__ == '__main__':<br/>
+  main()</body></html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>SecretsDump</title>
+</head><body>secretsdump.py<br/>
+<br/>
+# Description: Performs various techniques to dump hashes from the<br/>
+#       remote machine without executing any agent there.<br/>
+#       For SAM and LSA Secrets (including cached creds)<br/>
+#       we try to read as much as we can from the registry<br/>
+#       and then we save the hives in the target system<br/>
+#       (%SYSTEMROOT%\\Temp dir) and read the rest of the<br/>
+#       data from there.<br/>
+#       For NTDS.dit we either:<br/>
+#        a. Get the domain users list and get its hashes<br/>
+#          and Kerberos keys using [MS-DRDS] DRSGetNCChanges()<br/>
+#          call, replicating just the attributes we need.<br/>
+#        b. Extract NTDS.dit via vssadmin executed with the<br/>
+#          smbexec approach.<br/>
+#          It's copied on the temp dir and parsed remotely.<br/>
+#<br/>
+#       The script initiates the services required for its working<br/>
+#       if they are not available (e.g. Remote Registry, even if it is <br/>
+#       disabled). After the work is done, things are restored to the <br/>
+#       original state.<br/>
+<br/>
+usage: secretsdump.py [-h] [-debug] [-system SYSTEM] [-bootkey BOOTKEY]<br/>
+           [-security SECURITY] [-sam SAM] [-ntds NTDS]<br/>
+           [-resumefile RESUMEFILE] [-outputfile OUTPUTFILE]<br/>
+           [-use-vss] [-exec-method [{smbexec,wmiexec,mmcexec}]]<br/>
+           [-just-dc-user USERNAME] [-just-dc] [-just-dc-ntlm]<br/>
+           [-pwd-last-set] [-user-status] [-history]<br/>
+           [-hashes LMHASH:NTHASH] [-no-pass] [-k]<br/>
+           [-aesKey hex key] [-dc-ip ip address]<br/>
+           [-target-ip ip address]<br/>
+           target<br/>
+</body></html>

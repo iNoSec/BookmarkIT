@@ -1,0 +1,43 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>MSSQLClient</title>
+</head><body>mssqlclient.py<br/>
+<br/>
+An MSSQL client, supporting SQL and Windows Authentications (hashes too). It also supports TLS<br/>
+<br/>
+# Description: [MS-TDS] &amp; [MC-SQLR] example.<br/>
+<br/>
+usage: mssqlclient.py [-h] [-port PORT] [-db DB] [-windows-auth] [-debug]<br/>
+           [-file FILE] [-hashes LMHASH:NTHASH] [-no-pass] [-k]<br/>
+           [-aesKey hex key] [-dc-ip ip address]<br/>
+           target<br/>
+<br/>
+TDS client implementation (SSL supported).<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -port PORT      target MSSQL port (default 1433)<br/>
+ -db DB        MSSQL database instance (default None)<br/>
+ -windows-auth     whether or not to use Windows Authentication (default<br/>
+            False)<br/>
+ -debug        Turn DEBUG output ON<br/>
+ -file FILE      input file with commands to execute in the SQL shell<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+ -dc-ip ip address   IP Address of the domain controller. If ommited it use<br/>
+            the domain part (FQDN) specified in the target<br/>
+            parameter<br/>
+</body></html>

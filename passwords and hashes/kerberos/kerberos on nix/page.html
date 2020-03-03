@@ -1,0 +1,68 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Kerberos on NIX</title>
+</head><body>Getting Kerberos up and going quickly on Kali (Debian base) is fairly straight forward. I'm going to recommend using Heimdal rather than MIT based on experiences. <br/>
+<br/>
+Simply &quot;apt-get install heimdal-clients&quot; and it should pull in a all the required dependencies. We aren't quite done yet, however.<br/>
+<br/>
+First, you need to point your name resolution to the domain controller. There's a lot of magic that gets figured out with Kerberos and DNS, so pointing the resolv.conf to the DC just makes life easier. Trust me.<br/>
+<br/>
+Secondly, you need a working '/etc/krb5.conf'. I managed to steal re-purpose one from a working Centrify config. It is worth noting that you need to get the case correct here. Kerberos realms are capitalized. It took me forever to re-learn this, so you've been warned. I recommend starting with a known good / working configuration and then modify to suit your needs.  Here it is from my internal 'exploits.com' domain in the lab (Windows 2008R2 domain at 2008R2 functional level):<br/>
+<br/>
+  [libdefaults]<br/>
+<br/>
+  default_realm = EXPLOITS.COM<br/>
+<br/>
+  default_tgs_enctypes = aes256-cts aes128-cts arcfour-hmac-md5 des-cbc-md5 des-cbc-crc<br/>
+<br/>
+  default_tkt_enctypes = aes256-cts aes128-cts arcfour-hmac-md5 des-cbc-md5 des-cbc-crc<br/>
+<br/>
+  permitted_enctypes = aes256-cts aes128-cts arcfour-hmac-md5 des-cbc-md5 des-cbc-crc<br/>
+<br/>
+  dns_lookup_realm = true<br/>
+<br/>
+  dns_lookup_kdc = true<br/>
+<br/>
+  passwd_check_s_address = false<br/>
+<br/>
+  noaddresses = true<br/>
+<br/>
+  udp_preference_limit = 1<br/>
+<br/>
+  ccache_type = 3<br/>
+<br/>
+  kdc_timesync = 0<br/>
+<br/>
+  kdc_timesync = 0<br/>
+<br/>
+  [domain_realm]<br/>
+<br/>
+  dc1.exploits.com = EXPLOITS.COM<br/>
+<br/>
+  .exploits.com = EXPLOITS.COM<br/>
+<br/>
+  exploits.com = EXPLOITS.COM<br/>
+<br/>
+  [realms]<br/>
+<br/>
+  EXPLOITS.COM = {<br/>
+<br/>
+  kdc = dc1.exploits.com:88<br/>
+<br/>
+  master_kdc = dc1.exploits.com:88<br/>
+<br/>
+  kpasswd = dc1.exploits.com:464<br/>
+<br/>
+  kpasswd_server = dc1.exploits.com:464<br/>
+<br/>
+  }<br/>
+<br/>
+<br/>
+Logging into a Kerberos domain is fairly straight forward. Assuming that you have everything configured correctly, you issue the command 'kinit user1@EXPLOITS.COM'. It will prompt you for a password. Then if it is successful, it will simply return you to a command prompt. To see if you actually got a ticket, use the command 'klist'. <br/>
+<br/>
+The Kerberos tickets are stores in a file in /tmp called 'krb5cc_0' in a *NIX Kerberos format called CCACHE. The number at the end is the UID of the currently logged in user. If you are on a multi-user system you may see several files in /tmp with different UIDs. Keep in mind that Kerberos tickets are portable..... (and if you are root, easy to grab files with multiple tickets potentially in them) ;-)<br/>
+<br/>
+Once you have a TGT you can generally simply use the '-k' flag with any of the samba utilities to log into Windows assets using the Kerberos ticket rather than credentials. You don't even need to specify a username either, since that's all in the ticket. <br/>
+<br/>
+Use Heimdal. The 'ktutil' on MIT is interactive and is much more painful to use. Hence my recommendation to use Heimdal. Heimdal. Heimdal.</body></html>

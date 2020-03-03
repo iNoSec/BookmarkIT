@@ -1,0 +1,27 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>New Function</title>
+</head><body>' =============================================<br/>
+<br/>
+' Sub Procedure -- does not return a value<br/>
+' Function Procedure -- can return a value<br/>
+<br/>
+option explicit<br/>
+<br/>
+Dim Number1,Number2, total, sum<br/>
+<br/>
+Number1 = InputBox(&quot;Podaj 1 liczbe&quot;, &quot;Tester liczb&quot;, &quot;Wpisz liczbe tutaj...&quot;)<br/>
+Number2 = InputBox(&quot;Podaj 1 liczbe&quot;, &quot;Tester liczb&quot;, &quot;Wpisz liczbe tutaj...&quot;)<br/>
+<br/>
+Number1 = Cint(Number1)<br/>
+Number2 = Cint(Number2)<br/>
+<br/>
+total = Add(Number1, Number2)<br/>
+<br/>
+MsgBox &quot;Wynik to: &quot; &amp; total<br/>
+<br/>
+Function Add(num1,num2)<br/>
+	sum = num1 + num2<br/>
+	Add = sum<br/>
+End Function</body></html>

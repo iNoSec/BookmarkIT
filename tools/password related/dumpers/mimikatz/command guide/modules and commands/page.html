@@ -1,0 +1,225 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Modules</title>
+</head><body><ul><li><a href="https://adsecurity.org/?page_id=1821#BUSYLIGHT">BUSYLIGHT</a>						Additional information for and control of connected BusyLights</li>
+<li><a href="https://adsecurity.org/?page_id=1821#CRYPTO">CRYPTO</a>						Advanced capability to interface with Windows Crypto functions</li>
+<li style="list-style-type: none"><ul><li><a href="https://adsecurity.org/?page_id=1821#CRYPTOCertificates">CRYPTO::Certificates</a>			List/export certificates</li>
+<li>CRYPTO::CertToHW			Export a software CA to a crypto (virtual)hardware</li>
+<li>CRYPTO::CNG				Patch CNG service for easy export (patches &quot;Keylso&quot; service)</li>
+<li>CRYPTO::Extract 				Extract keys from CAPI RSA/AES provider</li>
+<li>CRYPTO::Hash				hash a password with optional username</li>
+<li>CRYPTO::Keys				list/export keys container</li>
+<li>CRYPTO::Providers			list cryptographic providers</li>
+<li>CRYPTO::SC					list smartcard readers</li>
+<li>CRYPTO::SCAuth				create an auth certificate (smartcard like) from a CA</li>
+<li>CRYPTO::Stores				list crytpographic stores</li>
+<li>CRYPTO::System				describe a Windows System Certificate</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#DPAPI">DPAPI</a>							Extract Windows stored (protected) credential data using DPAPI</li>
+<li style="list-style-type: none"><ul><li>DPAPI::Blob					unprotect a DPAPI blob with API or Masterkey</li>
+<li>DPAPI::Cache				</li>
+<li>DPAPI::CAPI					CAPI key test</li>
+<li>DPAPI::Chrome				Chrome test</li>
+<li>DPAPI::CNG					CNG key test</li>
+<li>DPAPI::Cred					CRE test</li>
+<li>DPAPI::CredHist				Configure a credhist file</li>
+<li>DPAPI::MasterKey			Configure a Masterkey file, unprotect (key depending)</li>
+<li>DPAPI::Protect				Protect data using DPAPI</li>
+<li>DPAPI::Vault					VAULT test</li>
+<li>DPAPI::WIFI					WIFI test</li>
+<li>DPAPI::WWAN				WWAN test</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#EVENT">EVENT</a></li>
+<li style="list-style-type: none"><ul><li>EVENT::Clear				Clear an event log</li>
+<li>EVENT::Drop				Patch Events service to avoid new events</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#IIS">IIS</a></li>
+<li style="list-style-type: none"><ul><li>IIS:AppHost</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#KERBEROS">KERBEROS</a>						Used to interface with Kerberos, no special rights required</li>
+<li style="list-style-type: none"><ul><li>KERBEROS::Ask				Request TGS tickets</li>
+<li>KERBEROS::Clist				list tickets in MIT/Heimdall cache</li>
+<li>KERBEROS::Golden			Create golden/silver/trust tickets capability depends on hash type</li>
+<li style="list-style-type: none"><ul><li>Golden					Requires KRBTGT hash, scope is Domain/Forest</li>
+<li>Silver					Requires Service hash, scope is Service</li>
+<li>Trust					Requires Trust hash, scope is Domain/Forest -&gt; Domain/Forest</li>
+</ul>
+</li>
+<li>KERBEROS::Hash 			Hash password to keys</li>
+<li>KERBEROS::List				List all user tickets in user memory (similar to klist)</li>
+<li>KERBEROS::PTC 				Pass the cache</li>
+<li><a href="https://adsecurity.org/?page_id=1821#KERBEROSGolden">Golden Tickets</a></li>
+<li><a href="https://adsecurity.org/?page_id=1821#SilverTicket">Silver Tickets</a></li>
+<li><a href="https://adsecurity.org/?page_id=1821#TrustTicket">Trust Tickets</a></li>
+<li><a href="https://adsecurity.org/?page_id=1821#KERBEROSPTT">KERBEROS::PTT</a>				Pass the ticket</li>
+<li>KERBEROS::Purge			Purge all Kerberos tickets</li>
+<li>KERBEROS::TGT				get current TGT for current user</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#LSADUMP">LSADUMP</a>						Interacts with LSA to extract credentials, most require debug</li>
+<li style="list-style-type: none"><ul><li>LSADUMP::Backupkeys		</li>
+<li>LSADUMP::Cache				Get SysKey to decrypt NL$KM then MSCache(v2) from reg or hive</li>
+<li>LSADUMP::ChangeNTLM		Ask server to set a new password/ntlm for one user</li>
+<li>LSADUMP::DCShadow			Push replication changes to DC</li>
+<li><a href="https://adsecurity.org/?page_id=1821#DCSync">DCSync</a>					Ask DC to synchronize an object (get apssword data for account)</li>
+<li>DCShadow</li>
+<li><a href="https://adsecurity.org/?page_id=1821#LSADUMPLSA">LSADUMP::LSA</a>				Ask LSA server to retrieve SAM/AD enterprise</li>
+<li><a href="https://adsecurity.org/?page_id=1821#LSADUMPNetSync">LSADUMP::NetSync</a>			use DC comp acc pass to impersonate DC via ticket &amp; DCSync</li>
+<li><a href="https://adsecurity.org/?page_id=1821#LSADUMPSAM">LSADUMP::SAM</a>				get SysKey to decrypt SAM entries from reg or hive</li>
+<li>LSADUMP::Secrets			get SysKey to decrypt SECRETS entries from reg or hive</li>
+<li>LSADUMP::SetNTLM			Ask server to set new password/ntlm for One user</li>
+<li><a href="https://adsecurity.org/?page_id=1821#LSADUMPTrust">LSADUMP::Trust </a>				Ask LSA to retrieve Trust Auth information</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#MISC">MISC</a>							</li>
+<li style="list-style-type: none"><ul><li>MISC::AddSid				Add to SIDHistory to user account. &lt;target account&gt; &lt;SID&gt;</li>
+<li>MISC::Cmd					CMD prompt (without DisableCMD)</li>
+<li>MISC::Compressme 			Compress Mimikatz to mimikatz_x64.compressed</li>
+<li>MISC:Detours				enum all modules with Detours-like hooks</li>
+<li>MISC::MemSSP 				Inject malicious Windows SSP to log locally auth creds</li>
+<li>MISC::MFLT 					Gathers details on loaded drivers, including driver altitude</li>
+<li>MISC::Ncroutemon			Juniper Manager (without DisableTaskMgr)</li>
+<li>MISC::Skeleton				Inject Skeleton Key into LSASS process on DC</li>
+<li>MISC::Taskmgr				Task Manager (without DisableTaskMgr)</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#MINESWEEPER">MINESWEEPER</a>					Provide mine info in minesweeper</li>
+<li><a href="https://adsecurity.org/?page_id=1821#Net">NET</a></li>
+<li style="list-style-type: none"><ul><li>NET::Alias</li>
+<li>NET::Group</li>
+<li>NET::ServerInfo</li>
+<li>NET::Session</li>
+<li>NET::Share</li>
+<li>NET::Stats</li>
+<li>NET::TOD</li>
+<li>NET::User</li>
+<li>NET::WSession</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#PRIVILEGE">PRIVILEGE</a></li>
+<li style="list-style-type: none"><ul><li>PRIVILEGE::Backup			Get backup privilege/rights. Requires Debug</li>
+<li><a href="https://adsecurity.org/?page_id=1821#PRIVILEGEDebug">PRIVILEGE::Debug</a>			Get debug rights.</li>
+<li>PRIVILEGE::Driver 			get driver privilege/rights. Requires debug</li>
+<li>PRIVILEGE::ID 				get privilege/rights by its ID. Requires debug</li>
+<li>PRIVILEGE::Name			get privilege/rights by its name. Requires debug</li>
+<li>PRIVILEGE::Restore			get restore privilege/rights. Requires Debug</li>
+<li>PRIVILEGE::Security 			get security privilege/rights. Requires Debug</li>
+<li>PRIVILEGE::SysEnv			get priv/rights to manage sys environment. Requires Debug</li>
+<li>PRIVILEGE::TCG				get TCG priv/rights. Requires elevated rights</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#PROCESS">PROCESS</a>						Gather data and interact with processes</li>
+<li style="list-style-type: none"><ul><li>PROCESS::Exprots			list exports</li>
+<li>PROCESS::Imports			list imports</li>
+<li>PROCESS::List				list running processes</li>
+<li>PROCESS::Resume			resume a process</li>
+<li>PROCESS:Run				run a process</li>
+<li>PROCESS::Start				start a process</li>
+<li>PROCESS::Stop				terminate a process</li>
+<li>PROCESS::Suspend			suspend a process</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#RPC">RPC</a>							Remote control of mimikatz</li>
+<li style="list-style-type: none"><ul><li>RPC::Close</li>
+<li>RPC::Connect</li>
+<li>RPC::Enum</li>
+<li>RPC::Server</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#SERVICE">SERVICE</a></li>
+<li><a href="https://adsecurity.org/?page_id=1821#SEKURLSA">SEKURLSA</a>						Interacts with protected memory, extracts sensitive</li>
+<li style="list-style-type: none"><ul><li>SEKURLSA::Backupkeys		get preferred backup master keys</li>
+<li>SEKURLSA::Credman			list credentials manager</li>
+<li>SEKURLSA::Dpapi			list cached MasterKeys</li>
+<li>SEKURLSA::DpapiSystem		DPAPI_SYSTEM secret</li>
+<li>SEKURLSA::Ekeys			list Kerberos encryption keys</li>
+<li><a href="https://adsecurity.org/?page_id=1821#SEKURLSAKerberos">SEKURLSA::Kerberos</a>			list kerberos creds for all authenticated users</li>
+<li><a href="https://adsecurity.org/?page_id=1821#SEKURLSAKrbtgt">SEKURLSA::Krbtgt</a>			get domain kerberos service account (KRBTGT) password data</li>
+<li>SEKURLSA::LiveSSP			lists LiveSSP credentials</li>
+<li><a href="https://adsecurity.org/?page_id=1821#SEKURLSALogonPasswords">SEKURLSA::LogonPasswords </a>	list available provider creds. recently logged on user/comp creds</li>
+<li>SEKURLSA::Minidump 		switch to LSASS minidump process contect</li>
+<li>SEKURLSA::MSV				list LM &amp; NTLM credentials</li>
+<li>SEKURLSA::Process			switch to LSASS process context</li>
+<li><a href="https://adsecurity.org/?page_id=1821#SEKURLSAPth">SEKURLSA::Pth</a>				Pass-The-Hash and Over-Pass-The-Hash (aka pass the key)</li>
+<li>SEKURLSA::SSP 				list SSP creds</li>
+<li>SEKURLSA::Tickets			list all available Kerberos tickets for recent auth users</li>
+<li>SEKURLSA::Trust				get trust keys</li>
+<li>SEKURLSA::TSPKG			list TsPkg creds</li>
+<li>SEKURLSA::Wdigest			list WDigets creds</li>
+</ul>
+</li>
+<li>SERVICE</li>
+<li style="list-style-type: none"><ul><li>SERVICE::+					install Mimikatz serivice (mimikatzsvc)</li>
+<li>SERVICE::-					uninstall mimikatz service (mimikatzsvc)</li>
+<li>SERVICE::List				list services</li>
+<li>SERVICE::Me</li>
+<li>SERVICE::Preshutdown		preshutdown service</li>
+<li>SERVICE::Remove			remove service</li>
+<li>SERVICE::Resume			Resume service</li>
+<li>SERVICE::Shutdown			shutdown service</li>
+<li>SERVICE::Start				start a service</li>
+<li>SERVICE::Stop				stop service</li>
+<li>SERVICE::Suspend			suspend the service</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#SID">SID</a>							Replaces MISC::AddSID</li>
+<li style="list-style-type: none"><ul><li>SID::add					add SID to SIDHistory of an object</li>
+<li>SID::clear					clear SIDHistory of an object</li>
+<li>SID::lookup					name or SID lookup</li>
+<li>SID::modify					modify object SID of an object</li>
+<li>SID::patch					patch NTDS service</li>
+<li>SID::query					query object by SID or name</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#STANDARD">STANDARD</a></li>
+<li style="list-style-type: none"><ul><li>STANDARD::Answer			answer to life, universe, and everything</li>
+<li>STANDARD::Base64			switch output to base64</li>
+<li>STANDARD::CD				change or display current directory</li>
+<li>STANDARD::CLS				clear screen</li>
+<li>STANDARD::Coffee			show an ASCII image of coffee</li>
+<li>STANDARD::Exit				quit Mimikatz</li>
+<li>STANDARD::Hostname		displays system local host</li>
+<li>STANDARD::LocalTime		displays system local data and time</li>
+<li>STANDARD::Log				send Mimikatz data to log file</li>
+<li>STANDARD::MarkRus			Pass-the-Hash information (removed in Mimikatz 2.1.1)</li>
+<li>STANDARD::Sleep			sleep an amount in milliseconds</li>
+<li>STANDARD::Version			display version information</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#SYSENV">SYSENV</a>						ability to manage system env variables</li>
+<li style="list-style-type: none"><ul><li>SYSENV::List</li>
+<li>SYSENV::Get</li>
+<li>SYSENV::Set</li>
+<li>SYSENV::Del</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#TOKEN">TOKEN</a>						Interact with Windows auth tokens, grabbing, impersonating</li>
+<li style="list-style-type: none"><ul><li><a href="https://adsecurity.org/?page_id=1821#TOKENElevate">TOKEN::Elevate</a>				Impersonate a token</li>
+<li><a href="https://adsecurity.org/?page_id=1821#TOKENElevate">TOKEN::Elevate /domainadmin</a></li>
+<li>TOKEN::List 					list all tokens of the system</li>
+<li>TOKEN::Revert				revert to process token</li>
+<li>TOKEN::Run					run</li>
+<li>TOKEN::Whoami				display current identity</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#TS">TS</a></li>
+<li style="list-style-type: none"><ul><li>TS::MultiRDP 				allow multiple users</li>
+<li>TS::Sessions				list TS/RDP sessions</li>
+<li>TS::Remote</li>
+</ul>
+</li>
+<li><a href="https://adsecurity.org/?page_id=1821#VAULT">VAULT</a></li>
+<li style="list-style-type: none"><ul><li>VAULT::List					list vault creds</li>
+<li>VAULT::Cred					cred</li>
+</ul>
+</li>
+</ul>
+<br/>
+<br/>
+<br/>
+</body></html>

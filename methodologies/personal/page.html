@@ -1,0 +1,69 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Personal</title>
+</head><body>TODO: Fill in with Windows tools as well<br/>
+TODO: Fill in with OS X tools as well (some at https://objective-see.com/products.html)<br/>
+<br/>
+Pre assessment<br/>
+IP target list (ensure blacklist if requested)<br/>
+Start tcpdump<br/>
+Start responder (when interacting with windows clients)<br/>
+<br/>
+Begin assessment<br/>
+<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"/>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<br/>
+<br/>
+Define process for Limited Shell, ie:<br/>
+	Determine rough limits<br/>
+		Attempt basic limited shell escape (rbash/etc)<br/>
+	Basic privexec and enumeration<br/>
+		LinEnum<br/>
+	Loot files (define process for what to go after)<br/>
+		Identify commands that can be used<br/>
+		Identify applications installed<br/>
+			strings, elfstrings, objdump for binaries/executables<br/>
+		Enumerate kernel<br/>
+		Enumerate groups<br/>
+		Loot (common):<br/>
+			/var/www - website files<br/>
+			/home/user/.ssh - ssh keys<br/>
+			/etc/ssh - ssh config<br/>
+		Enumerate all other config files<br/>
+			'find' commands<br/>
+		Enumerate directories with rwx access <br/>
+		Enumerate files with +s bit<br/>
+	Privexec <br/>
+Define process for Root shell<br/>
+	Set up persistence<br/>
+		SSH:<br/>
+			Add Kali public to /home/user/.ssh/authorized_keys<br/>
+			Crack usernames/passwords<br/>
+			Add new user with root privileges<br/>
+		Establish C2:<br/>
+			FruityC2 (with agent)<br/>
+	Data exfiltration<br/>
+		DET (Data Exfiltration Toolkit)<br/>
+	Enumerate network connections<br/>
+		During enumeration:<br/>
+		More creds<br/>
+		Loot files (define process for what to go after)<br/>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+END REPORTING<br/>
+	Tools that can help automate reporting?<br/>
+		Dradis-CE<br/>
+		<br/>
+		<br/>
+		<br/>
+Random useful/useless tools<br/>
+Unhide - http://www.unhide-forensics.info/</body></html>

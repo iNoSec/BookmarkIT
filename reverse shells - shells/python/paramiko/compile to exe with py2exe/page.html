@@ -1,0 +1,14 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Compile to exe with py2exe</title>
+</head><body>from distutils.core import setup<br/>
+import py2exe , sys, os<br/>
+<br/>
+setup(<br/>
+  options = {'py2exe': {'bundle_files': 1}},<br/>
+<br/>
+  windows = [{'script': &quot;Client.py&quot;}], #Change to file you want to compile<br/>
+  zipfile = None,<br/>
+)<br/>
+</body></html>

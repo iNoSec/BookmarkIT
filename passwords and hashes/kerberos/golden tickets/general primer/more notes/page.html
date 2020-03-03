@@ -1,0 +1,29 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>More Notes</title>
+</head><body>A &quot;Golden Ticket&quot; is a <i>homemade</i>ticket<br/>
+	It's made with a lot of love<br/>
+	and a key<br/>
+<br/>
+It's not made by the KDC so: <br/>
+	It's not limited by GPO or other settings<br/>
+	You can push whatever you want inside<br/>
+ 	It's smartcard independent<br/>
+<br/>
+But a golden ticket is not only about lifetime modification (10 years is hardcoded, but can be modified)<br/>
+Interesting part is about to modify data into, life lifetime, but mainly the Microsoft PAC:<br/>
+	Groups (Domain/Enterprise Admins, by example)<br/>
+	SID<br/>
+	Username<br/>
+<br/>
+Kerberos is Stateless<br/>
+All account policy info is in the TGT<br/>
+	Disabled / Expired /Outside of logon hours<br/>
+	Password expired<br/>
+	Authentication silo membership<br/>
+	&quot;Protected Users&quot; is just a group membership in the PAC<br/>
+	Group Membership in the PAC<br/>
+This means that ALL account policy is <i>Client Side Enforced</i><br/>
+<br/>
+</body></html>

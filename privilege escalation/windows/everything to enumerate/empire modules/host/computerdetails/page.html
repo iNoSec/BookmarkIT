@@ -1,0 +1,57 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>ComputerDetails</title>
+</head><body>Get event logs to enumerate several options of the computer, AppLocker, PSLogs, etc.<br/>
+Needs admin<br/>
+4648: RDP to another machine<br/>
+4624: Logons to this machine<br/>
+AppLocker: Applocker logs<br/>
+PSScripts: PowerShell operational log<br/>
+SavedRDP: Saved RDP connections. <br/>
+<br/>
+The existence of these items enumerates what is possibly enabled or disabled on this machine<br/>
+<br/>
+for option,values in self.options.iteritems():<br/>
+      if option.lower() != &quot;agent&quot;:<br/>
+        if values['Value'] and values['Value'] != '':<br/>
+          if option == &quot;4624&quot;:<br/>
+            scriptEnd += &quot;$SecurityLog = Get-EventLog -LogName Security; $Filtered4624 = Find-4624Logons $SecurityLog;&quot;<br/>
+            scriptEnd += 'Write-Output &quot;Event ID 4624 (Logon):`n&quot;;'<br/>
+            scriptEnd += &quot;Write-Output $Filtered4624.Values | Out-String&quot;<br/>
+            if obfuscate:<br/>
+              scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)<br/>
+            script += scriptEnd<br/>
+            return script<br/>
+          if option == &quot;4648&quot;:<br/>
+            scriptEnd += &quot;$SecurityLog = Get-EventLog -LogName Security; $Filtered4648 = Find-4648Logons $SecurityLog;&quot;<br/>
+            scriptEnd += 'Write-Output &quot;Event ID 4648 (Explicit Credential Logon):`n&quot;;'<br/>
+            scriptEnd += &quot;Write-Output $Filtered4648.Values | Out-String&quot;<br/>
+            if obfuscate:<br/>
+              scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)<br/>
+            script += scriptEnd<br/>
+            return script<br/>
+          if option == &quot;AppLocker&quot;:<br/>
+            scriptEnd += &quot;$AppLockerLogs = Find-AppLockerLogs;&quot;<br/>
+            scriptEnd += 'Write-Output &quot;AppLocker Process Starts:`n&quot;;'<br/>
+            scriptEnd += &quot;Write-Output $AppLockerLogs.Values | Out-String&quot;<br/>
+            if obfuscate:<br/>
+              scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)<br/>
+            script += scriptEnd<br/>
+            return script<br/>
+          if option == &quot;PSLogs&quot;:<br/>
+            scriptEnd += &quot;$PSLogs = Find-PSScriptsInPSAppLog;&quot;<br/>
+            scriptEnd += 'Write-Output &quot;PowerShell Script Executions:`n&quot;;'<br/>
+            scriptEnd += &quot;Write-Output $PSLogs.Values | Out-String&quot;<br/>
+            if obfuscate:<br/>
+              scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)<br/>
+            script += scriptEnd<br/>
+            return script<br/>
+          if option == &quot;SavedRDP&quot;:<br/>
+            scriptEnd += &quot;$RdpClientData = Find-RDPClientConnections;&quot;<br/>
+            scriptEnd += 'Write-Output &quot;RDP Client Data:`n&quot;;'<br/>
+            scriptEnd += &quot;Write-Output $RdpClientData.Values | Out-String&quot;<br/>
+            if obfuscate:<br/>
+              scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)<br/>
+            script += scriptEnd<br/>
+return script</body></html>

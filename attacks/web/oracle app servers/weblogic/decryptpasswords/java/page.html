@@ -1,0 +1,171 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Java</title>
+</head><body>Java<br/>
+<br/>
+WebLogicPasswordDecryptor &quot;C:\SerializedSystemIni.dat&quot; &quot;{AES}8/rTjIuC4mwlrlZgJK++LKmAThcoJMHyigbcJGIztug=&quot;<br/>
+<br/>
+WebLogicPasswordDecryptor &quot;C:\SerializedSystemIni.dat&quot; &quot;{3DES}JMRazF/vClP1WAgy1czd2Q==&quot;<br/>
+<br/>
+import org.bouncycastle.jce.provider.BouncyCastleProvider;<br/>
+import sun.misc.BASE64Decoder;<br/>
+<br/>
+import javax.crypto.*;<br/>
+import javax.crypto.spec.IvParameterSpec;<br/>
+import javax.crypto.spec.PBEKeySpec;<br/>
+import javax.crypto.spec.PBEParameterSpec;<br/>
+import javax.crypto.spec.SecretKeySpec;<br/>
+import java.io.FileInputStream;<br/>
+import java.io.IOException;<br/>
+import java.io.InputStream;<br/>
+import java.security.InvalidAlgorithmParameterException;<br/>
+import java.security.InvalidKeyException;<br/>
+import java.security.NoSuchAlgorithmException;<br/>
+import java.security.Security;<br/>
+import java.security.spec.InvalidKeySpecException;<br/>
+<br/>
+<br/>
+public class WebLogicPasswordDecryptor {<br/>
+<br/>
+  public static void main(String args[]) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException, InvalidAlgorithmParameterException {<br/>
+<br/>
+    Security.addProvider(new BouncyCastleProvider());<br/>
+    String serializedSystemIniPath = args[0];<br/>
+    String ciphertext = args[1];<br/>
+    String cleartext = &quot;&quot;;<br/>
+<br/>
+    if (ciphertext.startsWith(&quot;{AES}&quot;)){<br/>
+      ciphertext = ciphertext.replaceAll(&quot;^[{AES}]+&quot;, &quot;&quot;);<br/>
+      cleartext = decryptAES(serializedSystemIniPath,ciphertext);<br/>
+    } else if (ciphertext.startsWith(&quot;{3DES}&quot;)){<br/>
+      ciphertext = ciphertext.replaceAll(&quot;^[{3DES}]+&quot;, &quot;&quot;);<br/>
+      cleartext = decrypt3DES(serializedSystemIniPath, ciphertext);<br/>
+    }<br/>
+<br/>
+    System.out.println(cleartext);<br/>
+  }<br/>
+<br/>
+  public static String decryptAES(String SerializedSystemIni, String ciphertext) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, IOException {<br/>
+<br/>
+    byte[] encryptedPassword1 = new BASE64Decoder().decodeBuffer(ciphertext);<br/>
+    byte[] salt = null;<br/>
+    byte[] encryptionKey = null;<br/>
+<br/>
+    String key = &quot;0xccb97558940b82637c8bec3c770f86fa3a391a56&quot;;<br/>
+<br/>
+    char password[] = new char[key.length()];<br/>
+<br/>
+    key.getChars(0, password.length, password, 0);<br/>
+<br/>
+    FileInputStream is = new FileInputStream(SerializedSystemIni);<br/>
+    try {<br/>
+      salt = readBytes(is);<br/>
+<br/>
+      int version = is.read();<br/>
+      if (version != -1) {<br/>
+        encryptionKey = readBytes(is);<br/>
+        if (version &gt;= 2) {<br/>
+          encryptionKey = readBytes(is);<br/>
+        }<br/>
+      }<br/>
+    } catch (IOException e) {<br/>
+<br/>
+    }<br/>
+<br/>
+    SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(&quot;PBEWITHSHAAND128BITRC2-CBC&quot;);<br/>
+<br/>
+    PBEKeySpec pbeKeySpec = new PBEKeySpec(password, salt, 5);<br/>
+<br/>
+    SecretKey secretKey = keyFactory.generateSecret(pbeKeySpec);<br/>
+<br/>
+    PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(salt, 0);<br/>
+<br/>
+    Cipher cipher = Cipher.getInstance(&quot;PBEWITHSHAAND128BITRC2-CBC&quot;);<br/>
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, pbeParameterSpec);<br/>
+    SecretKeySpec secretKeySpec = new SecretKeySpec(cipher.doFinal(encryptionKey), &quot;AES&quot;);<br/>
+<br/>
+    byte[] iv = new byte[16];<br/>
+    System.arraycopy(encryptedPassword1, 0, iv, 0, 16);<br/>
+    int encryptedPasswordlength = encryptedPassword1.length - 16 ;<br/>
+    byte[] encryptedPassword2 = new byte[encryptedPasswordlength];<br/>
+    System.arraycopy(encryptedPassword1, 16, encryptedPassword2, 0, encryptedPasswordlength);<br/>
+    IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);<br/>
+    Cipher outCipher = Cipher.getInstance(&quot;AES/CBC/PKCS5Padding&quot;);<br/>
+    outCipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);<br/>
+<br/>
+    byte[] cleartext = outCipher.doFinal(encryptedPassword2);<br/>
+<br/>
+    return new String(cleartext, &quot;UTF-8&quot;);<br/>
+<br/>
+  }<br/>
+<br/>
+  public static String decrypt3DES(String SerializedSystemIni, String ciphertext) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, IOException {<br/>
+<br/>
+    byte[] encryptedPassword1 = new BASE64Decoder().decodeBuffer(ciphertext);<br/>
+    byte[] salt = null;<br/>
+    byte[] encryptionKey = null;<br/>
+<br/>
+    String PW = &quot;0xccb97558940b82637c8bec3c770f86fa3a391a56&quot;;<br/>
+<br/>
+    char password[] = new char[PW.length()];<br/>
+<br/>
+    PW.getChars(0, password.length, password, 0);<br/>
+<br/>
+    FileInputStream is = new FileInputStream(SerializedSystemIni);<br/>
+    try {<br/>
+      salt = readBytes(is);<br/>
+<br/>
+      int version = is.read();<br/>
+      if (version != -1) {<br/>
+        encryptionKey = readBytes(is);<br/>
+        if (version &gt;= 2) {<br/>
+          encryptionKey = readBytes(is);<br/>
+        }<br/>
+      }<br/>
+<br/>
+<br/>
+    } catch (IOException e) {<br/>
+<br/>
+    }<br/>
+<br/>
+    SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(&quot;PBEWITHSHAAND128BITRC2-CBC&quot;);<br/>
+<br/>
+    PBEKeySpec pbeKeySpec = new PBEKeySpec(password, salt, 5);<br/>
+<br/>
+    SecretKey secretKey = keyFactory.generateSecret(pbeKeySpec);<br/>
+<br/>
+    PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(salt, 0);<br/>
+<br/>
+    Cipher cipher = Cipher.getInstance(&quot;PBEWITHSHAAND128BITRC2-CBC&quot;);<br/>
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, pbeParameterSpec);<br/>
+    SecretKeySpec secretKeySpec = new SecretKeySpec(cipher.doFinal(encryptionKey),&quot;DESEDE&quot;);<br/>
+<br/>
+    byte[] iv = new byte[8];<br/>
+    System.arraycopy(salt, 0, iv, 0, 4);<br/>
+    System.arraycopy(salt, 0, iv, 4, 4);<br/>
+<br/>
+    IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);<br/>
+    Cipher outCipher = Cipher.getInstance(&quot;DESEDE/CBC/PKCS5Padding&quot;);<br/>
+    outCipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);<br/>
+<br/>
+    byte[] cleartext = outCipher.doFinal(encryptedPassword1);<br/>
+    return new String(cleartext, &quot;UTF-8&quot;);<br/>
+<br/>
+  }<br/>
+<br/>
+  public static byte[] readBytes(InputStream stream) throws IOException {<br/>
+    int length = stream.read();<br/>
+    byte[] bytes = new byte[length];<br/>
+    int in = 0;<br/>
+    int justread;<br/>
+    while (in &lt; length) {<br/>
+      justread = stream.read(bytes, in, length - in);<br/>
+      if (justread == -1) {<br/>
+        break;<br/>
+      }<br/>
+      in += justread;<br/>
+    }<br/>
+    return bytes;<br/>
+  }<br/>
+}</body></html>

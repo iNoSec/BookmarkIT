@@ -1,0 +1,47 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Mail</title>
+</head><body>' VBScript to Send Email Notification<br/>
+<br/>
+Sub SendEmail(ToAddress, Subject, Text)<br/>
+  Dim iMsg <br/>
+  Dim iConf<br/>
+  Dim Flds<br/>
+<br/>
+  Set iMsg = CreateObject(&quot;CDO.Message&quot;)<br/>
+  Set iConf = CreateObject(&quot;CDO.Configuration&quot;)<br/>
+<br/>
+  iConf.Load -1<br/>
+  Set Flds = iConf.Fields<br/>
+  <br/>
+  With Flds<br/>
+    .Item(&quot;http://schemas.microsoft.com/cdo/configuration/smtpusessl&quot;) = True<br/>
+    .Item(&quot;http://schemas.microsoft.com/cdo/configuration/smtpauthenticate&quot;) = 1<br/>
+    .Item(&quot;http://schemas.microsoft.com/cdo/configuration/sendusername&quot;) = &quot;email&quot;<br/>
+    .Item(&quot;http://schemas.microsoft.com/cdo/configuration/sendpassword&quot;) = &quot;password&quot;<br/>
+    .Item(&quot;http://schemas.microsoft.com/cdo/configuration/smtpserver&quot;) = &quot;smtp.gmail.com&quot; 'smtp mail server<br/>
+    .Item(&quot;http://schemas.microsoft.com/cdo/configuration/sendusing&quot;) = 2<br/>
+    .Item(&quot;http://schemas.microsoft.com/cdo/configuration/smtpserverport&quot;) = 465 'stmp server<br/>
+		 iMsg.AddAttachment &quot;C:\path&quot; <br/>
+    .Update<br/>
+  End With<br/>
+<br/>
+  With iMsg<br/>
+    Set .Configuration = iConf<br/>
+    .To = ToAddress<br/>
+    .From = &quot;jogn@gmail.com&quot;<br/>
+    .Subject = Subject<br/>
+    .TextBody = Text<br/>
+    .Send<br/>
+  End With<br/>
+<br/>
+  Set iMsg = Nothing<br/>
+  Set iConf = Nothing<br/>
+End Sub<br/>
+<br/>
+If WScript.Arguments.Count &lt;&gt; 3 Then<br/>
+  WScript.Echo &quot;Usage: cscript.exe &quot; &amp; WScript.ScriptFullName &amp; &quot; email subject text&quot;<br/>
+Else <br/>
+  SendEmail WScript.Arguments(0), WScript.Arguments(1), WScript.Arguments(2)<br/>
+End If</body></html>

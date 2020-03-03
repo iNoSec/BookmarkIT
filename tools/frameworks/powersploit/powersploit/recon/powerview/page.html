@@ -1,0 +1,10 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>PowerView</title>
+</head><body>PowerVeiw and output localy to disk for beacon:<br/>
+ powershell -no -exec bypass -command &quot;&amp; {Import-Module .\PowerView.ps1; Invoke-UserHunter USRNAME | Out-File -Encoding Ascii USERNAME.txt}&quot;<br/>
+<br/>
+Powerview UserHunting Search by keyword:<br/>
+ powershell Get-NetUser -Filter &quot;(description=*medical*)&quot; | Select-Object -Prop samaccountname.description,title<br/>
+ powershell Get-NetUser -Filter &quot;(title=*medical*)&quot; | Select-Object -Prop samaccountname.description,title</body></html>

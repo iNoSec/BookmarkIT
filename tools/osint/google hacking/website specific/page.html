@@ -1,0 +1,31 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Website Specific</title>
+</head><body>intitle:&quot;index of /&quot; Parent Directory site:yoursitehere.com 				Getting Open Index or Insecure Information<br/>
+intitle:&quot;Index of /admin&quot; site:yoursitehere.com						You can search for admin directories<br/>
+intitle:&quot;Index of /password&quot; site:yoursitehere.com						You can search for password directories<br/>
+intitle:&quot;Index of /mail&quot; site:yoursitehere.com							You can search for mail directories<br/>
+intitle:&quot;Index of /&quot; passwd site:yoursitehere.com						You can search for files like passwd<br/>
+intitle:&quot;Index of /&quot; password.txt site:yoursitehere.com					You can search for password.txt files<br/>
+intitle:&quot;Index of /&quot; .htaccess site:yoursitehere.com					You can search for htaccess file<br/>
+intitle:&quot;index of ftp&quot; .mdb site:yoursitehere.com						You can also search for diffrent extensions<br/>
+Intitle: &quot;login&quot; &quot;admin&quot; site:yoursitehere.com						You can also try and look for admin pages or the login functionalities<br/>
+<br/>
+Using InURL we can search for diffrent functionalities within the website.<br/>
+inurl:admin site:yoursitehere.com								Search for Admin Login Functionality on target domain<br/>
+inurl:login site:yoursitehere.com									Search for Login Functionality on target domain<br/>
+<br/>
+Using FileType we can search for diffrent files within the website. <br/>
+inurl:passwd filetype:txt site:yoursitehere.com						Searching for text files containing passwd in URL on target domain<br/>
+inurl:admin filetype:db site:yoursitehere.com						Searching for db files containing admin in URL on target domain<br/>
+filetype:log site:yoursitehere.com								Searching for logs on target domain<br/>
+filetype:xls csv site:yoursitehere.com								Searching for Excel and csv files on target domain<br/>
+<br/>
+<br/>
+link:yoursite.com -site:yoursite.com								Search for other sites containing links for your target website<br/>
+<br/>
+You can also use Google Translater as a proxy to access the website<br/>
+http://translate.google.com/translate?hl=en&amp;sl=ar&amp;tl=en&amp;u=http://www.yoursitehere.com/urlhere<br/>
+<br/>
+You can also use <a href="https://www.shodan.io/">www.shodanio.com</a>for some more information by just using the hostname:yoursitehere.com dork. </body></html>

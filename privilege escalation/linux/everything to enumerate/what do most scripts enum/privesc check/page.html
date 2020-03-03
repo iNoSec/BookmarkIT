@@ -1,0 +1,156 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Privesc Check</title>
+</head><body>privesc-check-master (from lib/misc/kernel, stealthy checks?)<br/>
+These are checks in lib/checks....there are more in lib/misc...OS specific, enhancements?<br/>
+###############################################################################################################<br/>
+#<br/>
+# include files in bash or sh with . or source<br/>
+# . lib/misc/file<br/>
+# . lib/misc/permission<br/>
+# . lib/misc/stdio<br/>
+# . lib/misc/kernel<br/>
+#<br/>
+#<br/>
+# Check all world writeable files<br/>
+#<br/>
+#world_writable_main () {<br/>
+#	file_show_non_symlink_perms &quot;^........w. &quot; | while read filename permissions userid groupid<br/>
+#	do<br/>
+#		case &quot;${permissions}&quot; in<br/>
+#			????????w?)<br/>
+#				if [ &quot;`permission_is_world_writable_sticky_bit \&quot;${permissions}\&quot;`&quot; -eq 1 ]<br/>
+#				then<br/>
+#					stdio_message_warn &quot;world_writable&quot; &quot;${filename} is owned by user ${userid} (group ${groupid}) and is world-writable with sticky bit (${permissions})&quot;<br/>
+#				else<br/>
+#					stdio_message_warn &quot;world_writable&quot; &quot;${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})&quot;<br/>
+#				fi<br/>
+#				;;<br/>
+#		esac<br/>
+#	done<br/>
+#}<br/>
+#<br/>
+# check SELinux 'enforce'			 <br/>
+# 	SELinux is a set of extra security restrictions on top of the normal Linux security tools. 																<br/>
+# 	It gives the systems administrator a finer grain of control than what the kernel typically provides.	<br/>
+# 	quick test with: 'selinuxenabled &amp;&amp; echo enabled || echo disabled'<br/>
+# 	quick test with: 'getenforce'<br/>
+# 	quick test with: 'sestatus'<br/>
+# 	show security contexts: 'sestatus -v' <br/>
+# 	show booleans: 'sestatus -b | grep on$'<br/>
+# 	temp disable: 'setenforce 0'<br/>
+#<br/>
+#system_selinux_main () {<br/>
+#	if [ &quot;`kernel_selinux_enforce`&quot; -eq 0 ]<br/>
+#	then<br/>
+#		stdio_message_warn &quot;system_selinux&quot; &quot;SELinux does not enforce system-wide&quot;<br/>
+#	else<br/>
+#		stdio_message_debug &quot;system_selinux&quot; &quot;SELinux enforces system-wide&quot;<br/>
+#	fi<br/>
+#}<br/>
+#<br/>
+# check NX bit / logging<br/>
+#	'if kernel_nx or SunOS'<br/>
+#<br/>
+#system_nx_main () {<br/>
+#	if [ &quot;`kernel_nx`&quot; -eq 0 ]<br/>
+#	then<br/>
+#		stdio_message_warn &quot;system_nx&quot; &quot;The CPU does not support NX&quot;<br/>
+#	else<br/>
+#		stdio_message_debug &quot;system_nx&quot; &quot;The CPU supports NX&quot;<br/>
+#	fi<br/>
+#<br/>
+# check mmap (memory map) allows mapping to zero<br/>
+#<br/>
+#system_mmap_main () {<br/>
+#	if [ &quot;`kernel_mmap_zero_allowed`&quot; -eq 1 ]<br/>
+#	then<br/>
+#		stdio_message_warn &quot;system_mmap&quot; &quot;mmap allows map to 0&quot;<br/>
+#	else<br/>
+#		stdio_message_debug &quot;system_mmap&quot; &quot;mmap does not allow map to 0&quot;<br/>
+#	fi<br/>
+#}<br/>
+#<br/>
+# extensive file permissions checker. Looks for the following:<br/>
+#	&quot;`permission_is_world_writable_sticky_bit \&quot;${permissions}\&quot;`&quot; -eq 1				(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})&quot;	<br/>
+#	&quot;`group_is_in_group_name \&quot;${groupid}\&quot;`&quot; -eq 1										(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})&quot;<br/>
+#	 &quot;`user_is_root \&quot;${userid}\&quot;`&quot; -ne 1 -a &quot;`user_show_user_name`&quot; = &quot;${userid}&quot;		(${systemfilename}) ${filename} is owned by user ${userid} (YOU) (group ${groupid}), non-root user (${permissions})&quot;<br/>
+#<br/>
+# check sensitive files:<br/>
+#	sensitive_config_files=&quot;<br/>
+#	/etc/passwd<br/>
+#	/etc/shadow<br/>
+#	/etc/master.passwd<br/>
+#	/etc/security/passwd<br/>
+#	/etc/group<br/>
+#	/etc/cron<br/>
+#	/etc/fstab<br/>
+#	/etc/init<br/>
+#	/etc/rc<br/>
+#	/etc/inetd<br/>
+#	/etc/xinetd<br/>
+#	/etc/bash.bashrc<br/>
+#	/etc/profile<br/>
+#	/etc/sudoers<br/>
+#	/etc/hosts.equiv<br/>
+#	/etc/shosts.equiv&quot;<br/>
+#<br/>
+# check ASLR<br/>
+#system_aslr_main () {<br/>
+#	if [ &quot;`kernel_aslr`&quot; -eq 0 ]<br/>
+#	then<br/>
+#		if [ &quot;`kernel_aslr_pax`&quot; -eq 0 ]<br/>
+#		then<br/>
+#			stdio_message_warn &quot;system_aslr&quot; &quot;ASLR is not supported system-wide&quot;<br/>
+#		else<br/>
+#			stdio_message_debug &quot;system_aslr&quot; &quot;PAX ASLR is supported system-wide&quot;<br/>
+#		fi<br/>
+#	elif [ &quot;`kernel_aslr`&quot; -eq 1 ]<br/>
+#	then<br/>
+#		stdio_message_log &quot;system_aslr&quot; &quot;Conservative ASLR is supported system-wide (heap addresses are not randomized)&quot;<br/>
+#	else<br/>
+#		stdio_message_debug &quot;system_aslr&quot; &quot;ASLR is supported system-wide&quot;<br/>
+#	fi<br/>
+#}<br/>
+#<br/>
+# check /etc/sudoers and list permissions/groups<br/>
+# check for readable and or encrypted ssh keys <br/>
+# check for running ssh agents and try to identify the key in use<br/>
+# check lib/misc/shadow and if readable check for users with no password<br/>
+# find files with setuid bit set (runs as root)<br/>
+# find files with the setgid bit set (runs as group)<br/>
+# Check PostgreSQL trust relationships<br/>
+# Verify PostgreSQL trust relationships by connecting to localhost with common usernames and no password<br/>
+# Check permissions of PostgreSQL configuration file pg_hba.conf<br/>
+# List users with no password set or password in /etc/passwd (also checked in system_configuration)<br/>
+# Check if NIS is used for authentication<br/>
+# Check if LDAP is used for authentication<br/>
+# List potentially sensitive files (world readable etc)<br/>
+# List all jar files<br/>
+# Check for writable permission on home directories<br/>
+# Check for readable and executable permissions on home directories<br/>
+# List all .*_history files<br/>
+# List group-writable files<br/>
+# Check if the gpg-agent is running<br/>
+# Check for world-readable and world-writable permissions on devices files<br/>
+# Check for weak options on devices files<br/>
+# Check for read permissions on sensitive files<br/>
+# (priv) List group-writable and world-writable privileged files (their parent directories too) and processes<br/>
+# (priv) Check if privileged files call temporary files handling functions. Based on ideas found at http://people.redhat.com/sgrubb/security/<br/>
+# (priv) Check for stack canary (SSP) support<br/>
+# (priv) List group-writable and world-writable privileged files (their parent directories too) and processes that trust other filepaths (with RPATH variable)<br/>
+# (priv) Check if privileged files call random() or strand() functions<br/>
+# (priv) Check for PIE (ASLR-compliant executable) support Based on ideas found at http://people.redhat.com/sgrubb/security/<br/>
+# (priv) Check if privileged files set PATH variable Based on ideas found at http://people.redhat.com/sgrubb/security/<br/>
+# (priv) Check for NX (NoExecute) support (privileged vs unprivileged check above)<br/>
+# (priv) Check if textual privileged files (like bash scripts) use environment variables<br/>
+# (priv) Check for write permissions over privileged files and processes' linked libraries<br/>
+# (priv) Check if privileged files calling chroot() function call also chdir() function Based on ideas found at http://people.redhat.com/sgrubb/security/<br/>
+# (priv) Check if privileged files drop their privileges Based on ideas found at http://people.redhat.com/sgrubb/security/<br/>
+# (priv) Check if privileged files call banned (and potentially dangerous) functions Based on Microsoft's banned API list as parsed by ../../tools/generate_banned.sh **update script?**<br/>
+# (priv) Check if textual privileged files (like bash scripts) accept user-provided arguments<br/>
+#<br/>
+#<br/>
+#<br/>
+###############################################################################################################</body></html>

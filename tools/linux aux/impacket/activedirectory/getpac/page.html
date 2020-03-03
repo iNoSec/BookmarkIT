@@ -1,0 +1,30 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>getPac</title>
+</head><body># Description:<br/>
+#   This script will get the PAC of the specified target user just having a normal authenticated user credentials.<br/>
+#   It does so by using a mix of [MS-SFU]'s S4USelf + User to User Kerberos Authentication.<br/>
+#   Original idea (or accidental discovery :) ) of adding U2U capabilities inside a S4USelf by Benjamin Delpy (@gentilkiwi)<br/>
+#<br/>
+# References:<br/>
+#<br/>
+#   U2U: https://tools.ietf.org/html/draft-ietf-cat-user2user-02<br/>
+#   [MS-SFU]: https://msdn.microsoft.com/en-us/library/cc246071.aspx<br/>
+<br/>
+sage: getPac.py [-h] -targetUser TARGETUSER [-debug] [-hashes LMHASH:NTHASH]<br/>
+        credentials<br/>
+<br/>
+positional arguments:<br/>
+ credentials      domain/username[:password]. Valid domain credentials<br/>
+            to use for grabbing targetUser's PAC<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -targetUser TARGETUSER<br/>
+            the target user to retrieve the PAC of<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH</body></html>

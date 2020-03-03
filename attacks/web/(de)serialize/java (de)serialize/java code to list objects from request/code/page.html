@@ -1,0 +1,53 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>New Page</title>
+</head><body>import java.util.Base64;<br/>
+import java.io.InputStream;<br/>
+import java.io.ByteArrayInputStream;<br/>
+import java.io.ObjectInputStream;<br/>
+import java.io.OptionalDataException;<br/>
+import java.io.StreamCorruptedException;<br/>
+import java.util.Arrays;<br/>
+<br/>
+public class DecodeObject{<br/>
+  public static void main(String args[]) throws Exception{<br/>
+    int skip=0;<br/>
+    int remainder = 0;<br/>
+    String b64 = args[0];<br/>
+    byte[] bytes = Base64.getDecoder().decode(b64);<br/>
+    ByteArrayInputStream bis = new ByteArrayInputStream(bytes);<br/>
+    int origSize = bis.available();<br/>
+    System.out.println(&quot;Data Length: &quot;+origSize);<br/>
+    Object o = null;<br/>
+    while(o == null){<br/>
+      try{<br/>
+        bis.reset();<br/>
+        bis.skip(skip);<br/>
+        ObjectInputStream ois = new ObjectInputStream(bis);<br/>
+        o = ois.readObject();<br/>
+        <br/>
+        System.out.println(&quot;Object found...&quot;);<br/>
+        System.out.println(o.getClass().getName());<br/>
+        System.out.println(&quot;Bytes skipped: &quot;+skip);<br/>
+        System.out.println(&quot;Bytes left: &quot;+bis.available());<br/>
+        skip = origSize - bis.available();<br/>
+      }<br/>
+      catch (StreamCorruptedException ode){<br/>
+        skip = skip+1;<br/>
+        bis.skip(1);<br/>
+      }<br/>
+      catch (OptionalDataException ode){<br/>
+        bis.skip(1);<br/>
+        skip = skip+1;<br/>
+      }<br/>
+      catch (ClassNotFoundException cnf)<br/>
+      {<br/>
+        System.out.println(&quot;Object found...&quot;+cnf.getMessage());<br/>
+        System.out.println(&quot;Bytes skipped: &quot;+skip);<br/>
+        System.out.println(&quot;Bytes left: &quot;+bis.available());<br/>
+        skip = origSize - bis.available();<br/>
+      }<br/>
+    }<br/>
+  }<br/>
+}</body></html>

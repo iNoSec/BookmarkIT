@@ -1,0 +1,37 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Antivirusproduct</title>
+</head><body>Uses WMIC to attempt to enumerate AV products<br/>
+Does not need admin<br/>
+<br/>
+function Get-AntiVirusProduct { <br/>
+   [CmdletBinding()] <br/>
+   param ( <br/>
+   [parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)] <br/>
+   [Alias('name')] <br/>
+   $ComputerName=$env:computername )<br/>
+   $Query = 'select * from AntiVirusProduct'<br/>
+   $AntivirusProduct = Get-WmiObject -Namespace 'root\SecurityCenter2' -Query $Query @psboundparameters -ErrorVariable myError -ErrorAction 'SilentlyContinue'<br/>
+   switch ($AntiVirusProduct.productState) { <br/>
+     '262144' {$defstatus = 'Up to date' ;$rtstatus = 'Disabled'} <br/>
+     '262160' {$defstatus = 'Out of date' ;$rtstatus = 'Disabled'} <br/>
+     '266240' {$defstatus = 'Up to date' ;$rtstatus = 'Enabled'} <br/>
+     '266256' {$defstatus = 'Out of date' ;$rtstatus = 'Enabled'} <br/>
+     '393216' {$defstatus = 'Up to date' ;$rtstatus = 'Disabled'} <br/>
+     '393232' {$defstatus = 'Out of date' ;$rtstatus = 'Disabled'} <br/>
+     '393488' {$defstatus = 'Out of date' ;$rtstatus = 'Disabled'} <br/>
+     '397312' {$defstatus = 'Up to date' ;$rtstatus = 'Enabled'} <br/>
+     '397328' {$defstatus = 'Out of date' ;$rtstatus = 'Enabled'} <br/>
+     '397584' {$defstatus = 'Out of date' ;$rtstatus = 'Enabled'} <br/>
+     default {$defstatus = 'Unknown' ;$rtstatus = 'Unknown'} <br/>
+     }<br/>
+   $ht = @{} <br/>
+   $ht.Computername = $ComputerName <br/>
+   $ht.Name = $AntiVirusProduct.displayName <br/>
+   $ht.ProductExecutable = $AntiVirusProduct.pathToSignedProductExe <br/>
+   $ht.'Definition Status' = $defstatus <br/>
+   $ht.'Real-time Protection Status' = $rtstatus<br/>
+   New-Object -TypeName PSObject -Property $ht<br/>
+}<br/>
+Get-AntiVirusProduct &quot;&quot;&quot;</body></html>

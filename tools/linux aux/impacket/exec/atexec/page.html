@@ -1,0 +1,38 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>ATExec</title>
+</head><body>atexec.py<br/>
+<br/>
+This example executes a command on the target machine through the Task Scheduler service. Returns the output of such command<br/>
+<br/>
+# ATSVC example for some functions implemented, creates, enums, runs, delete jobs<br/>
+# This example executes a command on the target machine through the Task Scheduler <br/>
+# service. Returns the output of such command<br/>
+<br/>
+[!] This will work ONLY on Windows &gt;= Vista<br/>
+usage: atexec.py [-h] [-debug] [-hashes LMHASH:NTHASH] [-no-pass] [-k]<br/>
+        [-aesKey hex key] [-dc-ip ip address]<br/>
+        target [command [command ...]]<br/>
+<br/>
+positional arguments:<br/>
+ target        [[domain/]username[:password]@]&lt;targetName or address&gt;<br/>
+ command        command to execute at the target<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+ -dc-ip ip address   IP Address of the domain controller. If omitted it<br/>
+            will use the domain part (FQDN) specified in the<br/>
+            target parameter</body></html>

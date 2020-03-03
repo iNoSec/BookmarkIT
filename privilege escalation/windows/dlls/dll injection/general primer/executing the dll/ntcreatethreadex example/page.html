@@ -1,0 +1,81 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>NtCreateThreadEx Example</title>
+</head><body>struct NtCreateThreadExBuffer {<br/>
+ULONG Size;<br/>
+ULONG Unknown1;<br/>
+ULONG Unknown2;<br/>
+PULONG Unknown3;<br/>
+ULONG Unknown4;<br/>
+ULONG Unknown5;<br/>
+ULONG Unknown6;<br/>
+PULONG Unknown7;<br/>
+ULONG Unknown8;<br/>
+}; <br/>
+<br/>
+<br/>
+typedef NTSTATUS (WINAPI *LPFUN_NtCreateThreadEx) (<br/>
+OUT PHANDLE hThread,<br/>
+IN ACCESS_MASK DesiredAccess,<br/>
+IN LPVOID ObjectAttributes,<br/>
+IN HANDLE ProcessHandle,<br/>
+IN LPTHREAD_START_ROUTINE lpStartAddress,<br/>
+IN LPVOID lpParameter,<br/>
+IN BOOL CreateSuspended,<br/>
+IN ULONG StackZeroBits,<br/>
+IN ULONG SizeOfStackCommit,<br/>
+IN ULONG SizeOfStackReserve,<br/>
+OUT LPVOID lpBytesBuffer<br/>
+);<br/>
+<br/>
+HANDLE bCreateRemoteThread(HANDLE hHandle, LPVOID loadLibAddr, LPVOID dllPathAddr) {<br/>
+<br/>
+HANDLE hRemoteThread = NULL;<br/>
+<br/>
+LPVOID ntCreateThreadExAddr = NULL;<br/>
+NtCreateThreadExBuffer ntbuffer;<br/>
+DWORD temp1 = 0; <br/>
+DWORD temp2 = 0; <br/>
+<br/>
+ntCreateThreadExAddr = GetProcAddress(GetModuleHandle(TEXT(&quot;ntdll.dll&quot;)), &quot;NtCreateThreadEx&quot;);<br/>
+<br/>
+if( ntCreateThreadExAddr ) {<br/>
+<br/>
+ ntbuffer.Size = sizeof(struct NtCreateThreadExBuffer);<br/>
+ ntbuffer.Unknown1 = 0x10003;<br/>
+ ntbuffer.Unknown2 = 0x8;<br/>
+ ntbuffer.Unknown3 = &amp;temp2;<br/>
+ ntbuffer.Unknown4 = 0;<br/>
+ ntbuffer.Unknown5 = 0x10004;<br/>
+ ntbuffer.Unknown6 = 4;<br/>
+ ntbuffer.Unknown7 = &amp;temp1;<br/>
+ ntbuffer.Unknown8 = 0;<br/>
+<br/>
+ LPFUN_NtCreateThreadEx funNtCreateThreadEx = (LPFUN_NtCreateThreadEx)ntCreateThreadExAddr;<br/>
+ NTSTATUS status = funNtCreateThreadEx(<br/>
+     &amp;hRemoteThread,<br/>
+     0x1FFFFF,<br/>
+     NULL,<br/>
+     hHandle,<br/>
+     (LPTHREAD_START_ROUTINE)loadLibAddr,<br/>
+     dllPathAddr,<br/>
+     FALSE,<br/>
+     NULL,<br/>
+     NULL,<br/>
+     NULL,<br/>
+     &amp;ntbuffer<br/>
+     );<br/>
+ <br/>
+ if (hRemoteThread == NULL) {<br/>
+ printf(&quot;\t[!] NtCreateThreadEx Failed! [%d][%08x]\n&quot;, GetLastError(), status);<br/>
+ return NULL;<br/>
+ } else {<br/>
+ return hRemoteThread;<br/>
+ }<br/>
+} else {<br/>
+ printf(&quot;\n[!] Could not find NtCreateThreadEx!\n&quot;);<br/>
+}<br/>
+return NULL;<br/>
+<br/>
+}</body></html>

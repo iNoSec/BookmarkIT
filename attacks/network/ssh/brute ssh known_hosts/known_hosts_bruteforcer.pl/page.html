@@ -1,0 +1,257 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>known_hosts_bruteforcer.pl</title>
+</head><body>#!/usr/bin/perl<br/>
+#<br/>
+# SSH known_hosts file bruteforcer<br/>
+#<br/>
+# v1.0 - Xavier Mertens &lt;xavier(at)rootshell(dot)be&gt;<br/>
+#<br/>
+# This Perl script read a SSH known_host file containing hashed hosts and try to find hostnames<br/>
+# or IP addresses<br/>
+#<br/>
+# 20101103 : Created<br/>
+#<br/>
+# Todo<br/>
+# ----<br/>
+# - Support for IPv6 addresses<br/>
+# - Increase performances<br/>
+#<br/>
+<br/>
+use Getopt::Std;<br/>
+use Digest::HMAC_SHA1;<br/>
+use MIME::Base64;<br/>
+use Net::IP;<br/>
+<br/>
+$MAXLEN = 8;				# Maximum hostnames length to check<br/>
+$MAXIP = 4294967296; # 2^32		# The whole IPv4 space<br/>
+<br/>
+@saltStr  = ();<br/>
+@base64Str = ();<br/>
+$idx    = 0;<br/>
+<br/>
+# Process the arguments<br/>
+getopts(&quot;d:f:l:s:ivh&quot;, \%options);<br/>
+<br/>
+# Some help is sometimes useful<br/>
+if ($options{h}) {<br/>
+	print &lt;&lt;EOF;<br/>
+Usage: known_hosts_bruteforcer.pl [options]<br/>
+<br/>
+ -d &lt;domain&gt;  Specify a domain name to append to hostnames (default: none)<br/>
+ -f &lt;file&gt;   Specify the known_hosts file to bruteforce (default: $HOME/.ssh/known_hosts)<br/>
+ -i      Bruteforce IP addresses (default: hostnames)<br/>
+ -l &lt;integer&gt; Specify the hostname maximum length (default: 8)<br/>
+ -s &lt;string&gt;  Specify an initial IP address or password (default: none)<br/>
+ -v      Verbose output<br/>
+ -h      Print this help, then exit<br/>
+EOF<br/>
+	exit;<br/>
+}<br/>
+<br/>
+# SSH Keyfile to process (default: $HOME/.ssh/known_hosts)<br/>
+$knownhostFile = ($options{f} ne &quot;&quot;) ? $options{f} : $ENV{HOME} . &quot;/.ssh/known_hosts&quot;;<br/>
+if (! -r $knownhostFile) {<br/>
+	print STDERR &quot;Cannot read file $knownhostFile ...\n&quot;;<br/>
+	exit 1;<br/>
+}<br/>
+<br/>
+# Max password length (default: 8)<br/>
+$passwordLen = ($options{l} ne &quot;&quot;) ? $options{l} : $MAXLEN;<br/>
+if ($passwordLen &lt; 1 || $passwordLen &gt; 30) {<br/>
+	print STDERR &quot;Invalid maximum password length: $passwordLen ...\n&quot;;<br/>
+	exit 1;<br/>
+}<br/>
+<br/>
+# Domain name to append<br/>
+$domainName = $options{d};<br/>
+<br/>
+# Verbose mode<br/>
+$verbose = ($options{v}) ? 1 : 0;<br/>
+<br/>
+# IP address mode<br/>
+$ipMode = ($options{i}) ? 1 : 0;<br/>
+<br/>
+# Starting IP or password?<br/>
+# To increase the speed of run the script across multiple computers,<br/>
+# an initial hostname or IP address can be given<br/>
+$initialStr = $options{s};<br/>
+<br/>
+# First read the known_hosts file and populate the lists<br/>
+# Only hashed hosts are processed<br/>
+($verbose) &amp;&amp; print STDERR &quot;Reading hashes from $knownhostFile ...\n&quot;;<br/>
+open(HOSTFILE, &quot;$knownhostFile&quot;) || die &quot;Cannot open $knownhostFile&quot;;<br/>
+while(&lt;HOSTFILE&gt;) {<br/>
+	($hostHash, $keyType, $publicKey) = split(/ /);<br/>
+	if ($hostHash =~ m/\|1\|/) {<br/>
+		($dummy, $one, $saltStr[$idx], $base64Str[$idx]) = split(/\|/, $hostHash);<br/>
+		$idx++;<br/>
+	}<br/>
+}<br/>
+close(HOSTFILE);<br/>
+<br/>
+# ---------<br/>
+# Main Loop<br/>
+# ---------<br/>
+<br/>
+$loops=0;<br/>
+while(1) {<br/>
+	if ($ipMode) {<br/>
+		# Generate an IP address using the main loop counter<br/>
+		# Don't go beyond the IPv4 scope (2^32 addresses)<br/>
+		if ($loops &gt; $MAXIP) {<br/>
+			print &quot;Done.\n&quot;;<br/>
+			exit 0;<br/>
+		}<br/>
+<br/>
+		# If we have an initial IP, check the syntax and use it<br/>
+		if ($initialStr ne &quot;&quot;) {<br/>
+			my $ip = new Net::IP($initialStr);<br/>
+			$initialIP = $ip-&gt;intip();<br/>
+		}<br/>
+		else {<br/>
+			$initialIP = 0;<br/>
+		}<br/>
+		$tmpHost = sprintf(&quot;%vd&quot;, pack(&quot;N&quot;, $loops + $initialIP));<br/>
+	}<br/>
+	else {<br/>
+		# Generate a temporary hostname (starting with an initial value if provided)<br/>
+		$tmpHost = generateHostname($initialStr);<br/>
+		if (length($tmpHost) &gt; $passwordLen) {<br/>
+			print &quot;Done.\n&quot;;<br/>
+			exit 0;<br/>
+		}<br/>
+<br/>
+		# Append the domain name if provided<br/>
+		if ($domainName) {<br/>
+			$tmpHost = $tmpHost . &quot;.&quot; . $domainName;<br/>
+		}<br/>
+	}<br/>
+<br/>
+	# In verbose mode, display a line every 1000 attempts<br/>
+	($verbose) &amp;&amp; (($loops % 1000) == 0) &amp;&amp; print STDERR &quot;Testing: $tmpHost ($loops probes) ...\n&quot;;<br/>
+	<br/>
+	if ($line = searchHash($tmpHost)) {<br/>
+		printf(&quot;*** Found host: %s (line %d) ***\n&quot;, $tmpHost, $line + 1);<br/>
+	}<br/>
+<br/>
+	$loops++;<br/>
+}<br/>
+<br/>
+#<br/>
+# Generate SHA1 hashes of a hostname/IP and compare it to the available hashes<br/>
+# Returns the line index of the initial known_hosts file<br/>
+#<br/>
+sub searchHash() {<br/>
+	$host = shift;<br/>
+	($host) || return 0;<br/>
+<br/>
+	# Process the list containing our hashes<br/>
+	# For each one, generate a new hash and compare it<br/>
+	for ($i = 0; $i &lt; scalar(@saltStr); $i++) {<br/>
+		$decoded = decode_base64($saltStr[$i]);<br/>
+		$hmac = Digest::HMAC_SHA1-&gt;new($decoded);<br/>
+		$hmac-&gt;add($host);<br/>
+		$digest = $hmac-&gt;b64digest;<br/>
+		$digest .= &quot;=&quot;; # Quick fix ;-)<br/>
+		if ($digest eq $base64Str[$i]) {<br/>
+			return $i;<br/>
+		}<br/>
+	}<br/>
+	return 0;<br/>
+}<br/>
+<br/>
+#<br/>
+# Generate a hostname based on a given set of allowed caracters<br/>
+# This sub-routine is based on:<br/>
+# bruteforce 0.01 alpha<br/>
+# Written by Tony Bhimani<br/>
+# (C) Copyright 2004<br/>
+# http://www.xenocafe.com<br/>
+#<br/>
+<br/>
+sub generateHostname {<br/>
+	$initialPwd = shift;<br/>
+<br/>
+	$alphabet = &quot;abcdefghijklmnopqrstuvwxyz0123456789-&quot;;<br/>
+	@tmpPwd = ();<br/>
+	$firstChar = substr($alphabet, 0, 1);<br/>
+	$lastChar = substr($alphabet, length($alphabet)-1, 1);<br/>
+<br/>
+	# If an initial password is provided, start with this one<br/>
+	if ($initialPwd ne &quot;&quot; &amp;&amp; $currentPwd eq &quot;&quot;) {<br/>
+		$currentPwd = $initialPwd;<br/>
+		return $currentPwd;<br/>
+	}<br/>
+<br/>
+	# No password so start with the first character in our alphabet<br/>
+	if ($currentPwd eq &quot;&quot;) {<br/>
+		$currentPwd= $firstChar;<br/>
+		return $currentPwd;<br/>
+	}<br/>
+<br/>
+	# If the current password is all of the last character in the alphabet<br/>
+	# then reset it with the first character of the alphabet plus 1 length greater<br/>
+	if ($currentPwd eq fillString(length($currentPwd), $lastChar)) {<br/>
+		$currentPwd = fillString(length($currentPwd) + 1, $firstChar);<br/>
+		return $currentPwd;<br/>
+	}<br/>
+ <br/>
+	# Convert the password to an array<br/>
+	@tmpPwd = split(//, $currentPwd);<br/>
+ <br/>
+	# Get the length of the password - 1 (zero based index)<br/>
+	$x = @tmpPwd - 1;<br/>
+<br/>
+	# This portion adjusts the characters<br/>
+	# We go through the array starting with the end of the array and work our way backwords<br/>
+	# if the character is the last one in the alphabet, we change it to the first character<br/>
+	# then move to the next array character<br/>
+	# if we aren't looking at the last alphabet character then we change the array character<br/>
+	# to the next higher value and exit the loop<br/>
+	while (1) {<br/>
+		$iTemp = getPos($alphabet, $tmpPwd[$x]);<br/>
+ <br/>
+		if ($iTemp == getPos($alphabet, $lastChar)) {<br/>
+			@tmpPwd[$x] = $firstChar;<br/>
+			$x--;<br/>
+		} else {<br/>
+			@tmpPwd[$x] = substr($alphabet, $iTemp + 1, 1);<br/>
+			last;<br/>
+		}<br/>
+	}<br/>
+ <br/>
+	# Convert the array back into a string and return the new password to try<br/>
+	$currentPwd = join(&quot;&quot;, @tmpPwd);<br/>
+  <br/>
+	return $currentPwd;<br/>
+}<br/>
+<br/>
+#<br/>
+# Fill a string with the same caracter<br/>
+#<br/>
+<br/>
+sub fillString {<br/>
+	my ($len, $char) = (shift, shift);<br/>
+	$str = &quot;&quot;;<br/>
+	for ($i=0; $i&lt;$len; $i++) {<br/>
+		$str .= $char;<br/>
+	}<br/>
+	return $str;<br/>
+}<br/>
+<br/>
+#<br/>
+# Return the position of a caracter in a string<br/>
+#<br/>
+<br/>
+sub getPos {<br/>
+	my ($alphabet, $char) = (shift, shift);<br/>
+	for ($i=0; $i&lt;length($alphabet); $i++) {<br/>
+		if ($char eq substr($alphabet, $i, 1)) {<br/>
+			return $i;<br/>
+		}<br/>
+	}<br/>
+}<br/>
+<br/>
+# Eof</body></html>

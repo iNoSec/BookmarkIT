@@ -1,0 +1,242 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Queries</title>
+</head><body>Some can only be run by admin, marked by * or -priv<br/>
+<br/>
+Version 				select dbmsinfo(‘_version’);<br/>
+Comments 			SELECT 123; — comment<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select 123; /* comment */</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Current User 			select dbmsinfo(‘session_user’);<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select dbmsinfo(‘system_user’);</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Users 			First connect to iidbdb, then:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT name, password FROM iiuser; — or</li>
+<li style="list-style-type: none"> SELECT own FROM iidatabase;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Create Users 			create user testuser with password = ‘testuser’;– priv<br/>
+List Password Hashes 	First connect to iidbdb, then:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">  select name, password from iiuser;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Privileges 		select dbmsinfo(‘db_admin’);<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select dbmsinfo(‘create_table’);</li>
+<li style="list-style-type: none"> select dbmsinfo(‘create_procedure’);</li>
+<li style="list-style-type: none"> select dbmsinfo(‘security_priv’);</li>
+<li style="list-style-type: none"> select dbmsinfo(‘select_syscat’);</li>
+<li style="list-style-type: none"> select dbmsinfo(‘db_privileges’);</li>
+<li style="list-style-type: none"> select dbmsinfo(‘current_priv_mask’);</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List DBA Accounts 		TODO<br/>
+Current Database 		select dbmsinfo(‘database’);<br/>
+List Databases 		SELECT name FROM iidatabase; — connect to iidbdb<br/>
+List Columns 			select column_name, column_datatype, table_name, table_owner from iicolumns;<br/>
+List Tables 			select table_name, table_owner from iitables;<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select relid, relowner, relloc from iirelation;</li>
+<li style="list-style-type: none"> select relid, relowner, relloc from iirelation where relowner != ‘$ingres’;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Find Tables From <br/>
+Column Name 		SELECT table_name, table_owner FROM iicolumns WHERE column_name = ‘value’<br/>
+Select Nth Row 		Astoundingly, this doesn’tseem to be possible! This is as close as you can get:select top 10 blah from table;<br/>
+select first 10 blah form table;<br/>
+Select Nth Char 		select substr(‘abc’, 2, 1); — returns ‘b’<br/>
+Bitwise AND 			The function “bit_and” exists, but seems hard to use. Here’s an<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> example of ANDing 3 and 5 together. The result is a “byte” type</li>
+<li style="list-style-type: none"> with value ?01:select substr(bit_and(cast(3 as byte), cast(5 as byte)),1,1);</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ASCII Value -&gt; Char 	TODO<br/>
+Char -&gt; ASCII Value 	TODO<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> (The “ascii” function exists, but doesn’t seem to do what I’d expect.)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Casting 				select cast(123 as varchar);<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select cast(’123′ as integer);</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+String Concatenation 	select ‘abc’ || ‘def’;<br/>
+If Statement 			TODO<br/>
+Case Statement 		TODO<br/>
+Avoiding Quotes 		TODO<br/>
+Time Delay 			???See Heavy Queries article for some ideas.<br/>
+Make DNS Requests 	TODO<br/>
+Command Execution 	Impossible?<br/>
+Local File Access 		TODO<br/>
+Hostname, IP Address 	SELECT dbmsinfo(‘ima_server’)<br/>
+Location of DB files 	SELECT dbdev, ckpdev, jnldev, sortdev FROM iidatabase WHERE name = ‘value’ — primary location of db<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> SELECT lname FROM iiextend WHERE dname = ‘value’ — extended location of db</li>
+<li style="list-style-type: none"> SELECT are FROM iilocations where lname = ‘value’ – all area (ie directory) linked with a location</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Default/System <br/>
+Databases 			SELECT name FROM iidatabase WHERE own = ‘$ingres’ — connect to iidbdb<br/>
+Installing Locally 		The Ingres database can be downloaded for free from http://esd.ingres.com/<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> A pre-built Linux-based Ingres Database Server can be download from http://www.vmware.com/appliances/directory/832</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Database Client 		TODO<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> There is a client called “sql” which can be used for local connections (at least) in the database server package above.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Logging in from <br/>
+command line 		$ su - ingres<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> $ sql iidbdb</li>
+<li style="list-style-type: none"> * select dbmsinfo(‘_version’); go</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Identifying on the network 	TODO<br/>
+<br/>
+The following areas are interesting enough to include on this page, but I haven’t researched them for other databases:<br/>
+Description 			SQL / Comments <br/>
+Batching Queries <br/>
+Allowed? 			Not via DBI in PERL. Subsequent statements seem to get ignored:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select blah from table where foo = 1; select … doesn’t matter this is ignored.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+FROM clause <br/>
+mandated in SELECTs? 	No. You don’t need to select form “dual” or anything. The following is legal:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select 1;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+UNION supported 		Yes. Nothing tricky here. The following is legal:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select 1 union select 2;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Enumerate Tables Privs select table_name, permit_user, permit_type from iiaccess;<br/>
+Length of a string 		select length(‘abc’); — returns 3<br/>
+Roles and passwords 	First you need to connect to iidbdb, then:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select roleid, rolepass from iirole;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+List Database <br/>
+Procedures 			First you need to connect to iidbdb, then:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> select dbp_name, dbp_owner from iiprocedure;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+Create Users + <br/>
+Granting Privs 		First you need to connect to iidbdb, then:<ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none"> create user pm with password = ‘password’;</li>
+<li style="list-style-type: none"> grant all on current installation to pm;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</body></html>

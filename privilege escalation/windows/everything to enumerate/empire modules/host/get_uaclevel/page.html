@@ -1,0 +1,47 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Get_UACLevel</title>
+</head><body>Enumerates UAC Level<br/>
+Does not need Admin<br/>
+<br/>
+Grabs registry key values and maps them to UAC level<br/>
+<br/>
+function Get-UACLevel<br/>
+{<br/>
+  &lt;# <br/>
+  .Synopsis<br/>
+   Enumerates the UAC Level<br/>
+   Author: Petr Medonos<br/>
+  .DESCRIPTION<br/>
+   Enumerates the UAC Level<br/>
+  .EXAMPLE<br/>
+   C:\&gt; Get-UACLevel<br/>
+  #&gt; <br/>
+  New-Variable -Name Key <br/>
+  New-Variable -Name PromptOnSecureDesktop_Name <br/>
+  New-Variable -Name ConsentPromptBehaviorAdmin_Name <br/>
+  <br/>
+  <br/>
+  $Key = &quot;HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System&quot; <br/>
+  $ConsentPromptBehaviorAdmin_Name = &quot;ConsentPromptBehaviorAdmin&quot; <br/>
+  $PromptOnSecureDesktop_Name = &quot;PromptOnSecureDesktop&quot; <br/>
+  <br/>
+  $ConsentPromptBehaviorAdmin_Value = (Get-ItemProperty $Key $ConsentPromptBehaviorAdmin_Name).$ConsentPromptBehaviorAdmin_Name<br/>
+  $PromptOnSecureDesktop_Value = (Get-ItemProperty $Key $PromptOnSecureDesktop_Name).$PromptOnSecureDesktop_Name<br/>
+  If($ConsentPromptBehaviorAdmin_Value -Eq 0 -And $PromptOnSecureDesktop_Value -Eq 0){ <br/>
+    &quot;Never notify&quot; <br/>
+  }  <br/>
+  ElseIf($ConsentPromptBehaviorAdmin_Value -Eq 5 -And $PromptOnSecureDesktop_Value -Eq 0){ <br/>
+    &quot;Notify me only when apps try to make changes to my computer (do not dim my desktop)&quot; <br/>
+  }  <br/>
+  ElseIf($ConsentPromptBehaviorAdmin_Value -Eq 5 -And $PromptOnSecureDesktop_Value -Eq 1){ <br/>
+    &quot;Notify me only when apps try to make changes to my computer (default)&quot; <br/>
+  }  <br/>
+  ElseIf($ConsentPromptBehaviorAdmin_Value -Eq 2 -And $PromptOnSecureDesktop_Value -Eq 1){ <br/>
+    &quot;Always notify&quot; <br/>
+  }  <br/>
+  Else{ <br/>
+    &quot;Unknown&quot; <br/>
+  }  <br/>
+} Get-UACLevel&quot;&quot;&quot;</body></html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>32bit Shell Code</title>
+</head><body>0x68, 0xCC, 0xCC, 0xCC, 0xCC,  // push 0xDEADBEEF (placeholder for return address)<br/>
+0x9c,              // pushfd (save flags and registers)<br/>
+0x60,              // pushad<br/>
+0x68, 0xCC, 0xCC, 0xCC, 0xCC,  // push 0xDEADBEEF (placeholder for DLL path name)<br/>
+0xb8, 0xCC, 0xCC, 0xCC, 0xCC,  // mov eax, 0xDEADBEEF (placeholder for LoadLibrary)<br/>
+0xff, 0xd0,           // call eax (call LoadLibrary)<br/>
+0x61,              // popad (restore flags and registers)<br/>
+0x9d,              // popfd<br/>
+0xc3              // ret</body></html>

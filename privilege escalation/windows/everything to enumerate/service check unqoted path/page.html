@@ -1,0 +1,10 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Service Check: Unqoted Path</title>
+</head><body>WMIC: wmic service get name,pathname,startmode,startname | findstr /i &quot;localsystem&quot; | findstr /v /i &quot;disabled&quot; | findstr /i /v &quot;c:\windows\\&quot; | findstr /v &quot;&quot;&quot;<br/>
+<br/>
+PowerShell: Get-WmiObject win32_service | select Name,PathName,StartMode,StartName | where {$_.StartMode -ne &quot;Disabled&quot; -and $_.StartName -eq &quot;LocalSystem&quot; -and $_.PathName -notmatch &quot;`&quot;&quot; -and $_.PathName -notmatch &quot;C:\\Windows&quot;} | Format-List<br/>
+<br/>
+PowerSploit: Get-ServiceUnquoted<br/>
+</body></html>

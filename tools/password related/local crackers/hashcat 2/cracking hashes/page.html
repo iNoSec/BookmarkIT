@@ -1,0 +1,18 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Cracking Hashes</title>
+</head><body><a href="https://uwnthesis.wordpress.com/2013/08/07/kali-how-to-crack-passwords-using-hashcat/">https://uwnthesis.wordpress.com/2013/08/07/kali-how-to-crack-passwords-using-hashcat/ </a>| Visual step by step to using Hashcat<br/>
+<br/>
+In a Terminal window, execute these commands:<br/>
+<br/>
+  ./hashcat-cli32.bin -m 1800 -a 0 -o found1.txt --remove crack1.hash 500_passwords.txt<br/>
+<br/>
+Explanation: This uses hashcat with these options:<br/>
+<br/>
+  Unix type 6 password hashes (-m 1800)<br/>
+  Using a dictionary attack (-a 0)<br/>
+  Putting output in the file found1.txt<br/>
+  Removing each hash as it is found<br/>
+  Getting hashes from crack1.hash<br/>
+  Using the dictionary 500_passwords.txt </body></html>

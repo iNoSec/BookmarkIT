@@ -1,0 +1,135 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>LocalSecurityAuthority Domain</title>
+</head><body><a href="https://msdn.microsoft.com/en-us/library/cc234335.aspx">MSDN</a><br/>
+This section contains detailed information about each protocol message and the steps taken by the server to process caller requests.&lt;49&gt;&lt;50&gt;&lt;51&gt;<br/>
+<br/>
+Methods in RPC Opnum Order<br/>
+<br/>
+Method						Description<br/>
+LsarClose						This method closes an open handle.<br/>
+							Opnum: 0<br/>
+Opnum1NotUsedOnWire			Opnum: 1<br/>
+LsarEnumeratePrivileges			This method is invoked to enumerate all privileges known to the system.<br/>
+							Opnum: 2<br/>
+LsarQuerySecurityObject			This method is invoked to query security information that is assigned to a database object. It returns the security descriptor of the object.<br/>
+							Opnum: 3<br/>
+LsarSetSecurityObject			This method is invoked to set a security descriptor on an object.<br/>
+							Opnum: 4<br/>
+Opnum5NotUsedOnWire			Opnum: 5<br/>
+LsarOpenPolicy					This method is exactly the same as LsarOpenPolicy2, except that the SystemName parameter in this function, because of its syntactic definition, contains only one character instead of a full string.<br/>
+							Opnum: 6<br/>
+LsarQueryInformationPolicy		This method is invoked to query values representing the server's information policy.<br/>
+							Opnum: 7<br/>
+LsarSetInformationPolicy			This method is invoked to set some policy on the server.<br/>
+							Opnum: 8<br/>
+Opnum9NotUsedOnWire			Opnum: 9<br/>
+LsarCreateAccount				This method is invoked to create a new account object in the server's database.<br/>
+							Opnum: 10<br/>
+LsarEnumerateAccounts			This method is invoked to request a list of account objects in the server's database.<br/>
+							Opnum: 11<br/>
+LsarCreateTrustedDomain			This method is invoked to create an object of type trusted domain in the server's database.<br/>
+							Opnum: 12<br/>
+LsarEnumerateTrustedDomains		This method is invoked to request a list of TDOs in the server's database.<br/>
+							Opnum: 13<br/>
+Lsar_LSA_TM_14				Opnum: 14<br/>
+Lsar_LSA_TM_15				Opnum: 15<br/>
+LsarCreateSecret				This method is invoked to create a new secret object in the server's database.<br/>
+							Opnum: 16<br/>
+LsarOpenAccount				This method is invoked to obtain a handle to an account object.<br/>
+							Opnum: 17<br/>
+LsarEnumeratePrivilegesAccount	This method is invoked to retrieve a list of privileges granted to an account on the server.<br/>
+							Opnum: 18<br/>
+LsarAddPrivilegesToAccount		This method is invoked to add new privileges to an existing account object.<br/>
+							Opnum: 19<br/>
+LsarRemovePrivilegesFromAccount	This method is invoked to remove privileges from an account object.<br/>
+							Opnum: 20<br/>
+Opnum21NotUsedOnWire			Opnum: 21<br/>
+Opnum22NotUsedOnWire			Opnum: 22<br/>
+LsarGetSystemAccessAccount		This method is invoked to retrieve system access account flags for an account object.<br/>
+							Opnum: 23<br/>
+LsarSetSystemAccessAccount		This method is invoked to set system access account flags for an account object.<br/>
+							Opnum: 24<br/>
+LsarOpenTrustedDomain			This method is invoked to obtain a handle to a TDO.<br/>
+							Opnum: 25<br/>
+LsarQueryInfoTrustedDomain		This method is invoked to retrieve information on a TDO.<br/>
+							Opnum: 26<br/>
+LsarSetInformationTrustedDomain	This method is invoked to set information on a TDO.<br/>
+							Opnum: 27<br/>
+LsarOpenSecret				This method is invoked to obtain a handle to an existing secret object.<br/>
+							Opnum: 28<br/>
+LsarSetSecret					This method is invoked to set the current and old values of the secret object.<br/>
+							Opnum: 29<br/>
+LsarQuerySecret				This method is invoked to retrieve the current and old (or previous) value of the secret object.<br/>
+							Opnum: 30<br/>
+LsarLookupPrivilegeValue			This method is invoked to map the name of a privilege into the LUID by which the privilege is known on the server.<br/>
+							Opnum: 31<br/>
+LsarLookupPrivilegeName			This method is invoked to map the LUID of a privilege into the string name by which the privilege is known on the server.<br/>
+							Opnum: 32<br/>
+LsarLookupPrivilegeDisplayName	This method is invoked to map the name of a privilege into a display text string in the caller's language.<br/>
+							Opnum: 33<br/>
+LsarDeleteObject				This method is invoked to delete an open account, secret, or TDO.<br/>
+							Opnum: 34<br/>
+LsarEnumerateAccountsWithUserRight	This method is invoked to return a list of account objects that have the user right equal to the passed-in value.<br/>
+								Opnum: 35<br/>
+LsarEnumerateAccountRights			This method is invoked to retrieve a list of rights that are associated with an existing account.<br/>
+								Opnum: 36<br/>
+LsarAddAccountRights		This method is invoked to add new rights to an account object.<br/>
+						Opnum: 37<br/>
+LsarRemoveAccountRights		This method is invoked to remove rights from an account object.<br/>
+						Opnum: 38<br/>
+LsarQueryTrustedDomainInfo	This method is invoked to retrieve information on a TDO.<br/>
+						Opnum: 39<br/>
+LsarSetTrustedDomainInfo		This method is invoked to set information on a TDO.<br/>
+						Opnum: 40<br/>
+LsarDeleteTrustedDomain		This method is invoked to delete a TDO.<br/>
+						Opnum: 41<br/>
+LsarStorePrivateData			This method is invoked to store a secret value.<br/>
+						Opnum: 42<br/>
+LsarRetrievePrivateData		This method is invoked to retrieve a secret value.<br/>
+						Opnum: 43<br/>
+LsarOpenPolicy2			This method opens a context handle to the RPC server.<br/>
+						Opnum: 44<br/>
+Lsar_LSA_TM_45			Opnum: 45<br/>
+LsarQueryInformationPolicy2	This method is identical to LsarQueryInformationPolicy.<br/>
+						Opnum: 46<br/>
+LsarSetInformationPolicy2		This method is identical to LsarSetInformationPolicy.<br/>
+						Opnum: 47<br/>
+LsarQueryTrustedDomainInfoByName	This method is invoked to retrieve information on a TDO by its string name.<br/>
+							Opnum: 48<br/>
+LsarSetTrustedDomainInfoByName	This method is invoked to set information on a TDO by its string name.<br/>
+							Opnum: 49<br/>
+LsarEnumerateTrustedDomainsEx	This method is invoked to enumerate TDOs in the server's database.<br/>
+							Opnum: 50<br/>
+LsarCreateTrustedDomainEx		This method is invoked to create a new TDO.<br/>
+							Opnum: 51<br/>
+Opnum52NotUsedOnWire			Opnum: 52<br/>
+LsarQueryDomainInformationPolicy	This method is invoked to retrieve policy settings pertaining to the current domain.<br/>
+							Opnum: 53<br/>
+LsarSetDomainInformationPolicy		This method is invoked to change policy settings pertaining to the current domain.<br/>
+							Opnum: 54<br/>
+LsarOpenTrustedDomainByName	This method is invoked to open a TDO handle by supplying the name of the trusted domain.<br/>
+							Opnum: 55<br/>
+Opnum56NotUsedOnWire			Opnum: 56<br/>
+Lsar_LSA_TM_57				Opnum: 57<br/>
+Lsar_LSA_TM_58				Opnum: 58<br/>
+LsarCreateTrustedDomainEx2		This method is invoked to create a new TDO.<br/>
+							Opnum: 59<br/>
+Opnum60NotUsedOnWire			Opnum: 60<br/>
+Opnum61NotUsedOnWire			Opnum: 61<br/>
+Opnum62NotUsedOnWire			Opnum: 62<br/>
+Opnum63NotUsedOnWire			Opnum: 63<br/>
+Opnum64NotUsedOnWire			Opnum: 64<br/>
+Opnum65NotUsedOnWire			Opnum: 65<br/>
+Opnum66NotUsedOnWire			Opnum: 66<br/>
+Opnum67NotUsedOnWire			Opnum: 67<br/>
+Lsar_LSA_TM_68				Opnum: 68<br/>
+Opnum69NotUsedOnWire			Opnum: 69<br/>
+Opnum70NotUsedOnWire			Opnum: 70<br/>
+Opnum71NotUsedOnWire			Opnum: 71<br/>
+Opnum72NotUsedOnWire			Opnum: 72<br/>
+LsarQueryForestTrustInformation	This method is invoked to retrieve information on a trust relationship with another forest.<br/>
+							Opnum: 73<br/>
+LsarSetForestTrustInformation		This method is invoked to establish a trust relationship with another forest by attaching a set of records called the forest trust information to the TDO.<br/>
+							Opnum: 74</body></html>

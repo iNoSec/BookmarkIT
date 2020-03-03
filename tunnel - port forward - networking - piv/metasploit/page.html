@@ -1,0 +1,17 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Metasploit</title>
+</head><body>Autoroute: Tools &gt; Frameworks &gt; Metasploit &gt; <a href="../../tools/frameworks/metasploit/pivot%20-%20tunnel/autoroute/page.html">Autoroute</a><br/>
+PortForward: Tools &gt; Frameworks &gt; Metasploit &gt; <a href="../../tools/frameworks/metasploit/pivot%20-%20tunnel/portfwd/page.html">Portfwd</a><br/>
+Route: Tools &gt; Frameworks &gt; Metasploit &gt; <a href="../../tools/frameworks/metasploit/pivot%20-%20tunnel/route/page.html">Route</a><br/>
+SOCKS: See Tools &gt; Frameworks &gt; Metasploit &gt; <a href="../../tools/frameworks/metasploit/pivot%20-%20tunnel/socks4a/page.html">socks4a</a><br/>
+<br/>
+Possible to set all of msfconsole to use proxychains SOCKS with external proxy?<br/>
+Metasploit<br/>
+You may also tunnel Metasploit® Framework exploits and modules through Beacon. Create a Beacon SOCKS proxy server [as described above] and paste the following into your Metasploit® Framework console:<br/>
+<br/>
+setg Proxies socks4:team server IP:proxy port <br/>
+setg ReverseAllowProxy true<br/>
+<br/>
+These commands will instruct the Metasploit® Framework to apply your Proxies option to all modules executed from this point forward. Once you’re done pivoting through Beacon in this way, use unsetg Proxies to stop this behavior.</body></html>

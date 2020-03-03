@@ -1,0 +1,76 @@
+<!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<title>SMBRelayX</title>
+</head><body>smbrelayx.py<br/>
+<br/>
+This module performs the SMB Relay attacks originally discovered by cDc. It receives a list of targets and for every connection received it will choose the next target and try to relay the credentials. Also, if specified, it will first to try authenticate against the client connecting to us.<br/>
+It is implemented by invoking a SMB and HTTP Server, hooking to a few functions and then using the smbclient portion. It is supposed to be working on any LM Compatibility level. The only way to stop this attack is to enforce on the server SPN checks and or signing. If the authentication against the targets succeed, the client authentication success as well and a valid connection is set against the local smbserver. It's up to the user to set up the local smbserver functionality. One option is to set up shares with whatever files you want to the victim thinks it's connected to a valid SMB server. All that is done through the smb.conf file or programmatically.<br/>
+<br/>
+# Description:<br/>
+#       This module performs the SMB Relay attacks originally discovered<br/>
+# by cDc. It receives a list of targets and for every connection received it <br/>
+# will choose the next target and try to relay the credentials. Also, if<br/>
+# specified, it will first to try authenticate against the client connecting <br/>
+# to us.<br/>
+# <br/>
+# It is implemented by invoking a SMB and HTTP Server, hooking to a few <br/>
+# functions and then using the smbclient portion. It is supposed to be <br/>
+# working on any LM Compatibility level. The only way to stop this attack <br/>
+# is to enforce on the server SPN checks and or signing.<br/>
+# <br/>
+# If the target system is enforcing signing and a machine account was provided, <br/>
+# the module will try to gather the SMB session key through <br/>
+# NETLOGON (CVE-2015-0005)<br/>
+#<br/>
+# If the authentication against the targets succeed, the client authentication <br/>
+# success as well and a valid connection is set against the local smbserver. <br/>
+# It's up to the user to set up the local smbserver functionality. One option <br/>
+# is to set up shares with whatever files you want to the victim thinks it's <br/>
+# connected to a valid SMB server. All that is done through the smb.conf file or <br/>
+# programmatically.<br/>
+<br/>
+usage: smbrelayx.py [--help] [-debug] [-h HOST]<br/>
+          [-s {logon_failure,success,denied}] [-e FILE] [-c COMMAND]<br/>
+          [-socks] [-one-shot] [-codec CODEC]<br/>
+          [-outputfile OUTPUTFILE]<br/>
+          [-machine-account MACHINE_ACCOUNT]<br/>
+          [-machine-hashes LMHASH:NTHASH] [-domain DOMAIN]<br/>
+<br/>
+For every connection received, this module will try to SMB relay that<br/>
+connection to the target system or the original client<br/>
+<br/>
+optional arguments:<br/>
+ --help        show this help message and exit<br/>
+ -debug        Turn DEBUG output ON<br/>
+ -h HOST        Host to relay the credentials to, if not it will relay<br/>
+            it back to the client<br/>
+ -s {logon_failure,success,denied}<br/>
+            Status to return after client performed<br/>
+            authentication. Default: &quot;success&quot;.<br/>
+ -e FILE        File to execute on the target system. If not<br/>
+            specified, hashes will be dumped (secretsdump.py must<br/>
+            be in the same directory)<br/>
+ -c COMMAND      Command to execute on target system. If not specified,<br/>
+            hashes will be dumped (secretsdump.py must be in the<br/>
+            same directory)<br/>
+ -socks        Launch a SOCKS proxy for the connection relayed<br/>
+ -one-shot       After successful authentication, only execute the<br/>
+            attack once for each target<br/>
+ -codec CODEC     Sets encoding used (codec) from the target's output<br/>
+            (default &quot;ascii&quot;). If errors are detected, run<br/>
+            chcp.com at the target, map the result with<br/>
+            https://docs.python.org/2.4/lib/standard-<br/>
+            encodings.html and then execute wmiexec.py again with<br/>
+            -codec and the corresponding codec<br/>
+ -outputfile OUTPUTFILE<br/>
+            base output filename for encrypted hashes. Suffixes<br/>
+            will be added for ntlm and ntlmv2<br/>
+ -machine-account MACHINE_ACCOUNT<br/>
+            Domain machine account to use when interacting with<br/>
+            the domain to grab a session key for signing, format<br/>
+            is domain/machine_name<br/>
+ -machine-hashes LMHASH:NTHASH<br/>
+            Domain machine hashes, format is LMHASH:NTHASH<br/>
+ -domain DOMAIN    Domain FQDN or IP to connect using NETLOGON<br/>
+</body></html>
